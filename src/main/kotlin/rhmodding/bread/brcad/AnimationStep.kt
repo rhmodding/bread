@@ -20,6 +20,6 @@ class AnimationStep {
     var unknown5: Byte = 0
 
     override fun toString(): String {
-        return "AnimationStep=[spriteIndex=$spriteIndex, speed=$delay, stretch=[$stretchX, $stretchY], opacity=$opacity]"
+        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], opacity=$opacity]"
     }
 }
