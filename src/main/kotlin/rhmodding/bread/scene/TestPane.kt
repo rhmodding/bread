@@ -10,6 +10,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 
+@ExperimentalUnsignedTypes
 class TestPane : BorderPane() {
     init {
         center = Button("Open BRCAD").apply {
@@ -20,7 +21,10 @@ class TestPane : BorderPane() {
                     initialDirectory = File(System.getProperty("user.home")).resolve("Desktop/")
                 }.showOpenDialog(null)
                 if (file != null) {
-                    Bread.LOGGER.debug(BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)).toString())
+                    val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)
+                    val brcad = BRCAD.read(readBytes)
+                    Bread.LOGGER.debug(brcad.toString())
+                    Bread.LOGGER.debug(brcad.toBytes().equals(readBytes))
                 }
             }
         }

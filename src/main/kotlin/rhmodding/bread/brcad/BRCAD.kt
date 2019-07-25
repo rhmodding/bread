@@ -100,7 +100,7 @@ class BRCAD {
         }
     }
 
-    fun write(): ByteBuffer {
+    fun toBytes(): ByteBuffer {
         // Compute the size of the buffer
         // Header: 16 bytes
         // Sprite counts: 4 bytes
@@ -130,7 +130,7 @@ class BRCAD {
                 buffer.putShort(part.posX).putShort(part.posY)
                 buffer.putFloat(part.stretchX).putFloat(part.stretchY)
                 buffer.putFloat(part.rotation)
-                buffer.put(if (part.reflectX) 1 else 0).put(if (part.reflectY) 1 else 0)
+                buffer.put((if (part.reflectX) 1 else 0).toByte()).put((if (part.reflectY) 1 else 0).toByte())
                 buffer.put(part.opacity.toByte())
                 buffer.put(part.unknownLast)
             }
