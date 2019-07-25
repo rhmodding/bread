@@ -1,6 +1,7 @@
 package rhmodding.bread.brcad
 
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 
 @ExperimentalUnsignedTypes
@@ -97,6 +98,60 @@ class BRCAD {
                 }
             }
         }
+    }
+
+    fun write(): ByteBuffer {
+        // Compute the size of the buffer
+        // Header: 16 bytes
+        // Sprite counts: 4 bytes
+        // For each sprite:
+        //   Part count: 4 bytes
+        //   For each part: 32 bytes
+        // Animation counts: 4 bytes
+        // For each animation:
+        //   Step count: 4 bytes
+        //   For each step: 24 bytes
+
+        val size = 16 + 4 + (4 * sprites.size + (sprites.sumBy { it.parts.size } * 32)) + 4 + (4 * animations.size + (animations.sumBy { it.steps.size } * 24))
+        val buffer: ByteBuffer = ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN)
+
+        // Header
+        buffer.putInt(HEADER_MAGIC).putInt(0x0)
+        buffer.putShort(spritesheetNumber.toShort()).putShort(spritesheetControlWord2.toShort())
+        buffer.putShort(width.toShort()).putShort(height.toShort())
+
+        // Sprites
+        buffer.putShort(sprites.size.toShort()).putShort(unknownAfterSpriteCount)
+        sprites.forEach { sprite ->
+            buffer.putShort(sprite.parts.size.toShort()).putShort(sprite.unknown)
+            sprite.parts.forEach { part ->
+                buffer.putShort(part.regionX.toShort()).putShort(part.regionY.toShort()).putShort(part.regionW.toShort()).putShort(part.regionH.toShort())
+                buffer.putInt(part.unknown)
+                buffer.putShort(part.posX).putShort(part.posY)
+                buffer.putFloat(part.stretchX).putFloat(part.stretchY)
+                buffer.putFloat(part.rotation)
+                buffer.put(if (part.reflectX) 1 else 0).put(if (part.reflectY) 1 else 0)
+                buffer.put(part.opacity.toByte())
+                buffer.put(part.unknownLast)
+            }
+        }
+
+        // Animations
+        buffer.putShort(animations.size.toShort()).putShort(unknownAfterAnimationCount)
+        animations.forEach { ani ->
+            buffer.putShort(ani.steps.size.toShort()).putShort(ani.unknown)
+            ani.steps.forEach { step ->
+                buffer.putShort(step.spriteIndex.toShort())
+                buffer.putShort(step.delay.toShort())
+                buffer.putInt(step.unknown1)
+                buffer.putFloat(step.stretchX).putFloat(step.stretchY)
+                buffer.putInt(step.unknown2)
+                buffer.put(step.opacity.toByte())
+                buffer.put(step.unknown3).put(step.unknown4).put(step.unknown5)
+            }
+        }
+
+        return buffer
     }
 
     override fun toString(): String {
