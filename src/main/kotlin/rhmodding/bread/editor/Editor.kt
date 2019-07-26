@@ -7,6 +7,8 @@ import javafx.scene.control.TabPane
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.transform.Affine
+import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
@@ -29,6 +31,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
         styleClass += "vbox"
     }
     val canvas: Canvas = Canvas(512.0, 512.0)
+    var zoomFactor: Double = 1.0
     
     init {
         stylesheets += "style/editor.css"
@@ -62,6 +65,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
     
     fun drawCheckerBackground() {
         val g = canvas.graphicsContext2D
+        g.save()
+        g.transform(getZoomTransformation())
         g.clearRect(0.0, 0.0, canvas.width, canvas.height)
         val blockSize = 16.0
         for (x in 0..(canvas.width / blockSize).toInt()) {
@@ -81,7 +86,10 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
         g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
         g.fill = Color(0.0, 0.0, 1.0, 0.5)
         g.fillRect(0.0, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
+        g.restore()
     }
+    
+    fun getZoomTransformation(): Affine = Affine(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
     
     open fun drawSprite(sprite: ISprite, selectedPart: Int = -1) {
         val g = canvas.graphicsContext2D
@@ -89,7 +97,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
         for (part in sprite.parts) {
             val subImg = part.createFXSubimage(img)
             g.save()
-            // TODO zoom factor
+            g.transform(getZoomTransformation())
             part.transform(canvas, g)
             g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
             g.restore()
@@ -97,7 +105,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
         val part = sprite.parts.getOrNull(selectedPart)
         if (part != null) {
             g.save()
-            // TODO zoom factor
+            g.transform(getZoomTransformation())
             part.transform(canvas, g)
             g.globalAlpha = 1.0
             g.stroke = Color.RED
