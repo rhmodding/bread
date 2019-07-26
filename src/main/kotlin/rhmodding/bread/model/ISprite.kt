@@ -10,6 +10,8 @@ interface ISprite {
     
     val parts: MutableList<out ISpritePart>
     
+    fun copy(): ISprite
+    
 }
 
 interface ISpritePart {
@@ -31,6 +33,8 @@ interface ISpritePart {
     var flipY: Boolean
     
     var opacity: UByte
+    
+    fun copy(): ISpritePart
     
     fun transform(canvas: Canvas, g: GraphicsContext)
     

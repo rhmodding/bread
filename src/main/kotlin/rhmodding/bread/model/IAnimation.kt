@@ -2,7 +2,11 @@ package rhmodding.bread.model
 
 
 interface IAnimation {
+    
     val steps: MutableList<out IAnimationStep>
+    
+    fun copy(): IAnimation
+    
 }
 
 interface IAnimationStep {
@@ -14,5 +18,7 @@ interface IAnimationStep {
     var stretchY: Float
 
     var opacity: UByte
+    
+    fun copy(): IAnimationStep
 
 }

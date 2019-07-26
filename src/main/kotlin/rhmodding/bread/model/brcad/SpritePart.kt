@@ -41,6 +41,25 @@ class SpritePart : ISpritePart {
     @Unknown
     var unknownLast: Byte = 0
     
+    override fun copy(): SpritePart {
+        return SpritePart().also {
+            it.regionX = regionX
+            it.regionY = regionY
+            it.regionW = regionW
+            it.regionH = regionH
+            it.unknown = unknown
+            it.posX = posX
+            it.posY = posY
+            it.stretchX = stretchX
+            it.stretchY = stretchY
+            it.rotation = rotation
+            it.flipX = flipX
+            it.flipY= flipY
+            it.opacity = opacity
+            it.unknownLast = unknownLast
+        }
+    }
+    
     override fun transform(canvas: Canvas, g: GraphicsContext) {
         g.globalAlpha *= opacity.toInt() / 255.0
         g.transform(Affine().apply {
