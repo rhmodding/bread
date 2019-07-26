@@ -10,8 +10,7 @@ import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
 import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
-import rhmodding.bread.model.IDataModel
-import rhmodding.bread.model.ISprite
+import rhmodding.bread.model.*
 import java.awt.image.BufferedImage
 import java.io.File
 import kotlin.math.absoluteValue
@@ -19,6 +18,12 @@ import kotlin.math.absoluteValue
 
 abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val data: F, val texture: BufferedImage)
     : BorderPane() {
+    
+    val canvasPane: VBox = VBox().apply {
+        styleClass += "vbox"
+    }
+    val canvas: Canvas = Canvas(512.0, 512.0)
+    var zoomFactor: Double = 1.0
     
     val splitPane: SplitPane = SplitPane()
     
@@ -28,11 +33,6 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     val spritesTab: SpritesTab<F> = SpritesTab(this)
     val animationsTab: AnimationsTab<F> = AnimationsTab(this)
     
-    val canvasPane: VBox = VBox().apply {
-        styleClass += "vbox"
-    }
-    val canvas: Canvas = Canvas(512.0, 512.0)
-    var zoomFactor: Double = 1.0
     
     init {
         stylesheets += "style/editor.css"
@@ -116,5 +116,18 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             g.restore()
         }
     }
+    
+    abstract fun addSprite(sprite: ISprite)
+    abstract fun removeSprite(sprite: ISprite)
+    abstract fun addSpritePart(sprite: ISprite, part: ISpritePart)
+    abstract fun removeSpritePart(sprite: ISprite, part: ISpritePart)
+    abstract fun addAnimation(animation: IAnimation)
+    abstract fun removeAnimation(animation: IAnimation)
+    abstract fun addAnimationStep(animation: IAnimation, animationStep: IAnimationStep)
+    abstract fun removeAnimationStep(animation: IAnimation, animationStep: IAnimationStep)
+    abstract fun createSprite(): ISprite
+    abstract fun createSpritePart(): ISpritePart
+    abstract fun createAnimation(): IAnimation
+    abstract fun createAnimationStep(): IAnimationStep
     
 }

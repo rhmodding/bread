@@ -183,7 +183,6 @@ class MainPane(val app: Bread) : BorderPane() {
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
-                println(editor.data) // FIXME
                 return true
             }
             else -> return false
