@@ -13,10 +13,11 @@ import rhmodding.bread.Bread
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
 import java.awt.image.BufferedImage
+import java.io.File
 import kotlin.math.absoluteValue
 
 
-abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: BufferedImage)
+abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val data: F, val texture: BufferedImage)
     : BorderPane() {
     
     val splitPane: SplitPane = SplitPane()
@@ -50,6 +51,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val data: F, val texture: 
             repaintCanvas()
         }
     }
+    
+    abstract fun saveData(file: File)
     
     fun repaintCanvas() {
         drawCheckerBackground()

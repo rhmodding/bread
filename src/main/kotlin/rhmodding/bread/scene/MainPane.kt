@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import rhmodding.bread.Bread
 import rhmodding.bread.editor.BRCADEditor
+import rhmodding.bread.editor.Editor
 import rhmodding.bread.model.brcad.BRCAD
 import java.io.File
 import java.nio.ByteBuffer
@@ -20,29 +21,29 @@ import javax.imageio.ImageIO
 
 @ExperimentalUnsignedTypes
 class MainPane(val app: Bread) : BorderPane() {
-
+    
     val toolbar: MenuBar = MenuBar()
     val centrePane: StackPane = StackPane()
     val tabPane: TabPane = TabPane()
     val bottomPane: VBox = VBox()
-
+    
     val noTabsLabel: Label = Label("Open a file in\nFile > Open...").apply {
         id = "no-tabs-label"
     }
-
+    
     init {
         stylesheets += "style/mainPane.css"
-
+        
         top = toolbar
         center = centrePane
         bottom = bottomPane
-
+        
         centrePane.children += tabPane
         centrePane.children += noTabsLabel
         val noTabsLabelVisible = Bindings.isEmpty(tabPane.tabs)
         noTabsLabel.visibleProperty().bind(noTabsLabelVisible)
         noTabsLabel.managedProperty().bind(noTabsLabelVisible)
-
+        
         toolbar.menus += Menu("File").apply {
             items += MenuItem("Open...").apply {
                 accelerator = KeyCombination.keyCombination("Shortcut+O")
@@ -52,7 +53,7 @@ class MainPane(val app: Bread) : BorderPane() {
                         extensionFilters.add(FileChooser.ExtensionFilter("BRCAD", "*.brcad"))
                         initialDirectory = File(app.settings.dataFileDirectory.value)
                     }
-
+                    
                     val file = fc.showOpenDialog(null)
                     if (file != null) {
                         if (handleDataFileChoosing(file)) {
@@ -64,22 +65,37 @@ class MainPane(val app: Bread) : BorderPane() {
             }
             items += MenuItem("Save").apply {
                 accelerator = KeyCombination.keyCombination("Shortcut+S")
-            }
-            items += MenuItem("Save As...").apply {
-                accelerator = KeyCombination.keyCombination("Shortcut+Shift+S")
+                setOnAction {
+                    if (tabPane.tabs.isNotEmpty()) {
+                        val currentTab = tabPane.selectionModel.selectedItem
+                        if (currentTab is EditorTab<*>) {
+                            val dataFile = currentTab.editor.dataFile
+                            val fc = FileChooser().apply {
+                                title = "Choose a save location"
+                                extensionFilters.add(FileChooser.ExtensionFilter(dataFile.extension.toUpperCase(), "*.${dataFile.extension}"))
+                                initialDirectory = dataFile.parentFile
+                                initialFileName = dataFile.name
+                            }
+                            val file = fc.showSaveDialog(null)
+                            if (file != null) {
+                                currentTab.editor.saveData(file)
+                            }
+                        }
+                    }
+                }
             }
         }
 //        toolbar.menus += Menu("About")
-
+        
         tabPane.side = Side.TOP
     }
-
+    
     fun handleDataFileChoosing(file: File): Boolean {
         when (file.extension) {
             "brcad" -> {
                 val dir = file.parentFile
                 val filesInDir = dir.listFiles()?.toList() ?: error("Data file's parent is not a directory")
-
+                
                 // Attempt to find the texture file. If there is only one PNG file then suggest to use it. Otherwise, ask where the texture file is.
                 val pngFiles = filesInDir.filter { it.extension == "png" }
                 var textureFile: File? = null
@@ -94,7 +110,7 @@ class MainPane(val app: Bread) : BorderPane() {
                         title = "Use suggested file?"
                         headerText = "Use the suggested texture file?"
                         contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
-
+                        
                         buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
                     }
                     val alertResult: Optional<ButtonType> = alert.showAndWait()
@@ -120,7 +136,7 @@ class MainPane(val app: Bread) : BorderPane() {
                         textureFile = f
                     } else return false
                 }
-
+                
                 // Attempt to find the C header file. If there is only one .h file then suggest to use it. Otherwise, ask where the header file is.
                 val headerFiles = filesInDir.filter { it.extension == "h" }
                 var headerFile: File? = null
@@ -135,7 +151,7 @@ class MainPane(val app: Bread) : BorderPane() {
                         title = "Use suggested file?"
                         headerText = "Use the suggested header file?"
                         contentText = "We found a header file (.h) in this directory,\n${suggested.name}.\nDo you want to select it?"
-
+                        
                         buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
                     }
                     val alertResult: Optional<ButtonType> = alert.showAndWait()
@@ -161,10 +177,10 @@ class MainPane(val app: Bread) : BorderPane() {
                         headerFile = f
                     } else return false
                 }
-
+                
                 // Open BRCADEditor tab
-                val editor = BRCADEditor(app, BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)), ImageIO.read(textureFile), headerFile)
-                val newTab = Tab(file.name, editor)
+                val editor = BRCADEditor(app, file, BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)), ImageIO.read(textureFile), headerFile)
+                val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
                 return true
@@ -172,5 +188,7 @@ class MainPane(val app: Bread) : BorderPane() {
             else -> return false
         }
     }
-
+    
+    class EditorTab<E : Editor<*>>(title: String, val editor: E) : Tab(title, editor)
+    
 }
