@@ -1,12 +1,14 @@
-package rhmodding.bread.brcad
+package rhmodding.bread.model.brcad
+
+import rhmodding.bread.model.IAnimation
 
 
 @ExperimentalUnsignedTypes
-class Animation {
+class Animation : IAnimation {
 
     @Unknown
     var unknown: Short = 0
-    val steps: MutableList<AnimationStep> = mutableListOf()
+    override val steps: MutableList<AnimationStep> = mutableListOf()
 
     override fun toString(): String {
         return "Animation=[numSteps=${steps.size}, steps=[${steps.joinToString(separator = "\n")}]]"

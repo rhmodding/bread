@@ -1,11 +1,12 @@
-package rhmodding.bread.brcad
+package rhmodding.bread.model.brcad
 
+import rhmodding.bread.model.IDataModel
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 
 @ExperimentalUnsignedTypes
-class BRCAD {
+class BRCAD : IDataModel {
 
     var spritesheetNumber: UShort = 0u
     @Unknown
@@ -18,8 +19,8 @@ class BRCAD {
     @Unknown
     var unknownAfterAnimationCount: Short = 0
 
-    val sprites: MutableList<Sprite> = mutableListOf()
-    val animations: MutableList<Animation> = mutableListOf()
+    override val sprites: MutableList<Sprite> = mutableListOf()
+    override val animations: MutableList<Animation> = mutableListOf()
 
     companion object {
         const val HEADER_MAGIC: Int = 0x0132B4D8
@@ -60,8 +61,8 @@ class BRCAD {
                                 stretchX = bytes.float
                                 stretchY = bytes.float
                                 rotation = bytes.float
-                                reflectX = bytes.get() != 0.toByte()
-                                reflectY = bytes.get() != 0.toByte()
+                                flipX = bytes.get() != 0.toByte()
+                                flipY = bytes.get() != 0.toByte()
                                 opacity = bytes.get().toUByte()
                                 unknownLast = bytes.get()
                             }
@@ -130,7 +131,7 @@ class BRCAD {
                 buffer.putShort(part.posX).putShort(part.posY)
                 buffer.putFloat(part.stretchX).putFloat(part.stretchY)
                 buffer.putFloat(part.rotation)
-                buffer.put((if (part.reflectX) 1 else 0).toByte()).put((if (part.reflectY) 1 else 0).toByte())
+                buffer.put((if (part.flipX) 1 else 0).toByte()).put((if (part.flipY) 1 else 0).toByte())
                 buffer.put(part.opacity.toByte())
                 buffer.put(part.unknownLast)
             }

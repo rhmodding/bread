@@ -9,7 +9,7 @@ import javafx.scene.image.Image
 import javafx.stage.Stage
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import rhmodding.bread.scene.TestPane
+import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.ExceptionAlert
 import rhmodding.bread.util.Version
 import rhmodding.bread.util.addDebugAccelerators
@@ -45,7 +45,7 @@ class Bread : Application() {
         primaryStage.title = "$TITLE $VERSION"
         primaryStage.icons.addAll(windowIcons)
 
-        val scene = Scene(TestPane(), 800.0, 600.0).apply {
+        val scene = Scene(MainPane(this), 960.0, 720.0).apply {
             addDebugAccelerators()
             addBaseStyleToScene(this)
         }

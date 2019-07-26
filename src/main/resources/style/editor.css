@@ -1,0 +1,25 @@
+.vbox {
+    -fx-spacing: 0.25em;
+    -fx-padding: 0.25em;
+}
+
+.hbox {
+    -fx-spacing: 0.33333em;
+}
+
+.spinner {
+    -fx-pref-width: 8.0em;
+}
+
+.long-spinner {
+    -fx-pref-width: 12.0em;
+}
+
+.header {
+    -fx-underline: true;
+}
+
+.separator:horizontal {
+    -fx-pref-width: 1024.0em;
+}
+

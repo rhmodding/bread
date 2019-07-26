@@ -1,16 +1,18 @@
-package rhmodding.bread.brcad
+package rhmodding.bread.model.brcad
+
+import rhmodding.bread.model.IAnimationStep
 
 @ExperimentalUnsignedTypes
-class AnimationStep {
-    var spriteIndex: UShort = 0u
-    var delay: UShort = 1u
+class AnimationStep : IAnimationStep {
+    override var spriteIndex: UShort = 0u
+    override var delay: UShort = 1u
     @Unknown
     var unknown1: Int = 0
-    var stretchX: Float = 1f
-    var stretchY: Float = 1f
+    override var stretchX: Float = 1f
+    override var stretchY: Float = 1f
     @Unknown
     var unknown2: Int = 0
-    var opacity: UByte = 255u
+    override var opacity: UByte = 255u
 
     @Unknown
     var unknown3: Byte = 0

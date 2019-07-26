@@ -4,7 +4,7 @@ import javafx.scene.control.Button
 import javafx.scene.layout.BorderPane
 import javafx.stage.FileChooser
 import rhmodding.bread.Bread
-import rhmodding.bread.brcad.BRCAD
+import rhmodding.bread.model.brcad.BRCAD
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

@@ -1,6 +1,7 @@
 package rhmodding.bread
 
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
 import rhmodding.bread.util.JsonHandler
 import java.io.File
 
@@ -15,6 +16,8 @@ class Settings(val app: Bread) {
     var nightMode: Boolean
         get() = nightModeProperty.value
         set(value) = nightModeProperty.set(value)
+    val defaultDataFileDirectory: String = File(System.getProperty("user.home")).resolve("Desktop/").absolutePath
+    val dataFileDirectory = SimpleStringProperty(defaultDataFileDirectory)
 //    val richPresenceProperty = SimpleBooleanProperty(true)
 //    var richPresence: Boolean
 //        get() = richPresenceProperty.value
@@ -32,6 +35,7 @@ class Settings(val app: Bread) {
             val obj = JsonHandler.OBJECT_MAPPER.readTree(prefsFile)
 
             nightMode = obj["nightMode"]?.asBoolean(false) ?: false
+            dataFileDirectory.set(obj["dataFileDirectory"]?.asText() ?: defaultDataFileDirectory)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -42,6 +46,7 @@ class Settings(val app: Bread) {
         val json = JsonHandler.OBJECT_MAPPER.createObjectNode()
 
         json.put("nightMode", nightMode)
+        json.put("dataFileDirectory", dataFileDirectory.value)
 
         prefsFile.writeText(JsonHandler.OBJECT_MAPPER.writeValueAsString(json))
     }
