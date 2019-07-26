@@ -19,6 +19,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     val body: VBox = VBox().apply {
         styleClass += "vbox"
     }
+    val partVBox: VBox = VBox().apply {
+        styleClass += "vbox"
+    }
     
     val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0)
     val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0)
@@ -43,7 +46,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
         
         spriteSpinner.valueProperty().addListener { _, _, _ ->
             this@SpritesTab.editor.repaintCanvas()
-            (spritePartSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).max = currentSprite.parts.size - 1
+            (spritePartSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                it.max = currentSprite.parts.size - 1
+                it.value = it.value.coerceAtMost(it.max)
+            }
             updateFieldsForPart()
         }
         spritePartSpinner.valueProperty().addListener { _, _, _ ->
@@ -66,129 +72,150 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Button("Add New Sprite")
-                children += Button("Duplicate")
+                children += Button("Add New Sprite").apply {
+                    disableProperty().value = true
+                }
+                children += Button("Duplicate").apply {
+                    disableProperty().value = true
+                }
             }
         }
         body.children += Separator(Orientation.HORIZONTAL)
-        body.children += VBox().apply {
-            styleClass += "vbox"
-            alignment = Pos.CENTER_LEFT
-            children += Label("Sprite Part:").apply {
-                styleClass += "header"
-            }
-            
-            children += HBox().apply {
-                styleClass += "hbox"
+        body.children += partVBox.apply {
+            children += VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Index:")
-                children += spritePartSpinner
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Button("Add New Part")
-                children += Button("Duplicate")
-                children += Button("Remove")
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Button("Move Up")
-                children += Button("Move Down")
-            }
-        }
-        body.children += Separator(Orientation.HORIZONTAL)
+                children += Label("Sprite Part:").apply {
+                    styleClass += "header"
+                }
         
-        posXSpinner.valueProperty().addListener { _, _, n ->
-            currentPart.posX = n.toShort()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        posYSpinner.valueProperty().addListener { _, _, n ->
-            currentPart.posY = n.toShort()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        scaleXSpinner.valueProperty().addListener { _, _, n ->
-            currentPart.stretchX = n.toFloat()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        scaleYSpinner.valueProperty().addListener { _, _, n ->
-            currentPart.stretchY = n.toFloat()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        flipXCheckbox.selectedProperty().addListener { _, _, n ->
-            currentPart.flipX = n
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        flipYCheckbox.selectedProperty().addListener { _, _, n ->
-            currentPart.flipY = n
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        rotationSpinner.valueProperty().addListener { _, _, n ->
-            currentPart.rotation = n.toFloat()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        body.children += VBox().apply {
-            styleClass += "vbox"
-            alignment = Pos.CENTER_LEFT
-            children += Label("Position and Scaling:").apply {
-                styleClass += "header"
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Index:")
+                    children += spritePartSpinner
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Button("Add New Part").apply {
+                        disableProperty().value = true
+                    }
+                    children += Button("Duplicate").apply {
+                        disableProperty().value = true
+                    }
+                    children += Button("Remove").apply {
+                        disableProperty().value = true
+                    }
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Button("Move Up").apply {
+                        disableProperty().value = true
+                    }
+                    children += Button("Move Down").apply {
+                        disableProperty().value = true
+                    }
+                }
             }
-            
-            children += HBox().apply {
-                styleClass += "hbox"
+            children += Separator(Orientation.HORIZONTAL)
+    
+            posXSpinner.valueProperty().addListener { _, _, n ->
+                currentPart.posX = n.toShort()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            posYSpinner.valueProperty().addListener { _, _, n ->
+                currentPart.posY = n.toShort()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            scaleXSpinner.valueProperty().addListener { _, _, n ->
+                currentPart.stretchX = n.toFloat()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            scaleYSpinner.valueProperty().addListener { _, _, n ->
+                currentPart.stretchY = n.toFloat()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            flipXCheckbox.selectedProperty().addListener { _, _, n ->
+                currentPart.flipX = n
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            flipYCheckbox.selectedProperty().addListener { _, _, n ->
+                currentPart.flipY = n
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            rotationSpinner.valueProperty().addListener { _, _, n ->
+                currentPart.rotation = n.toFloat()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            children += VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Position X:")
-                children += posXSpinner
-                children += Label("Y:")
-                children += posYSpinner
+                children += Label("Position and Scaling:").apply {
+                    styleClass += "header"
+                }
+        
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Position X:")
+                    children += posXSpinner
+                    children += Label("Y:")
+                    children += posYSpinner
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Scale X:")
+                    children += scaleXSpinner
+                    children += Label("Y:")
+                    children += scaleYSpinner
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Flip on X-axis:")
+                    children += flipXCheckbox
+                    children += Label("on Y-axis:")
+                    children += flipYCheckbox
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Rotation:")
+                    children += rotationSpinner
+                    children += Label(Typography.degree.toString())
+                }
             }
-            children += HBox().apply {
-                styleClass += "hbox"
+            children += Separator(Orientation.HORIZONTAL)
+            opacitySpinner.valueProperty().addListener { _, _, n ->
+                currentPart.opacity = n.toUByte()
+                this@SpritesTab.editor.repaintCanvas()
+            }
+            children += VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Scale X:")
-                children += scaleXSpinner
-                children += Label("Y:")
-                children += scaleYSpinner
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Flip on X-axis:")
-                children += flipXCheckbox
-                children += Label("on Y-axis:")
-                children += flipYCheckbox
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Rotation:")
-                children += rotationSpinner
-                children += Label(Typography.degree.toString())
-            }
-        }
-        body.children += Separator(Orientation.HORIZONTAL)
-        opacitySpinner.valueProperty().addListener { _, _, n ->
-            currentPart.opacity = n.toUByte()
-            this@SpritesTab.editor.repaintCanvas()
-        }
-        body.children += VBox().apply {
-            styleClass += "vbox"
-            alignment = Pos.CENTER_LEFT
-            children += Label("Graphics:").apply {
-                styleClass += "header"
-            }
-            
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Opacity:")
-                children += opacitySpinner
+                children += Label("Graphics:").apply {
+                    styleClass += "header"
+                }
+        
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Opacity:")
+                    children += opacitySpinner
+                }
             }
         }
     }
     
     open fun updateFieldsForPart() {
+        if (currentSprite.parts.isEmpty()) {
+            partVBox.disableProperty().value = true
+            return
+        }
+        partVBox.disableProperty().value = false
         val part = currentPart
         posXSpinner.valueFactoryProperty().get().value = part.posX.toInt()
         posYSpinner.valueFactoryProperty().get().value = part.posY.toInt()
