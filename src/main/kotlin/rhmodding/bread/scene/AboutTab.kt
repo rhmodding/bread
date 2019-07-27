@@ -14,7 +14,7 @@ class AboutTab(val app: Bread) : Tab("About") {
             styleClass += "vbox"
             alignment = Pos.CENTER
             children += Label("${Bread.TITLE} - A BRCAD editor\n${Bread.VERSION}\n\nDeveloped by chrislo27 and Malalaika\nIcon by garbo111")
-            // TODO put license
+            // TODO put Apache license
         }
     }
     
