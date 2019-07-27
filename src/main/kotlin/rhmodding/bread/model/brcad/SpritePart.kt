@@ -8,6 +8,7 @@ import javafx.scene.transform.Affine
 import javafx.scene.transform.Rotate
 import javafx.scene.transform.Scale
 import rhmodding.bread.model.ISpritePart
+import rhmodding.bread.util.Unknown
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import kotlin.math.absoluteValue

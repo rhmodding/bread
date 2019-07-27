@@ -1,6 +1,7 @@
 package rhmodding.bread.model.brcad
 
 import rhmodding.bread.model.IAnimationStep
+import rhmodding.bread.util.Unknown
 
 @ExperimentalUnsignedTypes
 class AnimationStep : IAnimationStep {

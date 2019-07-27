@@ -1,6 +1,7 @@
 package rhmodding.bread.model.brcad
 
 import rhmodding.bread.model.IAnimation
+import rhmodding.bread.util.Unknown
 
 
 @ExperimentalUnsignedTypes
