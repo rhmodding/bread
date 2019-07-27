@@ -108,6 +108,49 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 children += aniStepSpinner
                 children += numAniStepsLabel
             }
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                
+                fun updateStepSpinners(goToMax: Boolean) {
+                    (aniStepSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                        it.max = (currentAnimation.steps.size - 1).coerceAtLeast(0)
+                        it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                    }
+                    updateFieldsForStep()
+                    editor.repaintCanvas()
+                }
+                
+                children += Button("Add New Step").apply {
+                    setOnAction {
+                        editor.addAnimationStep(currentAnimation, editor.createAnimationStep())
+                        updateStepSpinners(true)
+                    }
+                }
+                children += Button("Duplicate").apply {
+                    setOnAction {
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            editor.addAnimationStep(currentAnimation, currentAnimationStep.copy())
+                            updateStepSpinners(true)
+                        }
+                    }
+                }
+                children += Button("Remove").apply {
+                    setOnAction {
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            val alert = Alert(Alert.AlertType.CONFIRMATION)
+                            editor.app.addBaseStyleToDialog(alert.dialogPane)
+                            alert.title = "Remove this animation step?"
+                            alert.headerText = "Remove this animation step?"
+                            alert.contentText = "Are you sure you want to remove this animation step?\nYou won't be able to undo this action."
+                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                editor.removeAnimationStep(currentAnimation, currentAnimationStep)
+                                updateStepSpinners(false)
+                            }
+                        }
+                    }
+                }
+            }
         }
         body.children += sectionAnimation
         stepSpriteSpinner.valueProperty().addListener { _, _, n ->
