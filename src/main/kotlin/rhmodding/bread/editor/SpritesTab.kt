@@ -19,6 +19,7 @@ import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
+import rhmodding.bread.util.spinnerArrowKeys
 import java.util.*
 import kotlin.math.min
 
@@ -69,6 +70,8 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
             this@SpritesTab.editor.repaintCanvas()
             updateFieldsForPart()
         }
+        spriteSpinner.spinnerArrowKeys()
+        spritePartSpinner.spinnerArrowKeys()
         body.children += VBox().apply {
             styleClass += "vbox"
             alignment = Pos.CENTER_LEFT
@@ -247,6 +250,11 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 currentPart.rotation = n.toFloat()
                 this@SpritesTab.editor.repaintCanvas()
             }
+            posXSpinner.spinnerArrowKeys()
+            posYSpinner.spinnerArrowKeys()
+            scaleXSpinner.spinnerArrowKeys()
+            scaleYSpinner.spinnerArrowKeys()
+            rotationSpinner.spinnerArrowKeys()
             children += partPropertiesVBox.apply {
                 children += VBox().apply {
                     styleClass += "vbox"
@@ -288,6 +296,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                     }
                 }
                 children += Separator(Orientation.HORIZONTAL)
+                opacitySpinner.spinnerArrowKeys()
                 opacitySpinner.valueProperty().addListener { _, _, n ->
                     currentPart.opacity = n.toUByte()
                     this@SpritesTab.editor.repaintCanvas()
@@ -358,6 +367,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         alignment = Pos.CENTER_LEFT
                         children += Label("Region X:")
                         children += intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                            spinnerArrowKeys()
                             valueProperty().addListener { _, _, n ->
                                 copy.regionX = n.toUShort()
                                 repaintSheetCanvas()
@@ -365,6 +375,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         }
                         children += Label("Y:")
                         children += intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                            spinnerArrowKeys()
                             valueProperty().addListener { _, _, n ->
                                 copy.regionY = n.toUShort()
                                 repaintSheetCanvas()
@@ -376,6 +387,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         alignment = Pos.CENTER_LEFT
                         children += Label("Region Width:")
                         children += intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                            spinnerArrowKeys()
                             valueProperty().addListener { _, _, n ->
                                 copy.regionW = n.toUShort()
                                 repaintSheetCanvas()
@@ -383,6 +395,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         }
                         children += Label("Height:")
                         children += intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                            spinnerArrowKeys()
                             valueProperty().addListener { _, _, n ->
                                 copy.regionH = n.toUShort()
                                 repaintSheetCanvas()

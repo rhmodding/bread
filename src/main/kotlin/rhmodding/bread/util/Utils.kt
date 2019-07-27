@@ -1,10 +1,12 @@
 package rhmodding.bread.util
 
+import javafx.event.EventHandler
 import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.MultipleSelectionModel
 import javafx.scene.control.Spinner
 import javafx.scene.control.SpinnerValueFactory
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCombination
 import javafx.scene.text.Font
 import javafx.stage.Stage
@@ -72,6 +74,19 @@ fun intSpinnerFactory(min: Int, max: Int, initial: Int, step: Int = 1): Spinner<
         }
         isEditable = true
     }
+
+fun <T> Spinner<T>.spinnerArrowKeys(): Spinner<T> {
+    if (this.isEditable) {
+        this.editor?.onKeyPressed = EventHandler { evt ->
+            when(evt.code) {
+                KeyCode.UP -> this.increment()
+                KeyCode.DOWN -> this.decrement()
+                else -> {}
+            }
+        }
+    }
+    return this
+}
 
 /**
  * @return true iff there is a selection and the selection is contiguous
