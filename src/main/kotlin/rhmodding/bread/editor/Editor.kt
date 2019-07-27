@@ -101,7 +101,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         }
     }
     
-    fun drawCheckerBackground() {
+    fun drawCheckerBackground(canvas: Canvas = this.canvas, originLines: Boolean = true) {
         val g = canvas.graphicsContext2D
         g.clearRect(0.0, 0.0, canvas.width, canvas.height)
         g.save()
@@ -120,14 +120,16 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         g.restore()
         
         // Origin lines
-        val originLineWidth = 1.0
-        g.fill = Color(1.0, 0.0, 0.0, 0.5)
-        g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
-        g.fill = Color(0.0, 0.0, 1.0, 0.5)
-        g.fillRect(0.0, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
+        if (originLines) {
+            val originLineWidth = 1.0
+            g.fill = Color(1.0, 0.0, 0.0, 0.5)
+            g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
+            g.fill = Color(0.0, 0.0, 1.0, 0.5)
+            g.fillRect(0.0, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
+        }
     }
     
-    fun getZoomTransformation(): Affine = Affine(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
+    fun getZoomTransformation(zoomFactor: Double = this.zoomFactor, canvas: Canvas = this.canvas): Affine = Affine(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
     
     open fun drawSprite(sprite: ISprite, selectedPart: Int = -1) {
         val g = canvas.graphicsContext2D

@@ -1,16 +1,26 @@
 package rhmodding.bread.editor
 
+import javafx.embed.swing.SwingFXUtils
+import javafx.event.EventHandler
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.Group
+import javafx.scene.Scene
+import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
+import javafx.stage.Modality
+import javafx.stage.Stage
+import rhmodding.bread.Bread
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
 import java.util.*
+import kotlin.math.min
 
 
 open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
@@ -137,10 +147,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         editor.repaintCanvas()
                     }
                     addNewSpritePartButton = Button("Add New Part").apply {
-                        disableProperty().value = true
                         setOnAction {
                             editor.addSpritePart(currentSprite, editor.createSpritePart())
                             updateSpritePartSpinners(true)
+                            openRegionEditor(currentPart)
                         }
                     }
                     children += addNewSpritePartButton
@@ -185,6 +195,17 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                             if (spritePartSpinner.value > 0) {
                                 Collections.swap(currentSprite.parts, spritePartSpinner.value, spritePartSpinner.value - 1)
                                 spritePartSpinner.decrement(1)
+                            }
+                        }
+                    }
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Button("Edit Region").apply {
+                        setOnAction {
+                            if (currentSprite.parts.isNotEmpty()) {
+                                openRegionEditor(currentPart)
                             }
                         }
                     }
@@ -281,6 +302,132 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 }
             }
         }
+        updateFieldsForPart()
+    }
+    
+    fun openRegionEditor(spritePart: ISpritePart) {
+        val copy: ISpritePart = spritePart.copy()
+        val regionPicker = Stage()
+        val sheet = editor.texture
+        regionPicker.apply {
+            scene = Scene(Group().apply {
+                title = "Edit Sprite Part Region"
+                
+                val scaleFactor = if (sheet.width > 1024 || sheet.height > 720) (720.0 / min(sheet.width, sheet.height)) else 1.0
+                val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
+                val fxSheet = SwingFXUtils.toFXImage(sheet, null)
+                
+                fun repaintSheetCanvas() {
+                    val g = canvas.graphicsContext2D
+                    g.clearRect(0.0, 0.0, canvas.width, canvas.height)
+                    editor.drawCheckerBackground(canvas, false)
+                    g.drawImage(fxSheet, 0.0, 0.0, canvas.width, canvas.height)
+                    g.stroke = Color.RED
+                    g.strokeRect(copy.regionX.toDouble() * scaleFactor, copy.regionY.toDouble() * scaleFactor, copy.regionW.toDouble() * scaleFactor, copy.regionH.toDouble() * scaleFactor)
+                }
+                
+                repaintSheetCanvas()
+                children += VBox().apply {
+                    styleClass += "vbox"
+                    
+                    children += canvas
+                    children += Separator(Orientation.HORIZONTAL)
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Adjust the region using the spinners below.")
+                        children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
+                        children += Button("Reset to Original").apply {
+                            setOnAction {
+                                copy.regionX = spritePart.regionX
+                                copy.regionY = spritePart.regionY
+                                copy.regionW = spritePart.regionW
+                                copy.regionH = spritePart.regionH
+                                repaintSheetCanvas()
+                            }
+                        }
+                    }
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Region X:")
+                        children += intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionX = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }
+                        children += Label("Y:")
+                        children += intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionY = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }
+                    }
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Region Width:")
+                        children += intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionW = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }
+                        children += Label("Height:")
+                        children += intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionH = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }
+                    }
+                    children += Separator(Orientation.HORIZONTAL)
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Button("Confirm").apply {
+                            setOnAction {
+                                regionPicker.close()
+                            }
+                        }
+                        children += Button("Cancel").apply {
+                            setOnAction {
+                                copy.regionW = 0u
+                                copy.regionH = 0u
+                                regionPicker.close()
+                            }
+                        }
+                    }
+                }
+            }).apply {
+                editor.app.addBaseStyleToScene(this)
+                stylesheets += "style/editor.css"
+                stylesheets += "style/regionPicker.css"
+                icons.setAll(Bread.windowIcons)
+            }
+        }
+        val window = editor.scene.window
+        if (window != null)
+            regionPicker.initOwner(window)
+        regionPicker.initModality(Modality.APPLICATION_MODAL)
+        regionPicker.onCloseRequest = EventHandler {
+            copy.regionW = 0u
+            copy.regionH = 0u
+        }
+        regionPicker.showAndWait()
+        
+        // Check that the copy area is valid
+        if (copy.regionX.toInt() + copy.regionW.toInt() <= sheet.width &&
+                copy.regionY.toInt() + copy.regionH.toInt() <= sheet.height &&
+                (copy.regionW > 0u && copy.regionH > 0u)) {
+            spritePart.regionX = copy.regionX
+            spritePart.regionY = copy.regionY
+            spritePart.regionW = copy.regionW
+            spritePart.regionH = copy.regionH
+        }
+        editor.repaintCanvas()
     }
     
     open fun updateFieldsForPart() {
