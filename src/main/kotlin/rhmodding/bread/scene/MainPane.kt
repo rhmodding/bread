@@ -85,6 +85,11 @@ class MainPane(val app: Bread) : BorderPane() {
                 }
             }
         }
+        toolbar.menus += Menu("View").apply {
+            items += CheckMenuItem("Dark Mode").apply {
+                selectedProperty().bindBidirectional(app.settings.nightModeProperty)
+            }
+        }
 //        toolbar.menus += Menu("About")
         
         tabPane.side = Side.TOP
