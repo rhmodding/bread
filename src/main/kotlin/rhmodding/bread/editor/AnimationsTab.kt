@@ -1,16 +1,21 @@
 package rhmodding.bread.editor
 
+import com.madgag.gif.fmsware.AnimatedGifEncoder
 import javafx.animation.Animation
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.application.Platform
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
+import javafx.scene.SnapshotParameters
 import javafx.scene.control.*
+import javafx.scene.image.WritableImage
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.stage.FileChooser
 import javafx.util.Duration
 import rhmodding.bread.model.IAnimation
 import rhmodding.bread.model.IAnimationStep
@@ -18,6 +23,7 @@ import rhmodding.bread.model.IDataModel
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
+import kotlin.math.roundToInt
 
 
 open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animations") {
@@ -156,6 +162,39 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 children += Label("Framerate:")
                 children += framerateSpinner
                 children += Label("frames/sec")
+            }
+            children += Button("Export as GIF").apply {
+                setOnAction {
+                    val fileChooser = FileChooser()
+                    fileChooser.title = "Export this animation as an animated GIF"
+                    fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
+                    fileChooser.initialDirectory = editor.dataFile.parentFile
+                    
+                    val file = fileChooser.showSaveDialog(null)
+                    if (file != null) {
+                        val encoder = AnimatedGifEncoder()
+                        encoder.also { e ->
+                            val canvas = editor.canvas
+                            e.start(file.absolutePath)
+                            e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
+                            e.setSize(canvas.width.toInt(), canvas.height.toInt())
+                            e.setRepeat(0)
+                            val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+                            val ani = currentAnimation
+                            val framerate = framerateSpinner.value
+                            ani.steps.forEach { step ->
+                                e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
+                                editor.drawCheckerBackground(canvas)
+                                editor.drawAnimationStep(step)
+                                canvas.snapshot(SnapshotParameters(), writableImage)
+                                val buf = SwingFXUtils.fromFXImage(writableImage, null)
+                                e.addFrame(buf)
+                            }
+                            e.finish()
+                        }
+                        editor.repaintCanvas()
+                    }
+                }
             }
             children += Separator(Orientation.HORIZONTAL)
             children += Label("Step Properties:").apply {
