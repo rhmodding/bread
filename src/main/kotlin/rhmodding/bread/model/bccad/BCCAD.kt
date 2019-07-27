@@ -36,7 +36,7 @@ class BCCAD : IDataModel {
                                 repeat(12) {
                                     unknownData.add(bytes.get())
                                 }
-                                designation = bytes.get()
+                                designation = bytes.get().toUByte()
                                 unknown = bytes.short
                                 tlDepth = bytes.float
                                 blDepth = bytes.float
@@ -126,7 +126,7 @@ class BCCAD : IDataModel {
                     for (i in unknownData) {
                         b.put(i)
                     }
-                    b.put(designation)
+                    b.put(designation.toByte())
                     b.putShort(unknown)
                     b.putFloat(tlDepth)
                     b.putFloat(blDepth)

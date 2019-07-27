@@ -39,7 +39,7 @@ class SpritePart : ISpritePart {
     
     var multColor: Color = Color.WHITE
     var screenColor: Color = Color.BLACK
-    var designation: Byte = 0
+    var designation: UByte = 0u
     @Unknown
     var unknown: Short = 0
     var tlDepth: Float = 0f
