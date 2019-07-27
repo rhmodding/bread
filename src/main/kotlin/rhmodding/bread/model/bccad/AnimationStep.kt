@@ -39,7 +39,6 @@ class AnimationStep : IAnimationStep {
         }
     }
     
-    
     override fun toString(): String {
         return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], opacity=$opacity, depth=$depth, translate=[$translateX, $translateY], color=$color]"
     }

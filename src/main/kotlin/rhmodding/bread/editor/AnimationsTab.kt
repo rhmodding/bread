@@ -65,8 +65,13 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
         }
     val playbackStepProperty: SimpleIntegerProperty = SimpleIntegerProperty(0)
     
+    val sectionAnimation: VBox
+    
     init {
-        content = ScrollPane(body)
+        content = ScrollPane(body).apply {
+            this.hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            this.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+        }
         
         animationSpinner.valueProperty().addListener { _, _, _ ->
             this@AnimationsTab.editor.repaintCanvas()
@@ -82,7 +87,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
             updateFieldsForStep()
             currentTimeline = null
         }
-        body.children += VBox().apply {
+        sectionAnimation = VBox().apply {
             styleClass += "vbox"
             alignment = Pos.CENTER_LEFT
             children += Label("Animation:").apply {
@@ -104,6 +109,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 children += numAniStepsLabel
             }
         }
+        body.children += sectionAnimation
         stepSpriteSpinner.valueProperty().addListener { _, _, n ->
             currentAnimationStep.spriteIndex = n.toUShort()
             this@AnimationsTab.editor.repaintCanvas()

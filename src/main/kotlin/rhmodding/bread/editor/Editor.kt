@@ -42,9 +42,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     val sidebar: TabPane = TabPane().apply {
         this.tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
     }
-    val spritesTab: SpritesTab<F> = SpritesTab(this)
-    val animationsTab: AnimationsTab<F> = AnimationsTab(this)
-    
+    abstract val spritesTab: SpritesTab<F>
+    abstract val animationsTab: AnimationsTab<F>
     
     init {
         stylesheets += "style/editor.css"
@@ -72,7 +71,9 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             repaintCanvas()
         }
         
-        sidebar.tabs.addAll(spritesTab, animationsTab)
+        Platform.runLater {
+            sidebar.tabs.addAll(spritesTab, animationsTab)
+        }
         sidebar.selectionModel.selectedItemProperty().addListener { _, _, t ->
             repaintCanvas()
             (animationsTab.stepSpriteSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {

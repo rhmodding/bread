@@ -23,7 +23,4 @@
     -fx-underline: true;
 }
 
-.separator:horizontal {
-    -fx-pref-width: 1024.0em;
-}
 

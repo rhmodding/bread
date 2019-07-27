@@ -93,16 +93,14 @@ class SpritePart : ISpritePart {
     }
     
     override fun createFXSubimage(texture: BufferedImage): Image {
-        var newWidth = abs(regionW.toInt() * stretchX).toInt()
-        var newHeight = abs(regionH.toInt() * stretchY).toInt()
-        if (newWidth < 1) newWidth = 1
-        if (newHeight < 1) newHeight = 1
+        val region = texture.getSubimage(regionX.toInt(), regionY.toInt(), regionW.toInt(), regionH.toInt())
+        val newWidth = abs(region.width * stretchX).toInt().coerceAtLeast(1)
+        val newHeight = abs(region.height * stretchY).toInt().coerceAtLeast(1)
         val resized = BufferedImage(newWidth, newHeight, texture.type)
         val g = resized.createGraphics()
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                           RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-        g.drawImage(texture, 0, 0, newWidth, newHeight, 0, 0, texture.width,
-                    texture.height, null)
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g.drawImage(region, 0, 0, newWidth, newHeight, 0, 0, region.width,
+                    region.height, null)
         g.dispose()
         val raster = resized.raster
         val pixels = raster.getPixels(0, 0, raster.width, raster.height, null as IntArray?)

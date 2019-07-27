@@ -9,9 +9,14 @@ import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import rhmodding.bread.Bread
+import rhmodding.bread.editor.BCCADEditor
 import rhmodding.bread.editor.BRCADEditor
 import rhmodding.bread.editor.Editor
+import rhmodding.bread.model.bccad.BCCAD
 import rhmodding.bread.model.brcad.BRCAD
+import java.awt.Graphics2D
+import java.awt.geom.AffineTransform
+import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -50,7 +55,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 setOnAction {
                     val fc = FileChooser().apply {
                         title = "Choose a data file"
-                        extensionFilters.add(FileChooser.ExtensionFilter("BRCAD", "*.brcad"))
+                        extensionFilters.add(FileChooser.ExtensionFilter("BRCAD and BCCAD files", "*.brcad", "*.bccad"))
                         initialDirectory = File(app.settings.dataFileDirectory.value)
                     }
                     
@@ -193,6 +198,69 @@ class MainPane(val app: Bread) : BorderPane() {
                 
                 // Open BRCADEditor tab
                 val editor = BRCADEditor(app, file, BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)), ImageIO.read(textureFile), headerFile)
+                val newTab = EditorTab(file.name, editor)
+                tabPane.tabs += newTab
+                tabPane.selectionModel.select(newTab)
+                return true
+            }
+            "bccad" -> {
+                val dir = file.parentFile
+                val filesInDir = dir.listFiles()?.toList() ?: error("Data file's parent is not a directory")
+                
+                // Attempt to find the texture file. If there is only one PNG file then suggest to use it. Otherwise, ask where the texture file is.
+                val pngFiles = filesInDir.filter { it.extension == "png" }
+                var textureFile: File? = null
+                if (pngFiles.size == 1) {
+                    // Suggest the file
+                    val suggested = pngFiles.first()
+                    val buttonTypeUse = ButtonType("Yes, use this file")
+                    val buttonTypePickAnother = ButtonType("No, pick a different one")
+                    val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
+                        app.addBaseStyleToDialog(this.dialogPane)
+                        title = "Use suggested file?"
+                        headerText = "Use the suggested texture file?"
+                        contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
+                        
+                        buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
+                    }
+                    val alertResult: Optional<ButtonType> = alert.showAndWait()
+                    when (alertResult.get()) {
+                        buttonTypeUse -> {
+                            textureFile = suggested
+                        }
+                        buttonTypePickAnother -> {
+                            // Do nothing, continue to file chooser
+                        }
+                        else -> return false // Cancel
+                    }
+                }
+                if (textureFile == null) {
+                    // Ask
+                    val fc = FileChooser().apply {
+                        title = "Select the associated texture file"
+                        extensionFilters.add(FileChooser.ExtensionFilter("PNG", "*.png"))
+                        initialDirectory = dir
+                    }
+                    val f = fc.showOpenDialog(null)
+                    if (f != null) {
+                        textureFile = f
+                    } else return false
+                }
+                
+                // Open BCCADEditor tab
+                val rawIm = ImageIO.read(textureFile)
+                // Rotate the image
+                val sheetImg = BufferedImage(rawIm.height, rawIm.width, rawIm.type)
+                val transform = AffineTransform()
+                transform.translate(0.5 * rawIm.height, 0.5 * rawIm.width)
+                transform.rotate(-Math.PI / 2)
+                transform.translate(-0.5 * rawIm.width, -0.5 * rawIm.height)
+                val g = sheetImg.createGraphics() as Graphics2D
+                g.drawImage(rawIm, transform, null)
+                g.dispose()
+                
+                val editor = BCCADEditor(app, file, BCCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)), sheetImg)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)

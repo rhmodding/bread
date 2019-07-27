@@ -60,7 +60,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
         get() = currentSprite.parts[spritePartSpinner.value]
     
     init {
-        this.content = ScrollPane(body)
+        this.content = ScrollPane(body).apply {
+            this.hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            this.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+        }
         
         spriteSpinner.valueProperty().addListener { _, _, _ ->
             this@SpritesTab.editor.repaintCanvas()
