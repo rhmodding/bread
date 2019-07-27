@@ -7,8 +7,6 @@ import javafx.scene.control.ButtonType
 import javafx.scene.control.DialogPane
 import javafx.scene.image.Image
 import javafx.stage.Stage
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.ExceptionAlert
 import rhmodding.bread.util.Version
@@ -16,35 +14,39 @@ import rhmodding.bread.util.addDebugAccelerators
 import rhmodding.bread.util.setMinimumBoundsToSized
 import java.io.File
 import java.util.*
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlin.system.exitProcess
 
 
 class Bread : Application() {
-
+    
     companion object {
         const val TITLE: String = "Bread"
-        val LOGGER: Logger = LogManager.getContext(Bread::class.java.classLoader, false).getLogger("Bread")
+        val LOGGER: Logger = Logger.getLogger("Bread").apply {
+            level = Level.FINE
+        }
         val VERSION: Version = Version(0, 1, 0, "DEVELOPMENT")
         val rootFolder: File = File(System.getProperty("user.home")).resolve(".bread/").apply { mkdirs() }
         val windowIcons: List<Image> by lazy { listOf(Image("icon/16.png"), Image("icon/32.png"), Image("icon/48.png")) }
-
+        
         @JvmStatic
         fun main(args: Array<String>) {
             LOGGER.info("Launching $TITLE $VERSION...")
             Application.launch(Bread::class.java, *args)
         }
     }
-
+    
     val settings: Settings = Settings(this)
-
+    
     lateinit var primaryStage: Stage
         private set
-
+    
     override fun start(primaryStage: Stage) {
         this.primaryStage = primaryStage
         primaryStage.title = "$TITLE $VERSION"
         primaryStage.icons.addAll(windowIcons)
-
+        
         val scene = Scene(MainPane(this), 960.0, 720.0).apply {
             addDebugAccelerators()
             addBaseStyleToScene(this)
@@ -52,9 +54,9 @@ class Bread : Application() {
         primaryStage.scene = scene
         primaryStage.setMinimumBoundsToSized()
         primaryStage.show()
-
+        
         settings.loadFromStorage()
-
+        
         Thread.currentThread().setUncaughtExceptionHandler { t, e ->
             e.printStackTrace()
             Platform.runLater {
@@ -70,7 +72,7 @@ class Bread : Application() {
             }
         }
     }
-
+    
     /**
      * Adds the base style + night mode listener
      */
@@ -86,7 +88,7 @@ class Bread : Application() {
         }
         if (settings.nightMode) scene.stylesheets += nightStyle
     }
-
+    
     fun addBaseStyleToDialog(dialogPane: DialogPane) {
         dialogPane.stylesheets += "style/main.css"
         val nightStyle = "style/nightMode.css"
@@ -99,11 +101,11 @@ class Bread : Application() {
         }
         if (settings.nightMode) dialogPane.stylesheets += nightStyle
     }
-
+    
     override fun stop() {
         super.stop()
         settings.persistToStorage()
         exitProcess(0)
     }
-
+    
 }

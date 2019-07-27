@@ -10,6 +10,7 @@ import javafx.scene.text.Font
 import javafx.stage.Stage
 import javafx.util.StringConverter
 import rhmodding.bread.Bread
+import java.util.logging.Level
 
 
 fun Scene.addDebugAccelerators() {
@@ -28,7 +29,7 @@ fun Scene.addDebugAccelerators() {
         }
 
         this.root.reload()
-        Bread.LOGGER.debug("Reloaded stylesheets")
+        Bread.LOGGER.log(Level.INFO, "Reloaded stylesheets")
     }
 }
 

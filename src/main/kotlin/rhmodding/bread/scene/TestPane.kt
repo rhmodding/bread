@@ -8,6 +8,7 @@ import rhmodding.bread.model.brcad.BRCAD
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.logging.Level
 
 
 @ExperimentalUnsignedTypes
@@ -23,8 +24,8 @@ class TestPane : BorderPane() {
                 if (file != null) {
                     val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)
                     val brcad = BRCAD.read(readBytes)
-                    Bread.LOGGER.debug(brcad.toString())
-                    Bread.LOGGER.debug(brcad.toBytes().equals(readBytes))
+                    Bread.LOGGER.log(Level.FINE, brcad.toString())
+                    Bread.LOGGER.log(Level.FINE, brcad.toBytes().equals(readBytes).toString())
                 }
             }
         }
