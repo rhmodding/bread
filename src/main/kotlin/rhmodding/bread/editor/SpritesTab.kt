@@ -148,9 +148,15 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                     }
                     addNewSpritePartButton = Button("Add New Part").apply {
                         setOnAction {
-                            editor.addSpritePart(currentSprite, editor.createSpritePart())
-                            updateSpritePartSpinners(true)
-                            openRegionEditor(currentPart)
+                            val newPart = editor.createSpritePart().apply {
+                                regionW = 0u
+                                regionH = 0u
+                            }
+                            val success = openRegionEditor(newPart)
+                            if (success) {
+                                editor.addSpritePart(currentSprite, newPart)
+                                updateSpritePartSpinners(true)
+                            }
                         }
                     }
                     children += addNewSpritePartButton
@@ -305,7 +311,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
         updateFieldsForPart()
     }
     
-    fun openRegionEditor(spritePart: ISpritePart) {
+    fun openRegionEditor(spritePart: ISpritePart): Boolean {
         val copy: ISpritePart = spritePart.copy()
         val regionPicker = Stage()
         val sheet = editor.texture
@@ -418,6 +424,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
         }
         regionPicker.showAndWait()
         
+        var success = false
         // Check that the copy area is valid
         if (copy.regionX.toInt() + copy.regionW.toInt() <= sheet.width &&
                 copy.regionY.toInt() + copy.regionH.toInt() <= sheet.height &&
@@ -426,8 +433,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
             spritePart.regionY = copy.regionY
             spritePart.regionW = copy.regionW
             spritePart.regionH = copy.regionH
+            success = true
         }
         editor.repaintCanvas()
+        return success
     }
     
     open fun updateFieldsForPart() {
