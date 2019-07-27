@@ -90,7 +90,15 @@ class MainPane(val app: Bread) : BorderPane() {
                 selectedProperty().bindBidirectional(app.settings.nightModeProperty)
             }
         }
-//        toolbar.menus += Menu("About")
+        toolbar.menus += Menu("About").apply {
+            items += MenuItem("About the program").apply {
+                setOnAction {
+                    val newTab = AboutTab(app)
+                    tabPane.tabs += newTab
+                    tabPane.selectionModel.select(newTab)
+                }
+            }
+        }
         
         tabPane.side = Side.TOP
     }
