@@ -4,10 +4,7 @@ import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.SplitPane
-import javafx.scene.control.TabPane
+import javafx.scene.control.*
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -76,8 +73,15 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         }
         
         sidebar.tabs.addAll(spritesTab, animationsTab)
-        sidebar.selectionModel.selectedItemProperty().addListener { _, _, _ ->
+        sidebar.selectionModel.selectedItemProperty().addListener { _, _, t ->
             repaintCanvas()
+            (animationsTab.stepSpriteSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                it.max = data.sprites.size - 1
+                it.value = it.value.coerceAtMost(it.max)
+            }
+            if (t != animationsTab) {
+                animationsTab.currentTimeline = null
+            }
         }
         
         splitPane.items.addAll(sidebar, canvasPane)
@@ -96,7 +100,11 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
                 drawSprite(data.sprites[spritesTab.spriteSpinner.value], spritesTab.spritePartSpinner.value)
             }
             animationsTab -> {
-            
+                val stepIndex = if (animationsTab.currentTimeline != null) animationsTab.playbackStepProperty.value else animationsTab.aniStepSpinner.value
+                val step = animationsTab.currentAnimation.steps.getOrNull(stepIndex)
+                if (step != null) {
+                    drawAnimationStep(step)
+                }
             }
         }
     }
@@ -150,6 +158,22 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             g.globalAlpha = 1.0
             g.stroke = Color.RED
             g.strokeRect(part.posX - canvas.width / 2, part.posY - canvas.height / 2, (part.regionW.toInt() * part.stretchX).absoluteValue * 1.0, (part.regionH.toInt() * part.stretchY).absoluteValue * 1.0)
+            g.restore()
+        }
+    }
+    
+    open fun drawAnimationStep(step: IAnimationStep) {
+        val g = canvas.graphicsContext2D
+        val img = texture
+        val sprite = data.sprites[step.spriteIndex.toInt()]
+        for (part in sprite.parts) {
+            val subImg = part.createFXSubimage(img)
+            g.save()
+            g.transform(getZoomTransformation())
+            g.globalAlpha = step.opacity.toInt() / 255.0
+            g.transform(Affine(Scale(step.stretchX.toDouble(), step.stretchY.toDouble(), canvas.width / 2, canvas.height / 2)))
+            part.transform(canvas, g)
+            g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
             g.restore()
         }
     }

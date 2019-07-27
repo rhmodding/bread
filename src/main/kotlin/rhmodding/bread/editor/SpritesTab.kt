@@ -1,5 +1,6 @@
 package rhmodding.bread.editor
 
+import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.Orientation
@@ -114,14 +115,16 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 }
                 children += Button("Remove").apply {
                     setOnAction {
-                        val alert = Alert(Alert.AlertType.CONFIRMATION)
-                        editor.app.addBaseStyleToDialog(alert.dialogPane)
-                        alert.title = "Remove this sprite?"
-                        alert.headerText = "Remove this sprite?"
-                        alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
-                        if (alert.showAndWait().get() == ButtonType.OK) {
-                            editor.removeSprite(currentSprite)
-                            updateSpriteSpinners(false)
+                        if (data.sprites.size > 1) {
+                            val alert = Alert(Alert.AlertType.CONFIRMATION)
+                            editor.app.addBaseStyleToDialog(alert.dialogPane)
+                            alert.title = "Remove this sprite?"
+                            alert.headerText = "Remove this sprite?"
+                            alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
+                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                editor.removeSprite(currentSprite)
+                                updateSpriteSpinners(false)
+                            }
                         }
                     }
                 }
@@ -322,7 +325,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 }
             }
         }
-        updateFieldsForPart()
+        
+        Platform.runLater {
+            updateFieldsForPart()
+        }
     }
     
     fun openRegionEditor(spritePart: ISpritePart): Boolean {

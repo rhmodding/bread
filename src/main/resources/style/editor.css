@@ -15,6 +15,10 @@
     -fx-pref-width: 12.0em;
 }
 
+.short-spinner {
+    -fx-pref-width: 5.0em;
+}
+
 .header {
     -fx-underline: true;
 }
