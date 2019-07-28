@@ -264,7 +264,8 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
         val img = texture
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img)
+            // TODO use subimage cache
+            val subImg = part.createFXSubimage(img, img.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), (step as? AnimationStep)?.color ?: Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0

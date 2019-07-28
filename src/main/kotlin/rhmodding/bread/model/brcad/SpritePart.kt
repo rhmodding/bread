@@ -4,6 +4,7 @@ import javafx.embed.swing.SwingFXUtils
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
 import javafx.scene.transform.Rotate
 import javafx.scene.transform.Scale
@@ -77,13 +78,14 @@ class SpritePart : ISpritePart {
         })
     }
     
-    override fun createFXSubimage(texture: BufferedImage): Image {
+    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
+        // Note that multColor is ignored
         val newWidth = (regionW.toInt() * stretchX).absoluteValue.toInt().coerceAtLeast(1)
         val newHeight = (regionH.toInt() * stretchY).absoluteValue.toInt().coerceAtLeast(1)
         val resized = BufferedImage(newWidth, newHeight, texture.type)
         val g = resized.createGraphics()
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-        g.drawImage(texture.getSubimage(regionX.toInt(), regionY.toInt(), regionW.toInt(), regionH.toInt()), 0, 0, newWidth, newHeight, 0, 0, regionW.toInt(), regionH.toInt(), null)
+        g.drawImage(regionSubimage, 0, 0, newWidth, newHeight, 0, 0, regionW.toInt(), regionH.toInt(), null)
         g.dispose()
         return SwingFXUtils.toFXImage(resized, null)
     }

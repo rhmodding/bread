@@ -151,7 +151,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         val g = canvas.graphicsContext2D
         val img = texture
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img)
+            // TODO cache the subimage
+            val subImg = part.createFXSubimage(img, img.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             part.transform(canvas, g)
@@ -175,7 +176,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         val img = texture
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img)
+            // TODO cache the subimage
+            val subImg = part.createFXSubimage(img, img.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0

@@ -3,6 +3,7 @@ package rhmodding.bread.model
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.paint.Color
 import java.awt.image.BufferedImage
 
 
@@ -38,6 +39,6 @@ interface ISpritePart {
     
     fun transform(canvas: Canvas, g: GraphicsContext)
     
-    fun createFXSubimage(texture: BufferedImage): Image
+    fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image
     
 }
