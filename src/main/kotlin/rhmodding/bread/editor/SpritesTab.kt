@@ -30,26 +30,27 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     protected val data: F get() = editor.data
     
     val body: VBox = VBox().apply {
-        styleClass += "vbox"
+        //        styleClass += "vbox"
     }
     val partPropertiesVBox: VBox = VBox().apply {
-        styleClass += "vbox"
+        //        styleClass += "vbox"
     }
     
     val addNewSpritePartButton: Button
     
-    val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0)
-    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0)
-    val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0)
-    val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0)
-    val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1)
-    val scaleYSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1)
+    val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0).spinnerArrowKeys()
+    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0).spinnerArrowKeys()
+    val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
+    val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
+    val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
+    val scaleYSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
     val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 1.0).apply {
         styleClass += "long-spinner"
+        spinnerArrowKeys()
     }
     val flipXCheckbox: CheckBox = CheckBox()
     val flipYCheckbox: CheckBox = CheckBox()
-    val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255)
+    val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
     
     val numSpritesLabel: Label = Label("")
     val numSpritePartsLabel: Label = Label("")
@@ -77,70 +78,64 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
             this@SpritesTab.editor.repaintCanvas()
             updateFieldsForPart()
         }
-        spriteSpinner.spinnerArrowKeys()
-        spritePartSpinner.spinnerArrowKeys()
         body.children += VBox().apply {
-            styleClass += "vbox"
             alignment = Pos.CENTER_LEFT
-            children += Label("Sprite:").apply {
-                styleClass += "header"
-            }
             
-            children += HBox().apply {
-                styleClass += "hbox"
+            children += TitledPane("Sprite", VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Index:")
-                children += spriteSpinner
-                children += numSpritesLabel
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                fun updateSpriteSpinners(goToMax: Boolean) {
-                    (spriteSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
-                        it.max = data.sprites.size - 1
-                        it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
-                    }
-                    spritePartSpinner.valueFactory.value = 0
-                    editor.repaintCanvas()
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Index:")
+                    children += spriteSpinner
+                    children += numSpritesLabel
                 }
-                children += Button("Add New Sprite").apply {
-                    setOnAction {
-                        editor.addSprite(editor.createSprite())
-                        updateSpriteSpinners(true)
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    fun updateSpriteSpinners(goToMax: Boolean) {
+                        (spriteSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                            it.max = data.sprites.size - 1
+                            it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                        }
+                        spritePartSpinner.valueFactory.value = 0
+                        editor.repaintCanvas()
                     }
-                }
-                children += Button("Duplicate").apply {
-                    setOnAction {
-                        editor.addSprite(currentSprite.copy())
-                        updateSpriteSpinners(true)
+                    children += Button("Add New Sprite").apply {
+                        setOnAction {
+                            editor.addSprite(editor.createSprite())
+                            updateSpriteSpinners(true)
+                        }
                     }
-                }
-                children += Button("Remove").apply {
-                    setOnAction {
-                        if (data.sprites.size > 1) {
-                            val alert = Alert(Alert.AlertType.CONFIRMATION)
-                            editor.app.addBaseStyleToDialog(alert.dialogPane)
-                            alert.title = "Remove this sprite?"
-                            alert.headerText = "Remove this sprite?"
-                            alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
-                            if (alert.showAndWait().get() == ButtonType.OK) {
-                                editor.removeSprite(currentSprite)
-                                updateSpriteSpinners(false)
+                    children += Button("Duplicate").apply {
+                        setOnAction {
+                            editor.addSprite(currentSprite.copy())
+                            updateSpriteSpinners(true)
+                        }
+                    }
+                    children += Button("Remove").apply {
+                        setOnAction {
+                            if (data.sprites.size > 1) {
+                                val alert = Alert(Alert.AlertType.CONFIRMATION)
+                                editor.app.addBaseStyleToDialog(alert.dialogPane)
+                                alert.title = "Remove this sprite?"
+                                alert.headerText = "Remove this sprite?"
+                                alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
+                                if (alert.showAndWait().get() == ButtonType.OK) {
+                                    editor.removeSprite(currentSprite)
+                                    updateSpriteSpinners(false)
+                                }
                             }
                         }
                     }
                 }
-            }
+            })
         }
-        body.children += Separator(Orientation.HORIZONTAL)
         body.apply {
-            children += VBox().apply {
+            children += TitledPane("Sprite Part", VBox().apply {
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Sprite Part:").apply {
-                    styleClass += "header"
-                }
                 
                 children += HBox().apply {
                     styleClass += "hbox"
@@ -230,8 +225,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         }
                     }
                 }
-            }
-            children += Separator(Orientation.HORIZONTAL)
+            })
             
             posXSpinner.valueProperty().addListener { _, _, n ->
                 currentPart.posX = n.toShort()
@@ -261,18 +255,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 currentPart.rotation = n.toFloat()
                 this@SpritesTab.editor.repaintCanvas()
             }
-            posXSpinner.spinnerArrowKeys()
-            posYSpinner.spinnerArrowKeys()
-            scaleXSpinner.spinnerArrowKeys()
-            scaleYSpinner.spinnerArrowKeys()
-            rotationSpinner.spinnerArrowKeys()
             children += partPropertiesVBox.apply {
-                children += VBox().apply {
+                children += TitledPane("Position and Scaling", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("Position and Scaling:").apply {
-                        styleClass += "header"
-                    }
                     
                     children += HBox().apply {
                         styleClass += "hbox"
@@ -305,19 +291,15 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         children += rotationSpinner
                         children += Label(Typography.degree.toString())
                     }
-                }
-                children += Separator(Orientation.HORIZONTAL)
-                opacitySpinner.spinnerArrowKeys()
+                })
                 opacitySpinner.valueProperty().addListener { _, _, n ->
                     currentPart.opacity = n.toUByte()
                     this@SpritesTab.editor.repaintCanvas()
                 }
-                children += VBox().apply {
+                children += TitledPane("Graphics", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("Graphics:").apply {
-                        styleClass += "header"
-                    }
+                    
                     
                     children += HBox().apply {
                         styleClass += "hbox"
@@ -325,7 +307,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         children += Label("Opacity:")
                         children += opacitySpinner
                     }
-                }
+                })
             }
         }
         

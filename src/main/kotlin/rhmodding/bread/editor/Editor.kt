@@ -14,6 +14,7 @@ import javafx.scene.transform.Affine
 import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
 import rhmodding.bread.model.*
+import rhmodding.bread.util.em
 import java.awt.image.BufferedImage
 import java.io.File
 import kotlin.math.absoluteValue
@@ -48,6 +49,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     init {
         stylesheets += "style/editor.css"
         center = splitPane
+        minWidth = 15.0.em
         
         canvasPane.children += canvas
         canvasPane.children += HBox().apply {

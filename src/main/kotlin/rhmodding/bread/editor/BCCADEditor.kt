@@ -37,14 +37,10 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
         
         init {
             partPropertiesVBox.apply {
-                children += Separator(Orientation.HORIZONTAL)
-                children += VBox().apply {
+                children += TitledPane("BCCAD-specific", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("BCCAD-specific:").apply {
-                        styleClass += "header"
-                    }
-                    
+    
                     children += HBox().apply {
                         styleClass += "hbox"
                         alignment = Pos.CENTER_LEFT
@@ -68,7 +64,11 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         alignment = Pos.CENTER_LEFT
                         children += Label("Top-left Depth:")
                         children += tlDepthSpinner
-                        children += Label("Top-right:")
+                    }
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Top-right Depth:")
                         children += trDepthSpinner
                     }
                     children += HBox().apply {
@@ -76,10 +76,14 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         alignment = Pos.CENTER_LEFT
                         children += Label("Bottom-left Depth:")
                         children += blDepthSpinner
-                        children += Label("Bottom-right:")
+                    }
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Bottom-right Depth:")
                         children += brDepthSpinner
                     }
-                }
+                })
             }
             
             designationSpinner.valueProperty().addListener { _, _, n ->
