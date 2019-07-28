@@ -17,6 +17,7 @@ import rhmodding.bread.model.*
 import rhmodding.bread.util.em
 import java.awt.image.BufferedImage
 import java.io.File
+import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 import kotlin.math.roundToInt
@@ -45,6 +46,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     }
     abstract val spritesTab: SpritesTab<F>
     abstract val animationsTab: AnimationsTab<F>
+    
+    protected val subimageCache: WeakHashMap<Long, BufferedImage> = WeakHashMap()
     
     init {
         stylesheets += "style/editor.css"
@@ -151,8 +154,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         val g = canvas.graphicsContext2D
         val img = texture
         for (part in sprite.parts) {
-            // TODO cache the subimage
-            val subImg = part.createFXSubimage(img, img.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), Color.WHITE)
+            val subImg = part.createFXSubimage(img, getCachedSubimage(part), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             part.transform(canvas, g)
@@ -176,8 +178,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         val img = texture
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
-            // TODO cache the subimage
-            val subImg = part.createFXSubimage(img, img.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), Color.WHITE)
+            val subImg = part.createFXSubimage(img, getCachedSubimage(part), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
@@ -185,6 +186,13 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             part.transform(canvas, g)
             g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
             g.restore()
+        }
+    }
+    
+    protected open fun getCachedSubimage(part: ISpritePart): BufferedImage {
+        val key: Long = (part.regionX.toLong() shl 48) or (part.regionY.toLong() shl 32) or (part.regionW.toLong() shl 16) or (part.regionH.toLong())
+        return subimageCache.getOrPut(key) {
+            texture.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt())
         }
     }
     
