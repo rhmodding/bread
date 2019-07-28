@@ -24,7 +24,7 @@ import java.io.File
 class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
     : Editor<BCCAD>(app, dataFile, data, image) {
     
-    class BCCADSpritesTab(editor: Editor<BCCAD>) : SpritesTab<BCCAD>(editor) {
+    class BCCADSpritesTab(editor: BCCADEditor) : SpritesTab<BCCAD>(editor) {
         
         val designationSpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
         val multColorPicker: ColorPicker = ColorPicker(Color.WHITE)
@@ -136,7 +136,7 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
         }
     }
     
-    class BCCADAnimationsTab(editor: Editor<BCCAD>) : AnimationsTab<BCCAD>(editor) {
+    class BCCADAnimationsTab(editor: BCCADEditor) : AnimationsTab<BCCAD>(editor) {
         
         val animationNameLabel: Label = Label((currentAnimation as Animation).name).apply {
             id = "name-label"
