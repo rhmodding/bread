@@ -40,7 +40,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
     val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
     val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeys()
     val playStopButton: Button = Button("Play")
-    val framerateSpinner: Spinner<Int> = intSpinnerFactory(1, 60, 30).spinnerArrowKeys().apply {
+    val framerateSpinner: Spinner<Int> = intSpinnerFactory(1, 60, 30, 5).spinnerArrowKeys().apply {
         styleClass += "short-spinner"
     }
     val stepSpriteSpinner: Spinner<Int> = intSpinnerFactory(0, (data.sprites.size - 1).coerceAtLeast(0), 1).spinnerArrowKeys()
