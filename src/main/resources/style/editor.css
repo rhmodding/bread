@@ -23,4 +23,6 @@
     -fx-underline: true;
 }
 
-
+.titled-pane {
+    -fx-max-width: infinity;
+}

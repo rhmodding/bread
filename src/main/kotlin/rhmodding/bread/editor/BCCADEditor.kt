@@ -82,7 +82,9 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         children += Label("Bottom-right Depth:")
                         children += brDepthSpinner
                     }
-                })
+                }).apply {
+                    styleClass += "titled-pane"
+                }
             }
             
             designationSpinner.valueProperty().addListener { _, _, n ->
@@ -209,7 +211,9 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         children += Label("Y:")
                         children += translateYSpinner
                     }
-                })
+                }).apply {
+                    styleClass += "titled-pane"
+                }
             }
             
             depthSpinner.valueProperty().addListener { _, _, n ->

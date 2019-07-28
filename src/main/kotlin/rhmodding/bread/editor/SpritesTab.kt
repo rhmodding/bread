@@ -30,11 +30,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     protected val data: F get() = editor.data
     
     val body: VBox = VBox().apply {
-        //        styleClass += "vbox"
+        isFillWidth = true
     }
-    val partPropertiesVBox: VBox = VBox().apply {
-        //        styleClass += "vbox"
-    }
+    val partPropertiesVBox: VBox = VBox()
     
     val addNewSpritePartButton: Button
     
@@ -130,7 +128,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         }
                     }
                 }
-            })
+            }).apply {
+                styleClass += "titled-pane"
+            }
         }
         body.apply {
             children += TitledPane("Sprite Part", VBox().apply {
@@ -225,7 +225,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         }
                     }
                 }
-            })
+            }).apply {
+                styleClass += "titled-pane"
+            }
             
             posXSpinner.valueProperty().addListener { _, _, n ->
                 currentPart.posX = n.toShort()
@@ -291,7 +293,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         children += rotationSpinner
                         children += Label(Typography.degree.toString())
                     }
-                })
+                }).apply {
+                    styleClass += "titled-pane"
+                }
                 opacitySpinner.valueProperty().addListener { _, _, n ->
                     currentPart.opacity = n.toUByte()
                     this@SpritesTab.editor.repaintCanvas()
@@ -307,7 +311,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         children += Label("Opacity:")
                         children += opacitySpinner
                     }
-                })
+                }).apply {
+                    styleClass += "titled-pane"
+                }
             }
         }
         

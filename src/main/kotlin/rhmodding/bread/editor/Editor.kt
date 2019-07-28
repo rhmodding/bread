@@ -52,16 +52,21 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         minWidth = 15.0.em
         
         canvasPane.children += canvas
-        canvasPane.children += HBox().apply {
-            styleClass += "hbox"
+        canvasPane.children += VBox().apply {
+            styleClass += "vbox"
             alignment = Pos.CENTER_RIGHT
-            children += Button("Reset").apply {
-                setOnAction {
-                    zoomFactor = 1.0
-                    repaintCanvas()
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_RIGHT
+                children += Button("Reset").apply {
+                    setOnAction {
+                        zoomFactor = 1.0
+                        repaintCanvas()
+                    }
                 }
+                children += zoomLabel
             }
-            children += zoomLabel
+            children += Label("Scroll the mouse wheel on the canvas to zoom in/out")
         }
         
         canvas.onScroll = EventHandler {

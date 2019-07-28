@@ -30,11 +30,9 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
     protected val data: F get() = editor.data
     
     val body: VBox = VBox().apply {
-//        styleClass += "vbox"
+        isFillWidth = true
     }
-    val stepPropertiesVBox: VBox = VBox().apply {
-//        styleClass += "vbox"
-    }
+    val stepPropertiesVBox: VBox = VBox()
     
     val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
     val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeys()
@@ -148,7 +146,9 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 }
             }
         }
-        body.children += TitledPane("Animation", sectionAnimation)
+        body.children += TitledPane("Animation", sectionAnimation).apply {
+            styleClass += "titled-pane"
+        }
         stepSpriteSpinner.valueProperty().addListener { _, _, n ->
             currentAnimationStep.spriteIndex = n.toUShort()
             this@AnimationsTab.editor.repaintCanvas()
@@ -242,7 +242,9 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                         }
                     }
                 }
-            })
+            }).apply {
+                styleClass += "titled-pane"
+            }
             
             children += TitledPane("Step Properties", VBox().apply {
                 styleClass += "vbox"
@@ -275,7 +277,9 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                     children += Label("Opacity:")
                     children += stepOpacitySpinner
                 }
-            })
+            }).apply {
+                styleClass += "titled-pane"
+            }
         }
         
         Platform.runLater {
