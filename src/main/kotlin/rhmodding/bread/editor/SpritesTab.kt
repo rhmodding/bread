@@ -22,7 +22,7 @@ import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
 import java.util.*
-import kotlin.math.min
+import kotlin.math.max
 
 
 open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
@@ -342,7 +342,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
             scene = Scene(Group().apply {
                 title = "Edit Sprite Part Region"
                 
-                val scaleFactor = if (sheet.width > 1024 || sheet.height > 720) (720.0 / min(sheet.width, sheet.height)) else 1.0
+                val scaleFactor = (640.0 / max(sheet.width, sheet.height)).coerceAtMost(1.0)
                 val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
                 val fxSheet = SwingFXUtils.toFXImage(sheet, null)
                 
@@ -356,80 +356,82 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 }
                 
                 repaintSheetCanvas()
-                children += VBox().apply {
-                    styleClass += "vbox"
-                    
-                    children += canvas
-                    children += Separator(Orientation.HORIZONTAL)
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Adjust the region using the spinners below.")
-                        children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
-                        children += Button("Reset to Original").apply {
-                            setOnAction {
-                                copy.regionX = spritePart.regionX
-                                copy.regionY = spritePart.regionY
-                                copy.regionW = spritePart.regionW
-                                copy.regionH = spritePart.regionH
-                                repaintSheetCanvas()
+                children += ScrollPane().apply {
+                    content = VBox().apply {
+                        styleClass += "vbox"
+                        
+                        children += canvas
+                        children += Separator(Orientation.HORIZONTAL)
+                        children += HBox().apply {
+                            styleClass += "hbox"
+                            alignment = Pos.CENTER_LEFT
+                            children += Label("Adjust the region using the spinners below.")
+                            children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
+                            children += Button("Reset to Original").apply {
+                                setOnAction {
+                                    copy.regionX = spritePart.regionX
+                                    copy.regionY = spritePart.regionY
+                                    copy.regionW = spritePart.regionW
+                                    copy.regionH = spritePart.regionH
+                                    repaintSheetCanvas()
+                                }
                             }
                         }
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Region X:")
-                        children += intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionX = n.toUShort()
-                                repaintSheetCanvas()
+                        children += HBox().apply {
+                            styleClass += "hbox"
+                            alignment = Pos.CENTER_LEFT
+                            children += Label("Region X:")
+                            children += intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                                spinnerArrowKeys()
+                                valueProperty().addListener { _, _, n ->
+                                    copy.regionX = n.toUShort()
+                                    repaintSheetCanvas()
+                                }
+                            }
+                            children += Label("Y:")
+                            children += intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                                spinnerArrowKeys()
+                                valueProperty().addListener { _, _, n ->
+                                    copy.regionY = n.toUShort()
+                                    repaintSheetCanvas()
+                                }
                             }
                         }
-                        children += Label("Y:")
-                        children += intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionY = n.toUShort()
-                                repaintSheetCanvas()
+                        children += HBox().apply {
+                            styleClass += "hbox"
+                            alignment = Pos.CENTER_LEFT
+                            children += Label("Region Width:")
+                            children += intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                                spinnerArrowKeys()
+                                valueProperty().addListener { _, _, n ->
+                                    copy.regionW = n.toUShort()
+                                    repaintSheetCanvas()
+                                }
+                            }
+                            children += Label("Height:")
+                            children += intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                                spinnerArrowKeys()
+                                valueProperty().addListener { _, _, n ->
+                                    copy.regionH = n.toUShort()
+                                    repaintSheetCanvas()
+                                }
                             }
                         }
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Region Width:")
-                        children += intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionW = n.toUShort()
-                                repaintSheetCanvas()
+                        children += Separator(Orientation.HORIZONTAL)
+                        children += HBox().apply {
+                            styleClass += "hbox"
+                            alignment = Pos.CENTER_LEFT
+                            children += Button("Confirm").apply {
+                                setOnAction {
+                                    regionPicker.close()
+                                }
                             }
-                        }
-                        children += Label("Height:")
-                        children += intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionH = n.toUShort()
-                                repaintSheetCanvas()
-                            }
-                        }
-                    }
-                    children += Separator(Orientation.HORIZONTAL)
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Button("Confirm").apply {
-                            setOnAction {
-                                regionPicker.close()
-                            }
-                        }
-                        children += Button("Cancel").apply {
-                            setOnAction {
-                                copy.regionW = 0u
-                                copy.regionH = 0u
-                                regionPicker.close()
+                            children += Button("Cancel").apply {
+                                setOnAction {
+                                    copy.regionW = 0u
+                                    copy.regionH = 0u
+                                    regionPicker.close()
+                                }
                             }
                         }
                     }
