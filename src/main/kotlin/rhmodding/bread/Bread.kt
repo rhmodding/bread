@@ -26,7 +26,7 @@ class Bread : Application() {
         val LOGGER: Logger = Logger.getLogger("Bread").apply {
             level = Level.FINE
         }
-        val VERSION: Version = Version(0, 1, 0, "DEVELOPMENT")
+        val VERSION: Version = Version(0, 1, 0, "")
         val rootFolder: File = File(System.getProperty("user.home")).resolve(".bread/").apply { mkdirs() }
         val windowIcons: List<Image> by lazy { listOf(Image("icon/16.png"), Image("icon/32.png"), Image("icon/48.png")) }
         
