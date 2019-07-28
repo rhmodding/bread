@@ -1,7 +1,6 @@
 package rhmodding.bread.editor
 
 import javafx.application.Platform
-import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
@@ -137,7 +136,9 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
     
     class BCCADAnimationsTab(editor: Editor<BCCAD>) : AnimationsTab<BCCAD>(editor) {
         
-        val animationNameLabel: Label = Label((currentAnimation as Animation).name)
+        val animationNameLabel: Label = Label((currentAnimation as Animation).name).apply {
+            id = "name-label"
+        }
         
         val depthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
@@ -173,14 +174,10 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
             })
             
             stepPropertiesVBox.apply {
-                children += Separator(Orientation.HORIZONTAL)
-                children += VBox().apply {
+                children += TitledPane("BCCAD-specific", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
                     
-                    children += Label("BCCAD-specific:").apply {
-                        styleClass += "header"
-                    }
                     children += HBox().apply {
                         styleClass += "hbox"
                         alignment = Pos.CENTER_LEFT
@@ -212,7 +209,7 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         children += Label("Y:")
                         children += translateYSpinner
                     }
-                }
+                })
             }
             
             depthSpinner.valueProperty().addListener { _, _, n ->
@@ -252,6 +249,11 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
     
     override val spritesTab: SpritesTab<BCCAD> = BCCADSpritesTab(this)
     override val animationsTab: AnimationsTab<BCCAD> = BCCADAnimationsTab(this)
+    
+    init {
+        stylesheets += "style/bccadEditor.css"
+        this.applyCss()
+    }
     
     override fun drawAnimationStep(step: IAnimationStep) {
         val g = canvas.graphicsContext2D

@@ -8,7 +8,6 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
-import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.SnapshotParameters
 import javafx.scene.control.*
@@ -31,10 +30,10 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
     protected val data: F get() = editor.data
     
     val body: VBox = VBox().apply {
-        styleClass += "vbox"
+//        styleClass += "vbox"
     }
     val stepPropertiesVBox: VBox = VBox().apply {
-        styleClass += "vbox"
+//        styleClass += "vbox"
     }
     
     val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
@@ -90,9 +89,6 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
         sectionAnimation = VBox().apply {
             styleClass += "vbox"
             alignment = Pos.CENTER_LEFT
-            children += Label("Animation:").apply {
-                styleClass += "header"
-            }
             
             children += HBox().apply {
                 styleClass += "hbox"
@@ -152,7 +148,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 }
             }
         }
-        body.children += sectionAnimation
+        body.children += TitledPane("Animation", sectionAnimation)
         stepSpriteSpinner.valueProperty().addListener { _, _, n ->
             currentAnimationStep.spriteIndex = n.toUShort()
             this@AnimationsTab.editor.repaintCanvas()
@@ -200,82 +196,86 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
         }
         body.children += stepPropertiesVBox.apply {
             alignment = Pos.CENTER_LEFT
-            children += Separator(Orientation.HORIZONTAL)
-            children += Label("Playback:").apply {
-                styleClass += "header"
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
+            
+            children += TitledPane("Playback", VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += playStopButton
-                children += Label("Framerate:")
-                children += framerateSpinner
-                children += Label("frames/sec")
-            }
-            children += Button("Export as GIF").apply {
-                setOnAction {
-                    val fileChooser = FileChooser()
-                    fileChooser.title = "Export this animation as an animated GIF"
-                    fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
-                    fileChooser.initialDirectory = editor.dataFile.parentFile
-                    
-                    val file = fileChooser.showSaveDialog(null)
-                    if (file != null) {
-                        val encoder = AnimatedGifEncoder()
-                        encoder.also { e ->
-                            val canvas = editor.canvas
-                            e.start(file.absolutePath)
-                            e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
-                            e.setSize(canvas.width.toInt(), canvas.height.toInt())
-                            e.setRepeat(0)
-                            val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
-                            val ani = currentAnimation
-                            val framerate = framerateSpinner.value
-                            ani.steps.forEach { step ->
-                                e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
-                                editor.drawCheckerBackground(canvas)
-                                editor.drawAnimationStep(step)
-                                canvas.snapshot(SnapshotParameters(), writableImage)
-                                val buf = SwingFXUtils.fromFXImage(writableImage, null)
-                                e.addFrame(buf)
+    
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += playStopButton
+                    children += Label("Framerate:")
+                    children += framerateSpinner
+                    children += Label("frames/sec")
+                }
+                children += Button("Export as GIF").apply {
+                    setOnAction {
+                        val fileChooser = FileChooser()
+                        fileChooser.title = "Export this animation as an animated GIF"
+                        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
+                        fileChooser.initialDirectory = editor.dataFile.parentFile
+            
+                        val file = fileChooser.showSaveDialog(null)
+                        if (file != null) {
+                            val encoder = AnimatedGifEncoder()
+                            encoder.also { e ->
+                                val canvas = editor.canvas
+                                e.start(file.absolutePath)
+                                e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
+                                e.setSize(canvas.width.toInt(), canvas.height.toInt())
+                                e.setRepeat(0)
+                                val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+                                val ani = currentAnimation
+                                val framerate = framerateSpinner.value
+                                ani.steps.forEach { step ->
+                                    e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
+                                    editor.drawCheckerBackground(canvas)
+                                    editor.drawAnimationStep(step)
+                                    canvas.snapshot(SnapshotParameters(), writableImage)
+                                    val buf = SwingFXUtils.fromFXImage(writableImage, null)
+                                    e.addFrame(buf)
+                                }
+                                e.finish()
                             }
-                            e.finish()
+                            editor.repaintCanvas()
                         }
-                        editor.repaintCanvas()
                     }
                 }
-            }
-            children += Separator(Orientation.HORIZONTAL)
-            children += Label("Step Properties:").apply {
-                styleClass += "header"
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
+            })
+            
+            children += TitledPane("Step Properties", VBox().apply {
+                styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Sprite Index:")
-                children += stepSpriteSpinner
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Delay:")
-                children += stepDelaySpinner
-                children += Label("frames")
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Scale X:")
-                children += stepStretchXSpinner
-                children += Label("Y:")
-                children += stepStretchYSpinner
-            }
-            children += HBox().apply {
-                styleClass += "hbox"
-                alignment = Pos.CENTER_LEFT
-                children += Label("Opacity:")
-                children += stepOpacitySpinner
-            }
+    
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Sprite Index:")
+                    children += stepSpriteSpinner
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Delay:")
+                    children += stepDelaySpinner
+                    children += Label("frames")
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Scale X:")
+                    children += stepStretchXSpinner
+                    children += Label("Y:")
+                    children += stepStretchYSpinner
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Label("Opacity:")
+                    children += stepOpacitySpinner
+                }
+            })
         }
         
         Platform.runLater {
