@@ -259,8 +259,10 @@ class MainPane(val app: Bread) : BorderPane() {
                 val g = sheetImg.createGraphics() as Graphics2D
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
-                
-                val editor = BCCADEditor(app, file, BCCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)), sheetImg)
+    
+                val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
+                val bccad = BCCAD.read(readBytes)
+                val editor = BCCADEditor(app, file, bccad, sheetImg)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)

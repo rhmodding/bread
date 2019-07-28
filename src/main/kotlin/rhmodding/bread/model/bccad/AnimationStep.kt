@@ -19,7 +19,9 @@ class AnimationStep : IAnimationStep {
     var color: Color = Color.WHITE
     var rotation: Float = 0f
     @Unknown
-    val unknownData: MutableList<Byte> = mutableListOf(0, 0)
+    var unknown1: Byte = 0
+    @Unknown
+    var unknown2: Byte = 0
     
     override fun copy(): AnimationStep {
         return AnimationStep().also {
@@ -34,8 +36,8 @@ class AnimationStep : IAnimationStep {
             it.translateY = translateY
             it.color = color
             it.rotation = rotation
-            it.unknownData.clear()
-            it.unknownData.addAll(unknownData.toMutableList())
+            it.unknown1 = unknown1
+            it.unknown2 = unknown2
         }
     }
     

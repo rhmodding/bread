@@ -70,15 +70,14 @@ class BCCAD : IDataModel {
                                 rotation = bytes.float
                                 color = Color.rgb(bytes.get().toInt() and 0xFF, bytes.get().toInt() and 0xFF, bytes.get().toInt() and 0xFF)
                                 bytes.get()
-                                unknownData.clear()
-                                repeat(2) {
-                                    unknownData.add(bytes.get())
-                                }
+                                unknown1 = bytes.get()
+                                unknown2 = bytes.get()
                                 opacity = (bytes.short.toInt() and 0xFF).toUByte()
                             })
                         }
                     }
                 }
+                bytes.get()
             }
         }
     }
@@ -90,95 +89,95 @@ class BCCAD : IDataModel {
     override val animations: MutableList<Animation> = mutableListOf()
     
     fun toBytes(): ByteBuffer {
-        val first = ByteArray(12)
-        val buf = ByteBuffer.wrap(first).order(ByteOrder.LITTLE_ENDIAN)
-        buf.putInt(timestamp)
+        // Compute size of buffer
+        // Header: 8 bytes
+        // Num sprites: 4 bytes
+        // For each sprite: 4 bytes
+        //   For each sprite part: 64 bytes
+        // Num animations: 4 bytes
+        // For each animation: 1 + (1*name.length in bytes, padded to nearest four bytes) + 16
+        //   For each animation step: 32 bytes
+        // One end byte
+        
+        val bytes = ByteBuffer.allocate(8 + 4 +
+                                                (4 * sprites.size + (64 * sprites.sumBy { it.parts.size }) +
+                                                        4 + (animations.sumBy { 1 + it.name.length + (4 - ((it.name.length + 1) % 4)) + 8 } +
+                                                        animations.sumBy { 32 * it.steps.size })) + 1)
+                .order(ByteOrder.LITTLE_ENDIAN)
+        
+        bytes.putInt(timestamp)
                 .putShort(sheetW.toShort())
                 .putShort(sheetH.toShort())
                 .putInt(sprites.size)
-        val list = first.toMutableList()
-        sprites.forEach { s ->
-            val firstBytes = ByteArray(4)
-            ByteBuffer.wrap(firstBytes).order(ByteOrder.LITTLE_ENDIAN).putInt(s.parts.size)
-            val l = firstBytes.toMutableList()
-            s.parts.forEach { p ->
+        
+        sprites.forEach { sprite ->
+            bytes.putInt(sprite.parts.size)
+            sprite.parts.forEach { p ->
                 with(p) {
-                    val bytes = ByteArray(0x40)
-                    val b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
-                    b.putShort(regionX.toShort())
-                    b.putShort(regionY.toShort())
-                    b.putShort(regionW.toShort())
-                    b.putShort(regionH.toShort())
-                    b.putShort(posX)
-                    b.putShort(posY)
-                    b.putFloat(stretchX)
-                    b.putFloat(stretchY)
-                    b.putFloat(rotation)
-                    b.put((if (flipX) 1 else 0).toByte())
-                    b.put((if (flipY) 1 else 0).toByte())
-                    b.put((multColor.red * 255).toByte())
-                    b.put((multColor.green * 255).toByte())
-                    b.put((multColor.blue * 255).toByte())
-                    b.put((screenColor.red * 255).toByte())
-                    b.put((screenColor.green * 255).toByte())
-                    b.put((screenColor.blue * 255).toByte())
-                    b.put(opacity.toByte())
-                    for (i in unknownData) {
-                        b.put(i)
+                    bytes.putShort(regionX.toShort())
+                            .putShort(regionY.toShort())
+                            .putShort(regionW.toShort())
+                            .putShort(regionH.toShort())
+                            .putShort(posX)
+                            .putShort(posY)
+                            .putFloat(stretchX)
+                            .putFloat(stretchY)
+                            .putFloat(rotation)
+                            .put((if (flipX) 1 else 0).toByte())
+                            .put((if (flipY) 1 else 0).toByte())
+                            .put((multColor.red * 255).toByte())
+                            .put((multColor.green * 255).toByte())
+                            .put((multColor.blue * 255).toByte())
+                            .put((screenColor.red * 255).toByte())
+                            .put((screenColor.green * 255).toByte())
+                            .put((screenColor.blue * 255).toByte())
+                            .put(opacity.toByte())
+                    repeat(12) {
+                        bytes.put(unknownData.getOrElse(it) { 0.toByte() })
                     }
-                    b.put(designation.toByte())
-                    b.putShort(unknown)
-                    b.putFloat(tlDepth)
-                    b.putFloat(blDepth)
-                    b.putFloat(trDepth)
-                    b.putFloat(brDepth)
-                    l.addAll(bytes.toList())
+                    bytes.put(designation.toByte())
+                            .putShort(unknown)
+                            .putFloat(tlDepth)
+                            .putFloat(blDepth)
+                            .putFloat(trDepth)
+                            .putFloat(brDepth)
                 }
             }
         }
         
-        val animationSizeBytes = ByteArray(4)
-        ByteBuffer.wrap(animationSizeBytes).order(ByteOrder.LITTLE_ENDIAN).putInt(animations.size)
-        list.addAll(animationSizeBytes.toList())
+        bytes.putInt(animations.size)
         animations.forEach { a ->
             with(a) {
-                val l = mutableListOf<Byte>()
-                l.add(name.length.toByte())
-                l.addAll(name.toCharArray().map { it.toByte() })
-                l.addAll(ByteArray(4 - ((name.length + 1) % 4)).toList())
-                val a = ByteArray(8)
-                val bb = ByteBuffer.wrap(a).order(ByteOrder.LITTLE_ENDIAN)
-                bb.putInt(interpolationInt)
-                bb.putInt(steps.size)
-                l.addAll(a.toList())
+                bytes.put(name.length.toByte())
+                name.toCharArray().forEach { b -> bytes.put(b.toByte()) }
+                repeat(4 - ((name.length + 1) % 4)) { bytes.put(0.toByte()) }
+                
+                bytes.putInt(interpolationInt)
+                        .putInt(steps.size)
+                
                 steps.forEach { s ->
                     with(s) {
-                        val firstBytes = ByteArray(28)
-                        val b = ByteBuffer.wrap(firstBytes).order(ByteOrder.LITTLE_ENDIAN)
-                        b.putShort(spriteIndex.toShort())
-                        b.putShort(delay.toShort())
-                        b.putShort(translateX)
-                        b.putShort(translateY)
-                        b.putFloat(depth)
-                        b.putFloat(stretchX)
-                        b.putFloat(stretchY)
-                        b.putFloat(rotation)
-                        b.put((color.red * 255).toByte())
-                        b.put((color.green * 255).toByte())
-                        b.put((color.blue * 255).toByte())
-                        b.put(0.toByte())
-                        val l = firstBytes.toMutableList()
-                        l.addAll(unknownData)
-                        val lastBytes = ByteArray(2)
-                        val b2 = ByteBuffer.wrap(lastBytes).order(ByteOrder.LITTLE_ENDIAN)
-                        b2.putShort(opacity.toShort())
-                        l.addAll(lastBytes.toList())
+                        bytes.putShort(spriteIndex.toShort())
+                                .putShort(delay.toShort())
+                                .putShort(translateX)
+                                .putShort(translateY)
+                                .putFloat(depth)
+                                .putFloat(stretchX)
+                                .putFloat(stretchY)
+                                .putFloat(rotation)
+                                .put((color.red * 255).toByte())
+                                .put((color.green * 255).toByte())
+                                .put((color.blue * 255).toByte())
+                                .put(0.toByte())
+                                .put(unknown1)
+                                .put(unknown2)
+                                .putShort(opacity.toShort())
                     }
                 }
             }
         }
-        list.add(0)
-        return ByteBuffer.wrap(list.toByteArray()).order(ByteOrder.LITTLE_ENDIAN)
+        bytes.put(0.toByte())
+        return bytes
     }
     
     override fun toString(): String {
