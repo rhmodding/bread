@@ -52,7 +52,7 @@ fun doubleSpinnerFactory(min: Double, max: Double, initial: Double, step: Double
                 }
 
                 override fun fromString(string: String): Double {
-                    return string.toDoubleOrNull() ?: 0.0
+                    return string.toDoubleOrNull()?.coerceIn(min, max) ?: 0.0
                 }
             }
         }
@@ -68,7 +68,7 @@ fun intSpinnerFactory(min: Int, max: Int, initial: Int, step: Int = 1): Spinner<
                 }
 
                 override fun fromString(string: String): Int {
-                    return string.toIntOrNull() ?: 0
+                    return string.toIntOrNull()?.coerceIn(min, max) ?: 0
                 }
             }
         }
