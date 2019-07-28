@@ -45,14 +45,14 @@ val Double.em: Double get() = Font.getDefault().size * this
 
 fun doubleSpinnerFactory(min: Double, max: Double, initial: Double, step: Double = 1.0): Spinner<Double> =
     Spinner<Double>().apply {
-        valueFactory = SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, initial, step).apply {
+        valueFactory = SpinnerValueFactory.DoubleSpinnerValueFactory(min, max, initial, step).apply factory@{
             this.converter = object : StringConverter<Double>() {
                 override fun toString(`object`: Double): String {
                     return `object`.toString()
                 }
 
                 override fun fromString(string: String): Double {
-                    return string.toDoubleOrNull()?.coerceIn(min, max) ?: 0.0
+                    return string.toDoubleOrNull()?.coerceIn(this@factory.min, this@factory.max) ?: 0.0
                 }
             }
         }
@@ -61,14 +61,14 @@ fun doubleSpinnerFactory(min: Double, max: Double, initial: Double, step: Double
 
 fun intSpinnerFactory(min: Int, max: Int, initial: Int, step: Int = 1): Spinner<Int> =
     Spinner<Int>().apply {
-        valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, initial, step).apply {
+        valueFactory = SpinnerValueFactory.IntegerSpinnerValueFactory(min, max, initial, step).apply factory@{
             this.converter = object : StringConverter<Int>() {
                 override fun toString(`object`: Int): String {
                     return `object`.toString()
                 }
 
                 override fun fromString(string: String): Int {
-                    return string.toIntOrNull()?.coerceIn(min, max) ?: 0
+                    return string.toIntOrNull()?.coerceIn(this@factory.min, this@factory.max) ?: 0
                 }
             }
         }
