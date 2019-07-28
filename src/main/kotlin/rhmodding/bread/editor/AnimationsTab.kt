@@ -49,8 +49,8 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
     val stepStretchYSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeys()
     val stepOpacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
     
-    val numAnimationsLabel: Label = Label("out of")
-    val numAniStepsLabel: Label = Label("out of")
+    val numAnimationsLabel: Label = Label("")
+    val numAniStepsLabel: Label = Label("")
     
     val currentAnimation: IAnimation
         get() = data.animations[animationSpinner.value]
@@ -284,8 +284,8 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
     }
     
     open fun updateFieldsForStep() {
-        numAnimationsLabel.text = "out of ${data.animations.size} animation${if (data.animations.size == 1) "" else "s"}"
-        numAniStepsLabel.text = "out of ${currentAnimation.steps.size} step${if (currentAnimation.steps.size == 1) "" else "s"}"
+        numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
+        numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
         if (currentAnimation.steps.isEmpty()) {
             stepPropertiesVBox.disableProperty().value = true
             return

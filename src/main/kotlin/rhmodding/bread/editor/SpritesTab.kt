@@ -51,8 +51,8 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     val flipYCheckbox: CheckBox = CheckBox()
     val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255)
     
-    val numSpritesLabel: Label = Label("out of")
-    val numSpritePartsLabel: Label = Label("out of")
+    val numSpritesLabel: Label = Label("")
+    val numSpritePartsLabel: Label = Label("")
     
     val currentSprite: ISprite
         get() = data.sprites[spriteSpinner.value]
@@ -469,8 +469,8 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     }
     
     open fun updateFieldsForPart() {
-        numSpritesLabel.text = "out of ${data.sprites.size} sprite${if (data.sprites.size == 1) "" else "s"}"
-        numSpritePartsLabel.text = "out of ${currentSprite.parts.size} part${if (currentSprite.parts.size == 1) "" else "s"}"
+        numSpritesLabel.text = "(${data.sprites.size} total sprite${if (data.sprites.size == 1) "" else "s"})"
+        numSpritePartsLabel.text = "(${currentSprite.parts.size} total part${if (currentSprite.parts.size == 1) "" else "s"})"
         if (currentSprite.parts.isEmpty()) {
             partPropertiesVBox.disableProperty().value = true
             return
