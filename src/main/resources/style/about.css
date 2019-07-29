@@ -1,0 +1,31 @@
+.title {
+    -fx-font-weight: bold;
+    -fx-font-size: 3.5em;
+    -fx-text-overrun: clip;
+}
+
+.subtitle {
+    -fx-font-style: italic;
+    -fx-font-size: 1.0em;
+    -fx-text-overrun: clip;
+}
+
+.version {
+    -fx-font-weight: bold;
+}
+
+.oss {
+    -fx-underline: true;
+}
+
+.hyperlink {
+    -fx-padding: 0;
+}
+
+#libraries-gp {
+    -fx-hgap: 2em;
+}
+
+#credits-gp {
+    -fx-hgap: 1em;
+}
