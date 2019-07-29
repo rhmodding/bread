@@ -243,7 +243,17 @@ class MainPane(val app: Bread) : BorderPane() {
                 }
                 
                 // Open BRCADEditor tab
-                val editor = BRCADEditor(app, file, BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN)), ImageIO.read(textureFile), headerFile)
+                val brcad = BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN))
+                val rawIm = ImageIO.read(textureFile)
+                // If necessary, resize the image
+                val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rawIm.type)
+                val transform = AffineTransform()
+                transform.scale(1.0 * sheetImg.width / rawIm.width, 1.0 * sheetImg.height / rawIm.height)
+                val g = sheetImg.createGraphics() as Graphics2D
+                g.drawImage(rawIm, transform, null)
+                g.dispose()
+                
+                val editor = BRCADEditor(app, file, brcad, sheetImg, headerFile)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
@@ -298,19 +308,23 @@ class MainPane(val app: Bread) : BorderPane() {
                 }
                 
                 // Open BCCADEditor tab
+    
+                val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
+                val bccad = BCCAD.read(readBytes)
+                
                 val rawIm = ImageIO.read(textureFile)
-                // Rotate the image
-                val sheetImg = BufferedImage(rawIm.height, rawIm.width, rawIm.type)
+                // Rotate (and resize if necessary) the image
+                val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), rawIm.type)
                 val transform = AffineTransform()
-                transform.translate(0.5 * rawIm.height, 0.5 * rawIm.width)
+                // Note: width and height intentionally swapped in scale call
+                transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
+                transform.translate(0.5 * sheetImg.height, 0.5 * sheetImg.width)
                 transform.rotate(-Math.PI / 2)
-                transform.translate(-0.5 * rawIm.width, -0.5 * rawIm.height)
+                transform.translate(-0.5 * sheetImg.width, -0.5 * sheetImg.height)
                 val g = sheetImg.createGraphics() as Graphics2D
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
                 
-                val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
-                val bccad = BCCAD.read(readBytes)
                 val editor = BCCADEditor(app, file, bccad, sheetImg)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
