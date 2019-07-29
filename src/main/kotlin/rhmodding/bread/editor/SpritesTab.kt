@@ -412,6 +412,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                                 setOnAction {
                                     regionPicker.close()
                                 }
+                                style = "-fx-base: -fx-default-button"
                             }
                             children += Button("Cancel").apply {
                                 isCancelButton = true
