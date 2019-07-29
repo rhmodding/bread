@@ -14,4 +14,4 @@ With a terminal in the same working directory as `bread.jar`, run
 `java -jar bread.jar`.
 
 ## Why bread?
-The word "bread" is a common autocorrect suggestion for the word "BRCAD'.
+The word "bread" is a common autocorrect suggestion for the word "BRCAD".
