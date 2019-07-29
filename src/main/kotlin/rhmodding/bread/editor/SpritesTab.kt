@@ -414,6 +414,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                                 }
                             }
                             children += Button("Cancel").apply {
+                                isCancelButton = true
                                 setOnAction {
                                     copy.regionW = 0u
                                     copy.regionH = 0u
