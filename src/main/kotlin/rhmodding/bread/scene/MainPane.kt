@@ -1,12 +1,16 @@
 package rhmodding.bread.scene
 
+import javafx.application.Platform
 import javafx.beans.binding.Bindings
+import javafx.geometry.Pos
 import javafx.geometry.Side
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
 import javafx.scene.layout.VBox
+import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import rhmodding.bread.Bread
 import rhmodding.bread.editor.BCCADEditor
@@ -31,8 +35,12 @@ class MainPane(val app: Bread) : BorderPane() {
     val tabPane: TabPane = TabPane()
     val bottomPane: VBox = VBox()
     
-    val noTabsLabel: Label = Label("Open a file in\nFile > Open...").apply {
+    val noTabsLabel: Label = Label("Open a file using File > Open...,\nor drag-and-drop a .brcad or .bccad file here").apply {
         id = "no-tabs-label"
+        textAlignment = TextAlignment.CENTER
+        maxWidth = Double.MAX_VALUE
+        maxHeight = Double.MAX_VALUE
+        alignment = Pos.CENTER
     }
     
     init {
@@ -43,7 +51,32 @@ class MainPane(val app: Bread) : BorderPane() {
         bottom = bottomPane
         
         centrePane.children += tabPane
-        centrePane.children += noTabsLabel
+        centrePane.children += noTabsLabel.apply {
+            setOnDragOver { evt ->
+                if (evt.gestureSource != noTabsLabel && evt.dragboard.hasFiles()) {
+                    evt.acceptTransferModes(*TransferMode.COPY_OR_MOVE)
+                }
+                evt.consume()
+            }
+            setOnDragDropped { evt ->
+                val db = evt.dragboard
+                var success = false
+                
+                if (db.hasFiles()) {
+                    // Find first file that matches
+                    val firstThatMatches = db.files.firstOrNull { it.extension == "brcad" || it.extension == "bccad"}
+                    if (firstThatMatches != null) {
+                        Platform.runLater {
+                            handleDataFileChoosing(firstThatMatches)
+                        }
+                        success = true
+                    }
+                }
+                
+                evt.isDropCompleted = success
+                evt.consume()
+            }
+        }
         val noTabsLabelVisible = Bindings.isEmpty(tabPane.tabs)
         noTabsLabel.visibleProperty().bind(noTabsLabelVisible)
         noTabsLabel.managedProperty().bind(noTabsLabelVisible)
@@ -258,7 +291,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 val g = sheetImg.createGraphics() as Graphics2D
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
-    
+                
                 val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
                 val bccad = BCCAD.read(readBytes)
                 val editor = BCCADEditor(app, file, bccad, sheetImg)
