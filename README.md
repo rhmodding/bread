@@ -1,4 +1,4 @@
-<img align="right" src="icon.png" height="256" width="256">
+<img align="right" src="icon.png" height="128" width="128">
 
 # Bread
 
