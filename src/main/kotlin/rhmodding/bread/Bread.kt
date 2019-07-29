@@ -28,7 +28,7 @@ class Bread : Application() {
         }
         val VERSION: Version = Version(0, 2, 0, "DEVELOPMENT")
         val rootFolder: File = File(System.getProperty("user.home")).resolve(".bread/").apply { mkdirs() }
-        val windowIcons: List<Image> by lazy { listOf(Image("icon/16.png"), Image("icon/32.png"), Image("icon/48.png")) }
+        val windowIcons: List<Image> by lazy { listOf(Image("icon/32.png"), Image("icon/64.png")) }
         
         @JvmStatic
         fun main(args: Array<String>) {
