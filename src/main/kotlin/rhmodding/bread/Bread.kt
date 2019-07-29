@@ -28,7 +28,7 @@ class Bread : Application() {
         }
 //        const val GITHUB: String = "https://github.com/rhmodding/bread"
 //        const val LICENSE_NAME: String = "Apache License"
-        val VERSION: Version = Version(0, 2, 0, "")
+        val VERSION: Version = Version(0, 3, 0, "DEVELOPMENT")
         val rootFolder: File = File(System.getProperty("user.home")).resolve(".bread/").apply { mkdirs() }
         val windowIcons: List<Image> by lazy { listOf(Image("icon/32.png"), Image("icon/64.png")) }
         
