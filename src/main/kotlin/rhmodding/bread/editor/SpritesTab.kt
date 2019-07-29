@@ -3,15 +3,18 @@ package rhmodding.bread.editor
 import javafx.application.Platform
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
+import javafx.geometry.HPos
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
+import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
 import javafx.stage.Modality
 import javafx.stage.Stage
 import rhmodding.bread.model.IDataModel
@@ -261,30 +264,33 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
                     
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Position X:")
-                        children += posXSpinner
-                        children += Label("Y:")
-                        children += posYSpinner
+                    children += GridPane().apply {
+                        styleClass += "grid-pane"
+                        add(Label("Position X:"), 0, 0)
+                        add(posXSpinner, 1, 0)
+                        add(Label("Y:").apply {
+                            textAlignment = TextAlignment.RIGHT
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 0)
+                        add(posYSpinner, 3, 0)
+                        
+                        add(Label("Scale X:"), 0, 1)
+                        add(scaleXSpinner, 1, 1)
+                        add(Label("Y:").apply {
+                            textAlignment = TextAlignment.RIGHT
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 1)
+                        add(scaleYSpinner, 3, 1)
+                        
+                        add(Label("Flip on X-axis:"), 0, 2)
+                        add(flipXCheckbox, 1, 2)
+                        add(Label("Y-axis:").apply {
+                            textAlignment = TextAlignment.RIGHT
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 2)
+                        add(flipYCheckbox, 3, 2)
                     }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Scale X:")
-                        children += scaleXSpinner
-                        children += Label("Y:")
-                        children += scaleYSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Flip on X-axis:")
-                        children += flipXCheckbox
-                        children += Label("on Y-axis:")
-                        children += flipYCheckbox
-                    }
+                    
                     children += HBox().apply {
                         styleClass += "hbox"
                         alignment = Pos.CENTER_LEFT

@@ -26,3 +26,9 @@
 .titled-pane {
     -fx-max-width: infinity;
 }
+
+.grid-pane {
+    -fx-hgap: 0.25em;
+    -fx-vgap: 0.25em;
+    -fx-alignment: center-right;
+}
