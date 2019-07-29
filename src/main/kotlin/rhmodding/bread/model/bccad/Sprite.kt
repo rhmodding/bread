@@ -12,4 +12,9 @@ class Sprite : ISprite {
             parts.mapTo(it.parts) { it.copy() }
         }
     }
+    
+    override fun toString(): String {
+        return "Sprite=[numParts=${parts.size}, parts=[${parts.joinToString(separator = "\n")}]]"
+    }
+    
 }
