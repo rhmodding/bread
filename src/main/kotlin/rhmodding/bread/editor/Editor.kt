@@ -97,6 +97,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         
         splitPane.items.addAll(sidebar, canvasPane)
         
+        
+        
         Platform.runLater {
             repaintCanvas()
         }

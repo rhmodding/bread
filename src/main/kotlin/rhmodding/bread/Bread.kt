@@ -3,6 +3,7 @@ package rhmodding.bread
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Scene
+import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import javafx.scene.control.DialogPane
 import javafx.scene.image.Image
@@ -79,6 +80,7 @@ class Bread : Application() {
      * Adds the base style + night mode listener
      */
     fun addBaseStyleToScene(scene: Scene) {
+        (scene.window as? Stage?)?.icons?.setAll(windowIcons)
         scene.stylesheets += "style/main.css"
         val nightStyle = "style/nightMode.css"
         settings.nightModeProperty.addListener { _, _, newValue ->
@@ -92,6 +94,7 @@ class Bread : Application() {
     }
     
     fun addBaseStyleToDialog(dialogPane: DialogPane) {
+        (dialogPane.scene.window as? Stage?)?.icons?.setAll(windowIcons)
         dialogPane.stylesheets += "style/main.css"
         val nightStyle = "style/nightMode.css"
         settings.nightModeProperty.addListener { _, _, newValue ->
@@ -102,6 +105,10 @@ class Bread : Application() {
             }
         }
         if (settings.nightMode) dialogPane.stylesheets += nightStyle
+    }
+    
+    fun addBaseStyleToAlert(alert: Alert) {
+        addBaseStyleToDialog(alert.dialogPane)
     }
     
     override fun stop() {

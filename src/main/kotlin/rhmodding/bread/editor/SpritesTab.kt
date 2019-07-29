@@ -14,7 +14,6 @@ import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
-import rhmodding.bread.Bread
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
@@ -425,15 +424,14 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                     }
                 }
             }).apply {
-                editor.app.addBaseStyleToScene(this)
                 stylesheets += "style/editor.css"
                 stylesheets += "style/regionPicker.css"
-                icons.setAll(Bread.windowIcons)
             }
         }
         val window = editor.scene.window
         if (window != null)
             regionPicker.initOwner(window)
+        editor.app.addBaseStyleToScene(regionPicker.scene)
         regionPicker.initModality(Modality.APPLICATION_MODAL)
         regionPicker.onCloseRequest = EventHandler {
             copy.regionW = 0u

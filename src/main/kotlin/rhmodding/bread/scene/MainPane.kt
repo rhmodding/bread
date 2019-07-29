@@ -50,7 +50,9 @@ class MainPane(val app: Bread) : BorderPane() {
         center = centrePane
         bottom = bottomPane
         
-        centrePane.children += tabPane
+        centrePane.children += tabPane.apply {
+            tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
+        }
         centrePane.children += noTabsLabel.apply {
             setOnDragOver { evt ->
                 if (evt.gestureSource != noTabsLabel && evt.dragboard.hasFiles()) {
@@ -106,17 +108,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     if (tabPane.tabs.isNotEmpty()) {
                         val currentTab = tabPane.selectionModel.selectedItem
                         if (currentTab is EditorTab<*>) {
-                            val dataFile = currentTab.editor.dataFile
-                            val fc = FileChooser().apply {
-                                title = "Choose a save location"
-                                extensionFilters.add(FileChooser.ExtensionFilter(dataFile.extension.toUpperCase(), "*.${dataFile.extension}"))
-                                initialDirectory = dataFile.parentFile
-                                initialFileName = dataFile.name
-                            }
-                            val file = fc.showSaveDialog(null)
-                            if (file != null) {
-                                currentTab.editor.saveData(file)
-                            }
+                            openSaveFileChooserAndSave(currentTab)
                         }
                     }
                 }
@@ -140,6 +132,22 @@ class MainPane(val app: Bread) : BorderPane() {
         tabPane.side = Side.TOP
     }
     
+    fun openSaveFileChooserAndSave(editorTab: EditorTab<*>): File? {
+        val dataFile = editorTab.editor.dataFile
+        val fc = FileChooser().apply {
+            title = "Choose a save location"
+            extensionFilters.add(FileChooser.ExtensionFilter(dataFile.extension.toUpperCase(), "*.${dataFile.extension}"))
+            initialDirectory = dataFile.parentFile
+            initialFileName = dataFile.name
+        }
+        val file = fc.showSaveDialog(null)
+        if (file != null) {
+            editorTab.editor.saveData(file)
+        }
+        
+        return file
+    }
+    
     fun handleDataFileChoosing(file: File): Boolean {
         when (file.extension) {
             "brcad" -> {
@@ -152,7 +160,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (pngFiles.size == 1) {
                     // Suggest the file
                     val suggested = pngFiles.first()
-                    val buttonTypeUse = ButtonType("Yes, use this file")
+                    val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
                     val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
@@ -193,7 +201,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (headerFiles.size == 1) {
                     // Suggest the file
                     val suggested = headerFiles.first()
-                    val buttonTypeUse = ButtonType("Yes, use this file")
+                    val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
                     val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
@@ -245,7 +253,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (pngFiles.size == 1) {
                     // Suggest the file
                     val suggested = pngFiles.first()
-                    val buttonTypeUse = ButtonType("Yes, use this file")
+                    val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
                     val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
@@ -304,6 +312,40 @@ class MainPane(val app: Bread) : BorderPane() {
         }
     }
     
-    class EditorTab<E : Editor<*>>(title: String, val editor: E) : Tab(title, editor)
+    inner class EditorTab<E : Editor<*>>(title: String, val editor: E) : Tab(title, editor) {
+        
+        init {
+            setOnCloseRequest { evt ->
+                Alert(Alert.AlertType.CONFIRMATION).apply {
+                    this.title = "Tab Close Confirmation"
+                    this.headerText = "Tab Close Confirmation"
+                    this.contentText = "Are you sure you want to close this tab?"
+                    
+                    val buttonSave = ButtonType("Save", ButtonBar.ButtonData.YES)
+                    val buttonDontSave = ButtonType("Don't save")
+                    val buttonCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    this.buttonTypes.setAll(buttonSave, buttonDontSave, buttonCancel)
+                    
+                    when (this.showAndWait().orElse(buttonCancel)) {
+                        buttonSave -> {
+                            val file = openSaveFileChooserAndSave(this@EditorTab)
+                            if (file == null) {
+                                // The operation was cancelled
+                                evt.consume()
+                            }
+                        }
+                        buttonDontSave -> {
+                            // Do nothing, let the event propagate
+                        }
+                        else -> {
+                            // Cancel
+                            evt.consume()
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
     
 }

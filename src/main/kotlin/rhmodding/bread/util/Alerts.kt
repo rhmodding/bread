@@ -22,11 +22,8 @@ class ExceptionAlert(app: Bread?, val exception: Throwable,
         this.title = windowTitle
         this.contentText = contentText
         this.headerText = headerText
-        this.addWindowIcons()
-
-        this.dialogPane?.let {
-            app?.addBaseStyleToDialog(it)
-        }
+        (dialogPane.scene.window as? Stage?)?.icons?.setAll(Bread.windowIcons)
+        app?.addBaseStyleToAlert(this)
 
         val exceptionText = StringWriter().let {
             exception.printStackTrace(PrintWriter(it))
@@ -49,8 +46,4 @@ class ExceptionAlert(app: Bread?, val exception: Throwable,
         this.dialogPane.expandableContent = gridPane
     }
 
-}
-
-fun Alert.addWindowIcons(): Alert = this.apply {
-    (dialogPane.scene.window as? Stage?)?.icons?.addAll(Bread.windowIcons)
 }
