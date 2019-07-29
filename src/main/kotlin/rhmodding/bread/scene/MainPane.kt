@@ -66,7 +66,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 
                 if (db.hasFiles()) {
                     // Find first file that matches
-                    val firstThatMatches = db.files.firstOrNull { it.extension == "brcad" || it.extension == "bccad"}
+                    val firstThatMatches = db.files.firstOrNull { it.extension == "brcad" || it.extension == "bccad" }
                     if (firstThatMatches != null) {
                         Platform.runLater {
                             handleDataFileChoosing(firstThatMatches)
@@ -162,7 +162,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val suggested = pngFiles.first()
                     val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
-                    val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
                         title = "Use suggested file?"
@@ -170,6 +170,9 @@ class MainPane(val app: Bread) : BorderPane() {
                         contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
                         buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
+                        dialogPane.buttonTypes.map(dialogPane::lookupButton).forEach { b ->
+                            ButtonBar.setButtonUniformSize(b, false)
+                        }
                     }
                     val alertResult: Optional<ButtonType> = alert.showAndWait()
                     when (alertResult.get()) {
@@ -203,7 +206,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val suggested = headerFiles.first()
                     val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
-                    val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
                         title = "Use suggested file?"
@@ -211,6 +214,9 @@ class MainPane(val app: Bread) : BorderPane() {
                         contentText = "We found a header file (.h) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
                         buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
+                        dialogPane.buttonTypes.map(dialogPane::lookupButton).forEach { b ->
+                            ButtonBar.setButtonUniformSize(b, false)
+                        }
                     }
                     val alertResult: Optional<ButtonType> = alert.showAndWait()
                     when (alertResult.get()) {
@@ -255,7 +261,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val suggested = pngFiles.first()
                     val buttonTypeUse = ButtonType("Yes, use this file", ButtonBar.ButtonData.YES)
                     val buttonTypePickAnother = ButtonType("No, pick a different one")
-                    val buttonTypeCancel = ButtonType("Cancel everything", ButtonBar.ButtonData.CANCEL_CLOSE)
+                    val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
                         title = "Use suggested file?"
@@ -263,6 +269,9 @@ class MainPane(val app: Bread) : BorderPane() {
                         contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
                         buttonTypes.setAll(buttonTypeUse, buttonTypePickAnother, buttonTypeCancel)
+                        dialogPane.buttonTypes.map(dialogPane::lookupButton).forEach { b ->
+                            ButtonBar.setButtonUniformSize(b, false)
+                        }
                     }
                     val alertResult: Optional<ButtonType> = alert.showAndWait()
                     when (alertResult.get()) {
@@ -325,6 +334,9 @@ class MainPane(val app: Bread) : BorderPane() {
                     val buttonDontSave = ButtonType("Don't save")
                     val buttonCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     this.buttonTypes.setAll(buttonSave, buttonDontSave, buttonCancel)
+                    dialogPane.buttonTypes.map(dialogPane::lookupButton).forEach { b ->
+                        ButtonBar.setButtonUniformSize(b, false)
+                    }
                     
                     when (this.showAndWait().orElse(buttonCancel)) {
                         buttonSave -> {
