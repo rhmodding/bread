@@ -83,8 +83,8 @@ class BCCAD : IDataModel {
     }
     
     var timestamp: Int = 0
-    var sheetW: UShort = 1u
-    var sheetH: UShort = 1u
+    override var sheetW: UShort = 1u
+    override var sheetH: UShort = 1u
     override val sprites: MutableList<Sprite> = mutableListOf()
     override val animations: MutableList<Animation> = mutableListOf()
     

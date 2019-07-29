@@ -11,8 +11,8 @@ class BRCAD : IDataModel {
     var spritesheetNumber: UShort = 0u
     @Unknown
     var spritesheetControlWord2: UShort = 0u
-    var width: UShort = 0u
-    var height: UShort = 0u
+    override var sheetW: UShort = 0u
+    override var sheetH: UShort = 0u
 
     @Unknown
     var unknownAfterSpriteCount: Short = 0
@@ -37,8 +37,8 @@ class BRCAD : IDataModel {
             return BRCAD().apply {
                 spritesheetNumber = bytes.short.toUShort()
                 spritesheetControlWord2 = bytes.short.toUShort()
-                width = bytes.short.toUShort()
-                height = bytes.short.toUShort()
+                sheetW = bytes.short.toUShort()
+                sheetH = bytes.short.toUShort()
 
                 // Sprites
                 val numEntries: Int = bytes.short.toInt()
@@ -119,7 +119,7 @@ class BRCAD : IDataModel {
         // Header
         buffer.putInt(HEADER_MAGIC).putInt(0x0)
         buffer.putShort(spritesheetNumber.toShort()).putShort(spritesheetControlWord2.toShort())
-        buffer.putShort(width.toShort()).putShort(height.toShort())
+        buffer.putShort(sheetW.toShort()).putShort(sheetH.toShort())
 
         // Sprites
         buffer.putShort(sprites.size.toShort()).putShort(unknownAfterSpriteCount)
@@ -157,7 +157,7 @@ class BRCAD : IDataModel {
 
     override fun toString(): String {
         return """BRCAD=[
-            |  spritesheetNum=$spritesheetNumber, width=$width, height=$height,
+            |  spritesheetNum=$spritesheetNumber, width=$sheetW, height=$sheetH,
             |  numSprites=${sprites.size},
             |  sprites=[${sprites.joinToString(separator = "\n")}],
             |  numAnimations=${animations.size},
