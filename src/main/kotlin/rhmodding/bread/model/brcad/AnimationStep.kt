@@ -3,7 +3,6 @@ package rhmodding.bread.model.brcad
 import rhmodding.bread.model.IAnimationStep
 import rhmodding.bread.util.Unknown
 
-@ExperimentalUnsignedTypes
 class AnimationStep : IAnimationStep {
     
     override var spriteIndex: UShort = 0u

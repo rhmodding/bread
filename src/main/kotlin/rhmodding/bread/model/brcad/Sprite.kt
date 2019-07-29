@@ -4,7 +4,6 @@ import rhmodding.bread.model.ISprite
 import rhmodding.bread.util.Unknown
 
 
-@ExperimentalUnsignedTypes
 class Sprite : ISprite {
 
     @Unknown

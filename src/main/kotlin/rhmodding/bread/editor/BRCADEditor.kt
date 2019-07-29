@@ -19,7 +19,6 @@ import java.nio.charset.Charset
 import java.util.logging.Level
 
 
-@ExperimentalUnsignedTypes
 class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage, val headerFile: File)
     : Editor<BRCAD>(app, dataFile, data, image) {
     

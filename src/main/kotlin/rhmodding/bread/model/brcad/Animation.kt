@@ -4,7 +4,6 @@ import rhmodding.bread.model.IAnimation
 import rhmodding.bread.util.Unknown
 
 
-@ExperimentalUnsignedTypes
 class Animation : IAnimation {
 
     @Unknown

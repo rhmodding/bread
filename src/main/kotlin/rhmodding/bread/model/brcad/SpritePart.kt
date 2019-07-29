@@ -16,7 +16,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.sign
 
 
-@ExperimentalUnsignedTypes
 class SpritePart : ISpritePart {
     
     override var regionX: UShort = 0u
