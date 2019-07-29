@@ -328,12 +328,14 @@ class MainPane(val app: Bread) : BorderPane() {
                 Alert(Alert.AlertType.CONFIRMATION).apply {
                     this.title = "Tab Close Confirmation"
                     this.headerText = "Tab Close Confirmation"
-                    this.contentText = "Are you sure you want to close this tab?"
+                    this.contentText = "Are you sure you want to close this editor tab?"
                     
                     val buttonSave = ButtonType("Save", ButtonBar.ButtonData.YES)
                     val buttonDontSave = ButtonType("Don't save")
                     val buttonCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     this.buttonTypes.setAll(buttonSave, buttonDontSave, buttonCancel)
+                    app.addBaseStyleToAlert(this)
+                    
                     dialogPane.buttonTypes.map(dialogPane::lookupButton).forEach { b ->
                         ButtonBar.setButtonUniformSize(b, false)
                     }
