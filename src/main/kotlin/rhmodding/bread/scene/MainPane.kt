@@ -27,6 +27,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.*
+import java.util.concurrent.Callable
 import javax.imageio.ImageIO
 
 
@@ -104,7 +105,7 @@ class MainPane(val app: Bread) : BorderPane() {
         val noTabsLabelVisible = Bindings.isEmpty(tabPane.tabs)
         noTabsLabel.visibleProperty().bind(noTabsLabelVisible)
         noTabsLabel.managedProperty().bind(noTabsLabelVisible)
-    
+        
         toolbar.menus += Menu("File").apply {
             items += MenuItem("Open...").apply {
                 accelerator = openKeyCombo
@@ -126,6 +127,7 @@ class MainPane(val app: Bread) : BorderPane() {
             }
             items += MenuItem("Save").apply {
                 accelerator = KeyCombination.keyCombination("Shortcut+S")
+                disableProperty().bind(Bindings.createBooleanBinding(Callable { tabPane.selectionModel.selectedItem !is EditorTab<*> }, tabPane.selectionModel.selectedItemProperty()))
                 setOnAction {
                     if (tabPane.tabs.isNotEmpty()) {
                         val currentTab = tabPane.selectionModel.selectedItem
@@ -138,13 +140,13 @@ class MainPane(val app: Bread) : BorderPane() {
         }
         toolbar.menus += Menu("View").apply {
             items += CheckMenuItem("Dark Mode").apply {
-//                accelerator = KeyCombination.keyCombination("Shortcut+Alt+D")
+                //                accelerator = KeyCombination.keyCombination("Shortcut+Alt+D")
                 selectedProperty().bindBidirectional(app.settings.nightModeProperty)
             }
         }
         toolbar.menus += Menu("About").apply {
             items += MenuItem("About the program").apply {
-//                accelerator = KeyCombination.keyCombination("Shortcut+Alt+A")
+                //                accelerator = KeyCombination.keyCombination("Shortcut+Alt+A")
                 setOnAction {
                     val aboutTab = tabPane.tabs.find { it is AboutTab } ?: AboutTab(app).also {
                         tabPane.tabs += it
@@ -333,7 +335,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 }
                 
                 // Open BCCADEditor tab
-    
+                
                 val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
                 val bccad = BCCAD.read(readBytes)
                 
@@ -367,7 +369,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 Alert(Alert.AlertType.CONFIRMATION).apply {
                     this.title = "Tab Close Confirmation"
                     this.headerText = "Tab Close Confirmation"
-                    this.contentText = "Are you sure you want to close this editor tab?"
+                    this.contentText = "Would you like to save your changes before closing this editor tab?"
                     
                     val buttonSave = ButtonType("Save", ButtonBar.ButtonData.YES)
                     val buttonDontSave = ButtonType("Don't Save")
