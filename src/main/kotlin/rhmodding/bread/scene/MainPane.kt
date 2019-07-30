@@ -2,10 +2,12 @@ package rhmodding.bread.scene
 
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
+import javafx.event.Event
 import javafx.geometry.Pos
 import javafx.geometry.Side
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
+import javafx.scene.input.KeyEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
@@ -52,6 +54,23 @@ class MainPane(val app: Bread) : BorderPane() {
         
         centrePane.children += tabPane.apply {
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
+            val closeCombo = KeyCombination.keyCombination("Shortcut+F4")
+            addEventHandler(KeyEvent.KEY_PRESSED) { evt ->
+                if (closeCombo.match(evt)) {
+                    if (!this.selectionModel.isEmpty) {
+                        this.selectionModel.selectedItem?.also { tab ->
+                            val reqEvt = Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT)
+                            Event.fireEvent(tab, reqEvt)
+                            if (!reqEvt.isConsumed) {
+                                tabs.remove(tab)
+                                if (tab.onClosed != null) {
+                                    Event.fireEvent(tab, Event(Tab.CLOSED_EVENT))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         centrePane.children += noTabsLabel.apply {
             setOnDragOver { evt ->

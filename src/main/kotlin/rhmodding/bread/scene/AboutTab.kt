@@ -4,12 +4,12 @@ import javafx.geometry.Pos
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
 import javafx.scene.control.Tab
-import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.VBox
 import rhmodding.bread.Bread
+import rhmodding.bread.util.BreadIcon
 import rhmodding.bread.util.Credits
 import rhmodding.bread.util.LibrariesUsed
 import rhmodding.bread.util.em
@@ -26,7 +26,7 @@ class AboutTab(val app: Bread) : Tab("About") {
             gridPane.hgap = 1.0.em
             gridPane.vgap = 0.2.em
             
-            gridPane.add(ImageView(Image("icon/64.png", 128.0, 128.0, true, false, true)), 0, 0)
+            gridPane.add(ImageView(BreadIcon.icon128), 0, 0)
             gridPane.add(VBox().apply {
                 alignment = Pos.CENTER_LEFT
                 children += Label("Bread").apply {
