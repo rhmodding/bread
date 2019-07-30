@@ -144,8 +144,8 @@ class MainPane(val app: Bread) : BorderPane() {
         toolbar.menus += Menu("About").apply {
             items += MenuItem("About the program").apply {
                 setOnAction {
-                    val aboutTab = tabPane.tabs.find { it is AboutTab } ?: AboutTab(app).apply {
-                        tabPane.tabs += this
+                    val aboutTab = tabPane.tabs.find { it is AboutTab } ?: AboutTab(app).also {
+                        tabPane.tabs += it
                     }
                     tabPane.selectionModel.select(aboutTab)
                 }
