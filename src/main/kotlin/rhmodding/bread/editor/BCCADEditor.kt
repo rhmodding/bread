@@ -147,6 +147,7 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                         TextInputDialog(animation.name).apply {
                             this.title = "Renaming animation \"${animation.name}\""
                             this.headerText = "Rename animation \"${animation.name}\" to...\n"
+                            editor.app.addBaseStyleToDialog(this.dialogPane)
                         }.showAndWait().ifPresent { newName ->
                             if (newName.isNotBlank()) {
                                 val n = newName.take(127)
