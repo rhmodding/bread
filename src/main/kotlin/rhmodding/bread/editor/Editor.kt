@@ -38,6 +38,12 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             field = value.coerceIn(0.25, 4.0)
             zoomLabel.text = "Zoom: ${(field * 100).roundToInt()}%"
         }
+    val originLinesCheckbox: CheckBox = CheckBox("Show origin lines").apply {
+        isSelected = true
+    }
+    val showGridCheckbox: CheckBox = CheckBox("Show grid").apply {
+        isSelected = true
+    }
     
     val splitPane: SplitPane = SplitPane()
     
@@ -70,6 +76,20 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
                 children += zoomLabel
             }
             children += Label("Scroll the mouse wheel on the canvas to zoom in/out")
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += showGridCheckbox.apply {
+                    selectedProperty().addListener { _, _, _ ->
+                        repaintCanvas()
+                    }
+                }
+                children += originLinesCheckbox.apply {
+                    selectedProperty().addListener { _, _, _ ->
+                        repaintCanvas()
+                    }
+                }
+            }
         }
         
         canvas.onScroll = EventHandler {
@@ -97,8 +117,6 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         
         splitPane.items.addAll(sidebar, canvasPane)
         
-        
-        
         Platform.runLater {
             repaintCanvas()
         }
@@ -122,23 +140,26 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         }
     }
     
-    fun drawCheckerBackground(canvas: Canvas = this.canvas, originLines: Boolean = true) {
+    fun drawCheckerBackground(canvas: Canvas = this.canvas, showGrid: Boolean = showGridCheckbox.isSelected, originLines: Boolean = originLinesCheckbox.isSelected) {
         val g = canvas.graphicsContext2D
         g.clearRect(0.0, 0.0, canvas.width, canvas.height)
-        g.save()
-        g.transform(getZoomTransformation())
-        val blockSize = 16.0
-        for (x in ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.width / 2 + canvas.width / zoomFactor / 2.0) / blockSize + 2).toInt()) {
-            for (y in ((canvas.height / 2 - canvas.height / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.height / 2 + canvas.height / zoomFactor / 2.0) / blockSize + 2).toInt()) {
-                if ((x + y) % 2 != 0) {
-                    g.fill = Color.LIGHTGRAY
-                } else {
-                    g.fill = Color.WHITE
+        
+        if (showGrid) {
+            g.save()
+            g.transform(getZoomTransformation())
+            val blockSize = 16.0
+            for (x in ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.width / 2 + canvas.width / zoomFactor / 2.0) / blockSize + 2).toInt()) {
+                for (y in ((canvas.height / 2 - canvas.height / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.height / 2 + canvas.height / zoomFactor / 2.0) / blockSize + 2).toInt()) {
+                    if ((x + y) % 2 != 0) {
+                        g.fill = Color.LIGHTGRAY
+                    } else {
+                        g.fill = Color.WHITE
+                    }
+                    g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize)
                 }
-                g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize)
             }
+            g.restore()
         }
-        g.restore()
         
         // Origin lines
         if (originLines) {

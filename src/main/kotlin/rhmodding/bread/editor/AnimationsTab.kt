@@ -200,7 +200,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
             children += TitledPane("Playback", VBox().apply {
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-    
+                
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
@@ -215,22 +215,27 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                         fileChooser.title = "Export this animation as an animated GIF"
                         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
                         fileChooser.initialDirectory = editor.dataFile.parentFile
-            
+                        
                         val file = fileChooser.showSaveDialog(null)
                         if (file != null) {
                             val encoder = AnimatedGifEncoder()
                             encoder.also { e ->
                                 val canvas = editor.canvas
                                 e.start(file.absolutePath)
-                                e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
                                 e.setSize(canvas.width.toInt(), canvas.height.toInt())
+                                val showGrid = editor.showGridCheckbox.isSelected
+                                if (showGrid) {
+                                    e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
+                                } else {
+                                    e.setTransparent(java.awt.Color(1f, 1f, 1f, 1f), true)
+                                }
                                 e.setRepeat(0)
                                 val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
                                 val ani = currentAnimation
                                 val framerate = framerateSpinner.value
                                 ani.steps.forEach { step ->
                                     e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
-                                    editor.drawCheckerBackground(canvas)
+                                    editor.drawCheckerBackground(canvas, showGrid = showGrid)
                                     editor.drawAnimationStep(step)
                                     canvas.snapshot(SnapshotParameters(), writableImage)
                                     val buf = SwingFXUtils.fromFXImage(writableImage, null)
@@ -249,7 +254,7 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
             children += TitledPane("Step Properties", VBox().apply {
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-    
+                
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
