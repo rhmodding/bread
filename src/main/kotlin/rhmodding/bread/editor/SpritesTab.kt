@@ -279,9 +279,9 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         }, 2, 1)
                         add(scaleYSpinner, 3, 1)
                         
-                        add(Label("Flip on X-axis:"), 0, 2)
+                        add(Label("Flip X:"), 0, 2)
                         add(flipXCheckbox, 1, 2)
-                        add(Label("Y-axis:").apply {
+                        add(Label("Y:").apply {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 2)
                         add(flipYCheckbox, 3, 2)
