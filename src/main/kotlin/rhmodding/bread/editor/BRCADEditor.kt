@@ -4,7 +4,9 @@ import javafx.application.Platform
 import javafx.geometry.Pos
 import javafx.scene.control.Alert
 import javafx.scene.control.Label
+import javafx.scene.control.TitledPane
 import javafx.scene.control.Tooltip
+import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import rhmodding.bread.Bread
 import rhmodding.bread.model.IAnimation
@@ -22,7 +24,26 @@ import java.util.logging.Level
 class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage, val headerFile: File)
     : Editor<BRCAD>(app, dataFile, data, image) {
     
-    class HeaderDefine(val string: String, val number: Int, val comment: String)
+    data class HeaderDefine(val string: String, val number: Int, val comment: String)
+    
+    class BRCADSpritesTab(editor: BRCADEditor) : SpritesTab<BRCAD>(editor) {
+        
+        init {
+            body.children.add(0, TitledPane("BRCAD Information", GridPane().apply {
+                styleClass += "grid-pane"
+                alignment = Pos.CENTER_LEFT
+                
+                add(Label("Spritesheet Num.: "), 0, 0)
+                add(Label("${data.spritesheetNumber}").apply {
+                    styleClass += "spritesheet-number"
+                }, 1, 0)
+            }).apply {
+                styleClass += "titled-pane"
+                this.isExpanded = false
+            })
+        }
+        
+    }
     
     class BRCADAnimationsTab(editor: BRCADEditor) : AnimationsTab<BRCAD>(editor) {
         val animationNameLabels: HBox = HBox().apply {
@@ -98,7 +119,7 @@ class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage,
         mapOf()
     }
     
-    override val spritesTab: SpritesTab<BRCAD> = SpritesTab(this)
+    override val spritesTab: SpritesTab<BRCAD> = BRCADSpritesTab(this)
     override val animationsTab: AnimationsTab<BRCAD> = BRCADAnimationsTab(this)
     override val advPropsTab: AdvancedPropertiesTab<BRCAD> = AdvancedPropertiesTab(this)
     
