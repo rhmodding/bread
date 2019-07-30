@@ -138,11 +138,13 @@ class MainPane(val app: Bread) : BorderPane() {
         }
         toolbar.menus += Menu("View").apply {
             items += CheckMenuItem("Dark Mode").apply {
+//                accelerator = KeyCombination.keyCombination("Shortcut+Alt+D")
                 selectedProperty().bindBidirectional(app.settings.nightModeProperty)
             }
         }
         toolbar.menus += Menu("About").apply {
             items += MenuItem("About the program").apply {
+//                accelerator = KeyCombination.keyCombination("Shortcut+Alt+A")
                 setOnAction {
                     val aboutTab = tabPane.tabs.find { it is AboutTab } ?: AboutTab(app).also {
                         tabPane.tabs += it
