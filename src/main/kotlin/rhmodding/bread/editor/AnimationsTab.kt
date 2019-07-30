@@ -27,9 +27,7 @@ import rhmodding.bread.util.spinnerArrowKeys
 import kotlin.math.roundToInt
 
 
-open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animations") {
-    
-    protected val data: F get() = editor.data
+open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(editor, "Animations") {
     
     val body: VBox = VBox().apply {
         isFillWidth = true

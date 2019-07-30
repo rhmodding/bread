@@ -52,6 +52,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     }
     abstract val spritesTab: SpritesTab<F>
     abstract val animationsTab: AnimationsTab<F>
+    abstract val advPropsTab: AdvancedPropertiesTab<F>
     
     protected val subimageCache: WeakHashMap<Long, BufferedImage> = WeakHashMap()
     
@@ -102,7 +103,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         }
         
         Platform.runLater {
-            sidebar.tabs.addAll(spritesTab, animationsTab)
+            sidebar.tabs.addAll(spritesTab, animationsTab/*, advPropsTab*/)
         }
         sidebar.selectionModel.selectedItemProperty().addListener { _, _, t ->
             repaintCanvas()

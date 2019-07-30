@@ -27,9 +27,7 @@ import java.util.*
 import kotlin.math.max
 
 
-open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
-    
-    protected val data: F get() = editor.data
+open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(editor, "Sprites") {
     
     val body: VBox = VBox().apply {
         isFillWidth = true

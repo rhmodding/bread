@@ -1,4 +1,9 @@
 #no-tabs-label {
-    -fx-font-style: italic;
-    -fx-font-size: 133%;
+    -fx-font-size: 150%;
+}
+
+.no-tabs-instructions {
+    -fx-font: 150% "Roboto";
+    -fx-fill: white;
+    -fx-strikethrough: true;
 }

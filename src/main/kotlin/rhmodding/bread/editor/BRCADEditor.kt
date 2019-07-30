@@ -100,6 +100,7 @@ class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage,
     
     override val spritesTab: SpritesTab<BRCAD> = SpritesTab(this)
     override val animationsTab: AnimationsTab<BRCAD> = BRCADAnimationsTab(this)
+    override val advPropsTab: AdvancedPropertiesTab<BRCAD> = AdvancedPropertiesTab(this)
     
     init {
         stylesheets += "style/brcadEditor.css"

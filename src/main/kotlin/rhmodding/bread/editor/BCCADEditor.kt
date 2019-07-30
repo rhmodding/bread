@@ -225,8 +225,11 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
         }
     }
     
+    class BCCADAdvPropsTab(editor: Editor<BCCAD>) : AdvancedPropertiesTab<BCCAD>(editor)
+    
     override val spritesTab: SpritesTab<BCCAD> = BCCADSpritesTab(this)
     override val animationsTab: AnimationsTab<BCCAD> = BCCADAnimationsTab(this)
+    override val advPropsTab: AdvancedPropertiesTab<BCCAD> = BCCADAdvPropsTab(this)
     
     init {
         stylesheets += "style/bccadEditor.css"

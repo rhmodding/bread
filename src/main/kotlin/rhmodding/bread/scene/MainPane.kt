@@ -37,13 +37,7 @@ class MainPane(val app: Bread) : BorderPane() {
     val tabPane: TabPane = TabPane()
     val bottomPane: VBox = VBox()
     
-    val noTabsLabel: Label = Label("Open a file using File > Open...,\nor drag-and-drop a .brcad or .bccad file here").apply {
-        id = "no-tabs-label"
-        textAlignment = TextAlignment.CENTER
-        maxWidth = Double.MAX_VALUE
-        maxHeight = Double.MAX_VALUE
-        alignment = Pos.CENTER
-    }
+    val noTabsLabel: Label
     
     init {
         stylesheets += "style/mainPane.css"
@@ -51,6 +45,15 @@ class MainPane(val app: Bread) : BorderPane() {
         top = toolbar
         center = centrePane
         bottom = bottomPane
+        
+        val openKeyCombo = KeyCombination.keyCombination("Shortcut+O")
+        noTabsLabel = Label("Open a file using File > Open... (${openKeyCombo.displayText}),\nor drag-and-drop a .brcad or .bccad file here").apply {
+            id = "no-tabs-label"
+            textAlignment = TextAlignment.CENTER
+            maxWidth = Double.MAX_VALUE
+            maxHeight = Double.MAX_VALUE
+            alignment = Pos.CENTER
+        }
         
         centrePane.children += tabPane.apply {
             tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
@@ -101,10 +104,10 @@ class MainPane(val app: Bread) : BorderPane() {
         val noTabsLabelVisible = Bindings.isEmpty(tabPane.tabs)
         noTabsLabel.visibleProperty().bind(noTabsLabelVisible)
         noTabsLabel.managedProperty().bind(noTabsLabelVisible)
-        
+    
         toolbar.menus += Menu("File").apply {
             items += MenuItem("Open...").apply {
-                accelerator = KeyCombination.keyCombination("Shortcut+O")
+                accelerator = openKeyCombo
                 setOnAction {
                     val fc = FileChooser().apply {
                         title = "Choose a data file"
