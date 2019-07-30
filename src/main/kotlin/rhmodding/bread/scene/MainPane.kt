@@ -367,7 +367,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     this.contentText = "Are you sure you want to close this editor tab?"
                     
                     val buttonSave = ButtonType("Save", ButtonBar.ButtonData.YES)
-                    val buttonDontSave = ButtonType("Don't save")
+                    val buttonDontSave = ButtonType("Don't Save")
                     val buttonCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     this.buttonTypes.setAll(buttonSave, buttonDontSave, buttonCancel)
                     app.addBaseStyleToAlert(this)
