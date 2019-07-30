@@ -239,7 +239,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 val framerate = framerateSpinner.value
                                 ani.steps.forEach { step ->
                                     e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
-                                    editor.drawCheckerBackground(canvas, showGrid = showGrid)
+                                    editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
                                     editor.drawAnimationStep(step)
                                     canvas.snapshot(SnapshotParameters(), writableImage)
                                     val buf = SwingFXUtils.fromFXImage(writableImage, null)

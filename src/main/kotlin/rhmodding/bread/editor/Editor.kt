@@ -1,6 +1,7 @@
 package rhmodding.bread.editor
 
 import javafx.application.Platform
+import javafx.beans.binding.Bindings
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
@@ -44,6 +45,10 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     val showGridCheckbox: CheckBox = CheckBox("Show grid").apply {
         isSelected = true
     }
+    val darkGridCheckbox: CheckBox = CheckBox("Dark grid").apply {
+        isSelected = false
+        disableProperty().bind(Bindings.not(showGridCheckbox.selectedProperty()))
+    }
     
     val splitPane: SplitPane = SplitPane()
     
@@ -85,11 +90,16 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
 //                        repaintCanvas()
 //                    }
 //                }
-//                children += originLinesCheckbox.apply {
-//                    selectedProperty().addListener { _, _, _ ->
-//                        repaintCanvas()
-//                    }
-//                }
+                children += darkGridCheckbox.apply {
+                    selectedProperty().addListener { _, _, _ ->
+                        repaintCanvas()
+                    }
+                }
+                children += originLinesCheckbox.apply {
+                    selectedProperty().addListener { _, _, _ ->
+                        repaintCanvas()
+                    }
+                }
             }
         }
         
@@ -141,7 +151,10 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         }
     }
     
-    fun drawCheckerBackground(canvas: Canvas = this.canvas, showGrid: Boolean = showGridCheckbox.isSelected, originLines: Boolean = originLinesCheckbox.isSelected) {
+    fun drawCheckerBackground(canvas: Canvas = this.canvas,
+                              showGrid: Boolean = showGridCheckbox.isSelected,
+                              originLines: Boolean = originLinesCheckbox.isSelected,
+                              darkGrid: Boolean = darkGridCheckbox.isSelected) {
         val g = canvas.graphicsContext2D
         g.clearRect(0.0, 0.0, canvas.width, canvas.height)
         
@@ -149,12 +162,14 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
             g.save()
             g.transform(getZoomTransformation())
             val blockSize = 16.0
+            val blockColorEven = if (darkGrid) Color.BLACK else Color.WHITE
+            val blockColorOdd = if (darkGrid) Color.web("#353535FF") else Color.LIGHTGREY
             for (x in ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.width / 2 + canvas.width / zoomFactor / 2.0) / blockSize + 2).toInt()) {
                 for (y in ((canvas.height / 2 - canvas.height / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.height / 2 + canvas.height / zoomFactor / 2.0) / blockSize + 2).toInt()) {
                     if ((x + y) % 2 != 0) {
-                        g.fill = Color.LIGHTGRAY
+                        g.fill = blockColorOdd
                     } else {
-                        g.fill = Color.WHITE
+                        g.fill = blockColorEven
                     }
                     g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize)
                 }
@@ -165,10 +180,12 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
         // Origin lines
         if (originLines) {
             val originLineWidth = 1.0
-            g.fill = Color(1.0, 0.0, 0.0, 0.5)
-            g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
-            g.fill = Color(0.0, 0.0, 1.0, 0.5)
+            val xAxis = if (darkGrid && showGrid) Color(0.5, 0.5, 1.0, 0.75) else Color(0.0, 0.0, 1.0, 0.75)
+            val yAxis = if (darkGrid && showGrid) Color(1.0, 0.5, 0.5, 0.75) else Color(1.0, 0.0, 0.0, 0.75)
+            g.fill = xAxis
             g.fillRect(0.0, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
+            g.fill = yAxis
+            g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
         }
     }
     
