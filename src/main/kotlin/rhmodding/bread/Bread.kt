@@ -9,10 +9,7 @@ import javafx.scene.control.DialogPane
 import javafx.scene.image.Image
 import javafx.stage.Stage
 import rhmodding.bread.scene.MainPane
-import rhmodding.bread.util.ExceptionAlert
-import rhmodding.bread.util.Version
-import rhmodding.bread.util.addDebugAccelerators
-import rhmodding.bread.util.setMinimumBoundsToSized
+import rhmodding.bread.util.*
 import java.io.File
 import java.util.*
 import java.util.logging.Level
@@ -31,7 +28,7 @@ class Bread : Application() {
         const val LICENSE_NAME: String = "Apache License"
         val VERSION: Version = Version(0, 4, 0, "DEVELOPMENT")
         val rootFolder: File = File(System.getProperty("user.home")).resolve(".bread/").apply { mkdirs() }
-        val windowIcons: List<Image> by lazy { listOf(Image("icon/32.png"), Image("icon/64.png")) }
+        val windowIcons: List<Image> by lazy { listOf(BreadIcon.icon32, BreadIcon.icon64) }
         
         @JvmStatic
         fun main(args: Array<String>) {
