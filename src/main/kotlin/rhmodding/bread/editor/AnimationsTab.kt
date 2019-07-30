@@ -8,12 +8,15 @@ import javafx.application.Platform
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
+import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.scene.SnapshotParameters
 import javafx.scene.control.*
 import javafx.scene.image.WritableImage
+import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import javafx.util.Duration
 import rhmodding.bread.model.IAnimation
@@ -255,32 +258,27 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
                 
-                children += HBox().apply {
-                    styleClass += "hbox"
+                children += GridPane().apply {
+                    styleClass += "grid-pane"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("Sprite Index:")
-                    children += stepSpriteSpinner
-                }
-                children += HBox().apply {
-                    styleClass += "hbox"
-                    alignment = Pos.CENTER_LEFT
-                    children += Label("Delay:")
-                    children += stepDelaySpinner
-                    children += Label("frames")
-                }
-                children += HBox().apply {
-                    styleClass += "hbox"
-                    alignment = Pos.CENTER_LEFT
-                    children += Label("Scale X:")
-                    children += stepStretchXSpinner
-                    children += Label("Y:")
-                    children += stepStretchYSpinner
-                }
-                children += HBox().apply {
-                    styleClass += "hbox"
-                    alignment = Pos.CENTER_LEFT
-                    children += Label("Opacity:")
-                    children += stepOpacitySpinner
+                    
+                    add(Label("Sprite Index:"), 0, 0)
+                    add(stepSpriteSpinner, 1, 0)
+                    
+                    add(Label("Delay:"), 0, 1)
+                    add(stepDelaySpinner, 1, 1)
+                    add(Label("frames"), 2, 1)
+                    
+                    add(Label("Scale X:"), 0, 2)
+                    add(stepStretchXSpinner, 1, 2)
+                    add(Label("Y:").apply {
+                        textAlignment = TextAlignment.RIGHT
+                        GridPane.setHalignment(this, HPos.RIGHT)
+                    }, 2, 2)
+                    add(stepStretchYSpinner, 3, 2)
+                    
+                    add(Label("Opacity:"), 0, 3)
+                    add(stepOpacitySpinner, 1, 3)
                 }
             }).apply {
                 styleClass += "titled-pane"

@@ -44,10 +44,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
     val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
     val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
     val scaleYSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
-    val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 1.0).apply {
-        styleClass += "long-spinner"
-        spinnerArrowKeys()
-    }
+    val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 1.0).spinnerArrowKeys()
     val flipXCheckbox: CheckBox = CheckBox()
     val flipYCheckbox: CheckBox = CheckBox()
     val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
@@ -289,14 +286,10 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 2)
                         add(flipYCheckbox, 3, 2)
-                    }
-                    
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Rotation:")
-                        children += rotationSpinner
-                        children += Label(Typography.degree.toString())
+                        
+                        add(Label("Rotation:"), 0, 3)
+                        add(rotationSpinner, 1, 3)
+                        add(Label(Typography.degree.toString()), 2, 3)
                     }
                 }).apply {
                     styleClass += "titled-pane"
