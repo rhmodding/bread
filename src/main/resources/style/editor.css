@@ -11,6 +11,10 @@
     -fx-pref-width: 8.0em;
 }
 
+.color-picker {
+    -fx-pref-width: 8.0em;
+}
+
 .long-spinner {
     -fx-pref-width: 12.0em;
 }
@@ -30,5 +34,4 @@
 .grid-pane {
     -fx-hgap: 0.25em;
     -fx-vgap: 0.25em;
-    -fx-alignment: center-right;
 }

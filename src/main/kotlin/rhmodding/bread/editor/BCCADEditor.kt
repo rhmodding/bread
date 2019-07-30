@@ -1,11 +1,14 @@
 package rhmodding.bread.editor
 
 import javafx.application.Platform
+import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
 import javafx.scene.transform.Affine
 import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
@@ -39,48 +42,28 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                 children += TitledPane("BCCAD-specific", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-    
-                    children += HBox().apply {
-                        styleClass += "hbox"
+                    
+                    children += GridPane().apply {
+                        styleClass += "grid-pane"
                         alignment = Pos.CENTER_LEFT
-                        children += Label("Designation:")
-                        children += designationSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Multiply Color:")
-                        children += multColorPicker
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Screen Color:")
-                        children += screenColorPicker
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Top-left Depth:")
-                        children += tlDepthSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Top-right Depth:")
-                        children += trDepthSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Bottom-left Depth:")
-                        children += blDepthSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Bottom-right Depth:")
-                        children += brDepthSpinner
+                        
+                        add(Label("Designation:"), 0, 0)
+                        add(designationSpinner, 1, 0)
+                        
+                        add(Label("Multiply Color:"), 0, 1)
+                        add(multColorPicker, 1, 1)
+                        
+                        add(Label("Screen Color:"), 0, 2)
+                        add(screenColorPicker, 1, 2)
+                        
+                        add(Label("Top-left Depth:"), 0, 3)
+                        add(tlDepthSpinner, 1, 3)
+                        add(Label("Top-right Depth:"), 0, 4)
+                        add(trDepthSpinner, 1, 4)
+                        add(Label("Bottom-left Depth:"), 0, 5)
+                        add(blDepthSpinner, 1, 5)
+                        add(Label("Bottom-right Depth:"), 0, 6)
+                        add(brDepthSpinner, 1, 6)
                     }
                 }).apply {
                     styleClass += "titled-pane"
@@ -180,36 +163,26 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
                     
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-        
-                        children += Label("Depth:")
-                        children += depthSpinner
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-        
-                        children += Label("Rotation:")
-                        children += rotationSpinner
-                        children += Label("${Typography.degree}")
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-        
-                        children += Label("Color:")
-                        children += colorPicker
-                    }
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-        
-                        children += Label("Translation X:")
-                        children += translateXSpinner
-                        children += Label("Y:")
-                        children += translateYSpinner
+                    children += GridPane().apply {
+                        styleClass += "grid-pane"
+                        
+                        add(Label("Depth:"), 0, 0)
+                        add(depthSpinner, 1, 0)
+                        
+                        add(Label("Rotation:"), 0, 1)
+                        add(rotationSpinner, 1, 1)
+                        add(Label("${Typography.degree}"), 2, 1)
+                        
+                        add(Label("Color:"), 0, 2)
+                        add(colorPicker, 1, 2)
+                        
+                        add(Label("Translation X:"), 0, 3)
+                        add(translateXSpinner, 1, 3)
+                        add(Label("Y:").apply {
+                            textAlignment = TextAlignment.RIGHT
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 3)
+                        add(translateYSpinner, 3, 3)
                     }
                 }).apply {
                     styleClass += "titled-pane"

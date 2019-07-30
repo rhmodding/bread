@@ -302,12 +302,11 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
                     
-                    
-                    children += HBox().apply {
-                        styleClass += "hbox"
-                        alignment = Pos.CENTER_LEFT
-                        children += Label("Opacity:")
-                        children += opacitySpinner
+                    children += GridPane().apply {
+                        styleClass += "grid-pane"
+                        
+                        add(Label("Opacity:"), 0, 0)
+                        add(opacitySpinner, 1, 0)
                     }
                 }).apply {
                     styleClass += "titled-pane"
