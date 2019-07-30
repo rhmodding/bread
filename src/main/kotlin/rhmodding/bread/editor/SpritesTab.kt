@@ -84,7 +84,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("Index:")
+                    children += Label("Index:").apply {
+                        tooltip = Tooltip("Indices start at 0.")
+                    }
                     children += spriteSpinner
                     children += numSpritesLabel
                 }
@@ -139,7 +141,9 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
-                    children += Label("Index:")
+                    children += Label("Index:").apply {
+                        tooltip = Tooltip("Indices start at 0.")
+                    }
                     children += spritePartSpinner
                     children += numSpritePartsLabel
                 }

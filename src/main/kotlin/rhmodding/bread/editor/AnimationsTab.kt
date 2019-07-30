@@ -93,14 +93,18 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Index:")
+                children += Label("Index:").apply {
+                    tooltip = Tooltip("Indices start at 0.")
+                }
                 children += animationSpinner
                 children += numAnimationsLabel
             }
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Step Index:")
+                children += Label("Step Index:").apply {
+                    tooltip = Tooltip("Indices start at 0.")
+                }
                 children += aniStepSpinner
                 children += numAniStepsLabel
             }
