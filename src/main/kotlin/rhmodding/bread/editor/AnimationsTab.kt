@@ -16,7 +16,6 @@ import javafx.scene.image.WritableImage
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
-import javafx.scene.text.TextAlignment
 import javafx.stage.FileChooser
 import javafx.util.Duration
 import rhmodding.bread.model.IAnimation
@@ -272,7 +271,6 @@ open class AnimationsTab<F : IDataModel>(val editor: Editor<F>) : Tab("Animation
                     add(Label("Scale X:"), 0, 2)
                     add(stepStretchXSpinner, 1, 2)
                     add(Label("Y:").apply {
-                        textAlignment = TextAlignment.RIGHT
                         GridPane.setHalignment(this, HPos.RIGHT)
                     }, 2, 2)
                     add(stepStretchYSpinner, 3, 2)

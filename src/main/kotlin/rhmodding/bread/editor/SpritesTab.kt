@@ -10,11 +10,11 @@ import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
+import javafx.scene.layout.BorderPane
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
-import javafx.scene.text.TextAlignment
 import javafx.stage.Modality
 import javafx.stage.Stage
 import rhmodding.bread.model.IDataModel
@@ -266,7 +266,6 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         add(Label("Position X:"), 0, 0)
                         add(posXSpinner, 1, 0)
                         add(Label("Y:").apply {
-                            textAlignment = TextAlignment.RIGHT
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 0)
                         add(posYSpinner, 3, 0)
@@ -274,7 +273,6 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         add(Label("Scale X:"), 0, 1)
                         add(scaleXSpinner, 1, 1)
                         add(Label("Y:").apply {
-                            textAlignment = TextAlignment.RIGHT
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 1)
                         add(scaleYSpinner, 3, 1)
@@ -282,7 +280,6 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                         add(Label("Flip on X-axis:"), 0, 2)
                         add(flipXCheckbox, 1, 2)
                         add(Label("Y-axis:").apply {
-                            textAlignment = TextAlignment.RIGHT
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 2)
                         add(flipYCheckbox, 3, 2)
@@ -334,7 +331,7 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 fun repaintSheetCanvas() {
                     val g = canvas.graphicsContext2D
                     g.clearRect(0.0, 0.0, canvas.width, canvas.height)
-                    editor.drawCheckerBackground(canvas, false)
+                    editor.drawCheckerBackground(canvas, showGrid = true, originLines = false)
                     g.drawImage(fxSheet, 0.0, 0.0, canvas.width, canvas.height)
                     g.stroke = Color.RED
                     g.strokeRect(copy.regionX.toDouble() * scaleFactor, copy.regionY.toDouble() * scaleFactor, copy.regionW.toDouble() * scaleFactor, copy.regionH.toDouble() * scaleFactor)
@@ -344,80 +341,88 @@ open class SpritesTab<F : IDataModel>(val editor: Editor<F>) : Tab("Sprites") {
                 children += ScrollPane().apply {
                     content = VBox().apply {
                         styleClass += "vbox"
+                        alignment = Pos.TOP_CENTER
                         
                         children += canvas
                         children += Separator(Orientation.HORIZONTAL)
                         children += HBox().apply {
                             styleClass += "hbox"
                             alignment = Pos.CENTER_LEFT
-                            children += Label("Adjust the region using the spinners below.")
-                            children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
-                            children += Button("Reset to Original").apply {
-                                setOnAction {
-                                    copy.regionX = spritePart.regionX
-                                    copy.regionY = spritePart.regionY
-                                    copy.regionW = spritePart.regionW
-                                    copy.regionH = spritePart.regionH
-                                    repaintSheetCanvas()
-                                }
-                            }
+                            children += Label("Adjust the region using the spinners below. You may want to find the exact region in an image editor first.")
                         }
-                        children += HBox().apply {
-                            styleClass += "hbox"
-                            alignment = Pos.CENTER_LEFT
-                            children += Label("Region X:")
-                            children += intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                        children += GridPane().apply {
+                            styleClass += "grid-pane"
+                            add(Label("Region X:"), 0, 0)
+                            add(intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
                                 spinnerArrowKeys()
                                 valueProperty().addListener { _, _, n ->
                                     copy.regionX = n.toUShort()
                                     repaintSheetCanvas()
                                 }
-                            }
-                            children += Label("Y:")
-                            children += intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                            }, 1, 0)
+                            add(Label("Y:").apply {
+                                GridPane.setHalignment(this, HPos.RIGHT)
+                            }, 2, 0)
+                            add(intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
                                 spinnerArrowKeys()
                                 valueProperty().addListener { _, _, n ->
                                     copy.regionY = n.toUShort()
                                     repaintSheetCanvas()
                                 }
-                            }
-                        }
-                        children += HBox().apply {
-                            styleClass += "hbox"
-                            alignment = Pos.CENTER_LEFT
-                            children += Label("Region Width:")
-                            children += intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                            }, 3, 0)
+                            add(Label("Region Width:"), 0, 1)
+                            add(intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
                                 spinnerArrowKeys()
                                 valueProperty().addListener { _, _, n ->
                                     copy.regionW = n.toUShort()
                                     repaintSheetCanvas()
                                 }
-                            }
-                            children += Label("Height:")
-                            children += intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                            }, 1, 1)
+                            add(Label("Height:").apply {
+                                GridPane.setHalignment(this, HPos.RIGHT)
+                            }, 2, 1)
+                            add(intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
                                 spinnerArrowKeys()
                                 valueProperty().addListener { _, _, n ->
                                     copy.regionH = n.toUShort()
                                     repaintSheetCanvas()
                                 }
-                            }
+                            }, 3, 1)
                         }
                         children += Separator(Orientation.HORIZONTAL)
-                        children += HBox().apply {
-                            styleClass += "hbox"
-                            alignment = Pos.CENTER_LEFT
-                            children += Button("Confirm").apply {
-                                setOnAction {
-                                    regionPicker.close()
+                        children += BorderPane().apply {
+                            styleClass += "border-pane"
+                            alignment = Pos.CENTER
+                            left = HBox().apply {
+                                styleClass += "hbox"
+                                alignment = Pos.CENTER_LEFT
+                                children += Button("Confirm").apply {
+                                    setOnAction {
+                                        regionPicker.close()
+                                    }
+                                    style = "-fx-base: -fx-default-button"
                                 }
-                                style = "-fx-base: -fx-default-button"
+                                children += Button("Cancel").apply {
+                                    isCancelButton = true
+                                    setOnAction {
+                                        copy.regionW = 0u
+                                        copy.regionH = 0u
+                                        regionPicker.close()
+                                    }
+                                }
                             }
-                            children += Button("Cancel").apply {
-                                isCancelButton = true
-                                setOnAction {
-                                    copy.regionW = 0u
-                                    copy.regionH = 0u
-                                    regionPicker.close()
+                            right = HBox().apply {
+                                styleClass += "hbox"
+                                alignment = Pos.CENTER_RIGHT
+                                children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
+                                children += Button("Reset to Original").apply {
+                                    setOnAction {
+                                        copy.regionX = spritePart.regionX
+                                        copy.regionY = spritePart.regionY
+                                        copy.regionW = spritePart.regionW
+                                        copy.regionH = spritePart.regionH
+                                        repaintSheetCanvas()
+                                    }
                                 }
                             }
                         }

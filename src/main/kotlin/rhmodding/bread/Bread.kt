@@ -47,7 +47,7 @@ class Bread : Application() {
         primaryStage.title = "$TITLE $VERSION"
         primaryStage.icons.addAll(windowIcons)
         
-        val scene = Scene(MainPane(this), 960.0, 720.0).apply {
+        val scene = Scene(MainPane(this), 1000.0, 720.0).apply {
             addDebugAccelerators()
             addBaseStyleToScene(this)
         }
