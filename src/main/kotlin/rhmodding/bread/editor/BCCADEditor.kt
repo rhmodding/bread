@@ -153,6 +153,7 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                                 val n = newName.take(127)
                                 animation.name = n
                                 animationNameLabel.text = n
+                                editor.updateContextMenu()
                             }
                         }
                     }
@@ -231,9 +232,27 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
     override val animationsTab: AnimationsTab<BCCAD> = BCCADAnimationsTab(this)
     override val advPropsTab: AdvancedPropertiesTab<BCCAD> = BCCADAdvPropsTab(this)
     
+    private val animationsMenuCM: Menu = Menu("Animations")
+    
     init {
         stylesheets += "style/bccadEditor.css"
         this.applyCss()
+        
+        contextMenu.items += animationsMenuCM
+        updateContextMenu()
+    }
+    
+    fun updateContextMenu() {
+        animationsMenuCM.items.clear()
+        data.animations.forEachIndexed { i, a ->
+            animationsMenuCM.items += MenuItem("($i): ${a.name}").apply {
+                setOnAction {
+                    // Select animations tab
+                    sidebar.selectionModel.select(animationsTab)
+                    animationsTab.animationSpinner.valueFactory.value = i
+                }
+            }
+        }
     }
     
     override fun drawAnimationStep(step: IAnimationStep) {
