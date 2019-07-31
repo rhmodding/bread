@@ -79,7 +79,7 @@ class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
                 this@BCCADSpritesTab.editor.repaintCanvas()
             }
             screenColorPicker.valueProperty().addListener { _, _, n ->
-                (currentPart as SpritePart).multColor = n
+                (currentPart as SpritePart).screenColor = n
                 this@BCCADSpritesTab.editor.repaintCanvas()
             }
             tlDepthSpinner.valueProperty().addListener { _, _, n ->
