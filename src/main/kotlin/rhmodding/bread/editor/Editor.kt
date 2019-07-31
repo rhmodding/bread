@@ -51,6 +51,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
     }
     
     val splitPane: SplitPane = SplitPane()
+    val contextMenu: ContextMenu = ContextMenu()
     
     val sidebar: TabPane = TabPane().apply {
         this.tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE

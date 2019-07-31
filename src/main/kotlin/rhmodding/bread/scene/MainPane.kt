@@ -62,7 +62,7 @@ class MainPane(val app: Bread) : BorderPane() {
             addEventHandler(KeyEvent.KEY_PRESSED) { evt ->
                 if (closeCombo.match(evt)) {
                     if (!this.selectionModel.isEmpty) {
-                        this.selectionModel.selectedItem?.also { tab ->
+                        this.selectionModel.selectedItem?.takeUnless { it is EditorTab<*> }?.also { tab ->
                             val reqEvt = Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT)
                             Event.fireEvent(tab, reqEvt)
                             if (!reqEvt.isConsumed) {
@@ -416,6 +416,27 @@ class MainPane(val app: Bread) : BorderPane() {
                             evt.consume()
                         }
                     }
+                }
+            }
+            
+            contextMenu = editor.contextMenu.apply {
+                items.add(0, MenuItem("Close").apply {
+                    accelerator = KeyCombination.keyCombination("Shortcut+F4")
+                    setOnAction {
+                        val tabPane = this@MainPane.tabPane
+                        val tab = this@EditorTab
+                        val reqEvt = Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT)
+                        Event.fireEvent(tab, reqEvt)
+                        if (!reqEvt.isConsumed) {
+                            tabPane.tabs.remove(tab)
+                            if (tab.onClosed != null) {
+                                Event.fireEvent(tab, Event(Tab.CLOSED_EVENT))
+                            }
+                        }
+                    }
+                })
+                if (items.size > 1) {
+                    items.add(1, SeparatorMenuItem())
                 }
             }
         }

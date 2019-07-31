@@ -2,10 +2,7 @@ package rhmodding.bread.editor
 
 import javafx.application.Platform
 import javafx.geometry.Pos
-import javafx.scene.control.Alert
-import javafx.scene.control.Label
-import javafx.scene.control.TitledPane
-import javafx.scene.control.Tooltip
+import javafx.scene.control.*
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import rhmodding.bread.Bread
@@ -126,6 +123,19 @@ class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage,
     init {
         stylesheets += "style/brcadEditor.css"
         this.applyCss()
+        
+        contextMenu.items += Menu("Animations").apply {
+            data.animations.forEachIndexed { i, _ ->
+                val defines = headerDefinitions[i]
+                items += MenuItem("($i)${if (defines == null || defines.isEmpty()) "" else ": ${defines.joinToString(separator = ", ") { it.string }}"}").apply {
+                    setOnAction {
+                        // Select animations tab
+                        sidebar.selectionModel.select(animationsTab)
+                        animationsTab.animationSpinner.valueFactory.value = i
+                    }
+                }
+            }
+        }
     }
     
     override fun saveData(file: File) {
