@@ -272,7 +272,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 // Open BRCADEditor tab
                 val brcad = BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN))
                 val rawIm = ImageIO.read(textureFile)
-                // If necessary, resize the image
+                // Resize the image
                 val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rawIm.type)
                 val transform = AffineTransform()
                 transform.scale(1.0 * sheetImg.width / rawIm.width, 1.0 * sheetImg.height / rawIm.height)
@@ -284,6 +284,15 @@ class MainPane(val app: Bread) : BorderPane() {
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
+                
+                if (rawIm.width != brcad.sheetW.toInt() || rawIm.height != brcad.sheetH.toInt()) {
+                    Alert(Alert.AlertType.INFORMATION).apply {
+                        app.addBaseStyleToDialog(dialogPane)
+                        title = "Load Information"
+                        headerText = null
+                        contentText = "The loaded texture file has different dimensions than what is defined in the BRCAD file.\nBRCAD: ${brcad.sheetW} by ${brcad.sheetH}\nTexture: ${rawIm.width} by ${rawIm.height}\nPlease note that in the editor the texture will be visually scaled to fit the BRCAD's dimensions."
+                    }.showAndWait()
+                }
                 return true
             }
             "bccad" -> {
@@ -340,7 +349,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 val bccad = BCCAD.read(readBytes)
                 
                 val rawIm = ImageIO.read(textureFile)
-                // Rotate (and resize if necessary) the image
+                // Rotate (and resize) the image
                 val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), rawIm.type)
                 val transform = AffineTransform()
                 // Note: width and height intentionally swapped in scale call
@@ -356,6 +365,16 @@ class MainPane(val app: Bread) : BorderPane() {
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
+                
+                // Width and height are swapped intentionally
+                if (rawIm.height != bccad.sheetW.toInt() || rawIm.width != bccad.sheetH.toInt()) {
+                    Alert(Alert.AlertType.INFORMATION).apply {
+                        app.addBaseStyleToDialog(dialogPane)
+                        title = "Load Information"
+                        headerText = null
+                        contentText = "The loaded texture file has different dimensions than what is defined in the BCCAD file.\nBCCAD: ${bccad.sheetW} by ${bccad.sheetH}\nTexture (after being rotated): ${rawIm.height} by ${rawIm.width}\nPlease note that in the editor the texture will be visually scaled to fit the BCCAD's dimensions."
+                    }.showAndWait()
+                }
                 return true
             }
             else -> return false
