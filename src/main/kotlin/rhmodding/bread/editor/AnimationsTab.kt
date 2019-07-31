@@ -5,7 +5,10 @@ import javafx.animation.Animation
 import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.application.Platform
+import javafx.beans.binding.Bindings
+import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.HPos
@@ -22,6 +25,7 @@ import rhmodding.bread.model.IAnimation
 import rhmodding.bread.model.IAnimationStep
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.util.doubleSpinnerFactory
+import rhmodding.bread.util.em
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
 import kotlin.math.roundToInt
@@ -37,6 +41,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
     val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeys()
     val playStopButton: Button = Button("Play")
+    val playbackSlider: Slider = Slider(0.0, 1.0, 0.1)
     val framerateSpinner: Spinner<Int> = intSpinnerFactory(1, 60, 30, 5).spinnerArrowKeys().apply {
         styleClass += "short-spinner"
     }
@@ -54,12 +59,12 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     val currentAnimationStep: IAnimationStep
         get() = currentAnimation.steps[aniStepSpinner.value]
     
-    var currentTimeline: Timeline? = null
-        set(value) {
-            field?.stop()
-            field = value
-            playStopButton.text = if (value == null) "Play" else "Stop"
+    var currentTimeline: ObjectProperty<Timeline?> = SimpleObjectProperty(null as Timeline?).apply {
+        addListener { _, old, new ->
+            old?.stop()
+            playStopButton.text = if (new == null) "Play" else "Stop"
         }
+    }
     val playbackStepProperty: SimpleIntegerProperty = SimpleIntegerProperty(0)
     
     val sectionAnimation: VBox
@@ -77,12 +82,21 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 it.value = it.value.coerceAtMost(it.max)
             }
             updateFieldsForStep()
-            currentTimeline = null
+            currentTimeline.value = null
         }
         aniStepSpinner.valueProperty().addListener { _, _, _ ->
             this@AnimationsTab.editor.repaintCanvas()
             updateFieldsForStep()
-            currentTimeline = null
+            currentTimeline.value = null
+        }
+        playbackSlider.apply {
+            prefWidth = 18.0.em
+            this.valueProperty().addListener { _, _, new ->
+                if (!this.isDisabled) {
+                    aniStepSpinner.valueFactory.value = new.toInt()
+                }
+            }
+            this.disableProperty().bind(Bindings.isNotNull(currentTimeline))
         }
         sectionAnimation = VBox().apply {
             styleClass += "vbox"
@@ -174,19 +188,20 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             this@AnimationsTab.editor.repaintCanvas()
         }
         playStopButton.setOnAction {
-            val timeline = currentTimeline
+            val timeline = currentTimeline.value
             if (timeline != null) {
-                currentTimeline = null
+                currentTimeline.value = null
             } else {
                 val ani = currentAnimation
                 if (ani.steps.isNotEmpty()) {
                     val msPerFrame: Double = (1000.0 / framerateSpinner.value)
-                    currentTimeline = Timeline().apply {
+                    currentTimeline.value = Timeline().apply {
                         var currentTime = 0.0
                         ani.steps.forEachIndexed { index, step ->
                             keyFrames += KeyFrame(Duration(currentTime), EventHandler {
                                 playbackStepProperty.value = index
                                 editor.repaintCanvas()
+                                playbackSlider.value = index.toDouble()
                             })
                             currentTime += msPerFrame * step.delay.toInt()
                         }
@@ -208,10 +223,16 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
-                    children += playStopButton
                     children += Label("Framerate:")
                     children += framerateSpinner
                     children += Label("frames/sec")
+                }
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += playStopButton
+                    children += Label("Step:")
+                    children += playbackSlider
                 }
                 children += Button("Export as GIF").apply {
                     setOnAction {
@@ -305,6 +326,17 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         stepStretchXSpinner.valueFactoryProperty().get().value = step.stretchX.toDouble()
         stepStretchYSpinner.valueFactoryProperty().get().value = step.stretchY.toDouble()
         stepOpacitySpinner.valueFactoryProperty().get().value = step.opacity.toInt()
+        playbackSlider.apply {
+            this.min = 0.0
+            this.max = (currentAnimation.steps.size - 1).toDouble()
+            this.blockIncrement = 1.0
+            this.majorTickUnit = 1.0
+            this.minorTickCount = 0
+            this.isShowTickMarks = true
+            this.isShowTickLabels = true
+            this.isSnapToTicks = true
+            this.value = aniStepSpinner.value.toDouble()
+        }
     }
     
 }

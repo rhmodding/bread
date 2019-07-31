@@ -122,7 +122,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
                 it.value = it.value.coerceAtMost(it.max)
             }
             if (t != animationsTab) {
-                animationsTab.currentTimeline = null
+                animationsTab.currentTimeline.value = null
             }
         }
         
@@ -142,7 +142,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val da
                 drawSprite(data.sprites[spritesTab.spriteSpinner.value], spritesTab.spritePartSpinner.value)
             }
             animationsTab -> {
-                val stepIndex = if (animationsTab.currentTimeline != null) animationsTab.playbackStepProperty.value else animationsTab.aniStepSpinner.value
+                val stepIndex = if (animationsTab.currentTimeline.value != null) animationsTab.playbackStepProperty.value else animationsTab.aniStepSpinner.value
                 val step = animationsTab.currentAnimation.steps.getOrNull(stepIndex)
                 if (step != null) {
                     drawAnimationStep(step)
