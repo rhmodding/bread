@@ -330,8 +330,8 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             this.min = 0.0
             this.max = (currentAnimation.steps.size - 1).toDouble()
             this.blockIncrement = 1.0
-            this.majorTickUnit = 1.0
-            this.minorTickCount = 0
+            this.majorTickUnit = if (max <= 5.0) 1.0 else if (max < 8.0) 2.0 else 4.0
+            this.minorTickCount = (majorTickUnit.toInt() - 1).coerceAtMost(max.toInt() - 1)
             this.isShowTickMarks = true
             this.isShowTickLabels = true
             this.isSnapToTicks = true
