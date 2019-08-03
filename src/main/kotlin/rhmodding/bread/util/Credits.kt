@@ -7,7 +7,8 @@ object Credits {
                 Credit("Malalaika", "https://www.youtube.com/channel/UCw3s0K9zLcZwpKmm3KVUFbA"),
                 Credit("chrislo27", "https://github.com/chrislo27"),
                 Credit("@theonetruegarbo", "https://twitter.com/theonetruegarbo"),
-                Credit("Lvl100Feraligatr", "https://www.youtube.com/channel/UCigmB3cCbQ7wuY4SKHAL4WQ")
+                Credit("Lvl100Feraligatr", "https://www.youtube.com/channel/UCigmB3cCbQ7wuY4SKHAL4WQ"),
+                Credit("meuol", "https://www.youtube.com/channel/UCNAUWWq3RKyGDHzBuKgEcPg")
                      )
     }
     
