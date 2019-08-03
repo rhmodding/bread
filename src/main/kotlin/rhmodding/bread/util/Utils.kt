@@ -79,8 +79,8 @@ fun <T> Spinner<T>.spinnerArrowKeys(): Spinner<T> {
     if (this.isEditable) {
         this.editor?.onKeyPressed = EventHandler { evt ->
             when(evt.code) {
-                KeyCode.UP -> this.increment()
-                KeyCode.DOWN -> this.decrement()
+                KeyCode.UP -> this.increment(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
+                KeyCode.DOWN -> this.decrement(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
                 else -> {}
             }
         }
