@@ -1,5 +1,6 @@
 package rhmodding.bread.scene
 
+import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
@@ -8,6 +9,7 @@ import javafx.scene.image.ImageView
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.VBox
+import javafx.scene.text.TextFlow
 import rhmodding.bread.Bread
 import rhmodding.bread.util.BreadIcon
 import rhmodding.bread.util.Credits
@@ -40,21 +42,20 @@ class AboutTab(val app: Bread) : Tab("About") {
             gridPane.add(Label(Bread.VERSION.toString()).apply {
                 styleClass += "version"
             }, 1, row++)
-            // TODO add github link + license info
-//            gridPane.add(Hyperlink(Bread.GITHUB).apply {
-//                setOnAction {
-//                    app.hostServices.showDocument(Bread.GITHUB)
-//                }
-//            }, 1, row++)
-//            gridPane.add(TextFlow().apply {
-//                children += Label("Licensed under ")
-//                children += Hyperlink(Bread.LICENSE_NAME).apply {
-//                    padding = Insets(0.0)
-//                    setOnAction { _ ->
-//                        app.hostServices.showDocument("${Bread.GITHUB}/blob/master/LICENSE")
-//                    }
-//                }
-//            }, 1, row++)
+            gridPane.add(Hyperlink(Bread.GITHUB).apply {
+                setOnAction {
+                    app.hostServices.showDocument(Bread.GITHUB)
+                }
+            }, 1, row++)
+            gridPane.add(TextFlow().apply {
+                children += Label("Licensed under the ")
+                children += Hyperlink(Bread.LICENSE_NAME).apply {
+                    padding = Insets(0.0)
+                    setOnAction { _ ->
+                        app.hostServices.showDocument("${Bread.GITHUB}/blob/master/LICENSE")
+                    }
+                }
+            }, 1, row++)
             row++
             gridPane.add(Label("Open-Source Software used: ").apply { styleClass += "oss" }, 1, row++)
             val librariesGridPane = GridPane().apply {
