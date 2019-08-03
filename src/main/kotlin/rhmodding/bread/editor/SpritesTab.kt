@@ -331,10 +331,14 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
                 val fxSheet = SwingFXUtils.toFXImage(sheet, null)
                 
+                val darkGrid = CheckBox("Dark grid").apply {
+                    isSelected = editor.darkGridCheckbox.isSelected
+                }
+                
                 fun repaintSheetCanvas() {
                     val g = canvas.graphicsContext2D
                     g.clearRect(0.0, 0.0, canvas.width, canvas.height)
-                    editor.drawCheckerBackground(canvas, showGrid = true, originLines = false)
+                    editor.drawCheckerBackground(canvas, showGrid = true, originLines = false, darkGrid = darkGrid.isSelected)
                     g.drawImage(fxSheet, 0.0, 0.0, canvas.width, canvas.height)
                     g.stroke = Color.RED
                     g.strokeRect(copy.regionX.toDouble() * scaleFactor, copy.regionY.toDouble() * scaleFactor, copy.regionW.toDouble() * scaleFactor, copy.regionH.toDouble() * scaleFactor)
@@ -391,6 +395,12 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                     repaintSheetCanvas()
                                 }
                             }, 3, 1)
+                            
+                            add(darkGrid.apply {
+                                selectedProperty().addListener { _, _, _ ->
+                                    repaintSheetCanvas()
+                                }
+                            }, 4, 0)
                         }
                         children += Separator(Orientation.HORIZONTAL)
                         children += BorderPane().apply {

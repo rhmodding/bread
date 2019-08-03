@@ -15,6 +15,7 @@ import javafx.scene.transform.Affine
 import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
 import rhmodding.bread.model.*
+import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.em
 import java.awt.image.BufferedImage
 import java.io.File
@@ -24,7 +25,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
-abstract class Editor<F : IDataModel>(val app: Bread, val dataFile: File, val data: F, val texture: BufferedImage)
+abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, val dataFile: File, val data: F, val texture: BufferedImage)
     : BorderPane() {
     
     val canvasPane: VBox = VBox().apply {

@@ -17,6 +17,7 @@ import rhmodding.bread.model.IAnimationStep
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.model.bccad.*
+import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
@@ -24,8 +25,8 @@ import java.awt.image.BufferedImage
 import java.io.File
 
 
-class BCCADEditor(app: Bread, dataFile: File, data: BCCAD, image: BufferedImage)
-    : Editor<BCCAD>(app, dataFile, data, image) {
+class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, image: BufferedImage)
+    : Editor<BCCAD>(app, mainPane, dataFile, data, image) {
     
     class BCCADSpritesTab(editor: BCCADEditor) : SpritesTab<BCCAD>(editor) {
         

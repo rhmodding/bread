@@ -11,6 +11,7 @@ import rhmodding.bread.model.IAnimationStep
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.model.brcad.*
+import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.ExceptionAlert
 import java.awt.image.BufferedImage
 import java.io.File
@@ -18,8 +19,8 @@ import java.nio.charset.Charset
 import java.util.logging.Level
 
 
-class BRCADEditor(app: Bread, dataFile: File, data: BRCAD, image: BufferedImage, val headerFile: File)
-    : Editor<BRCAD>(app, dataFile, data, image) {
+class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, image: BufferedImage, val headerFile: File)
+    : Editor<BRCAD>(app, mainPane, dataFile, data, image) {
     
     data class HeaderDefine(val string: String, val number: Int, val comment: String)
     

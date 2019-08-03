@@ -291,7 +291,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
                 
-                val editor = BRCADEditor(app, file, brcad, sheetImg, headerFile)
+                val editor = BRCADEditor(app, this, file, brcad, sheetImg, headerFile)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
@@ -372,7 +372,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
                 
-                val editor = BCCADEditor(app, file, bccad, sheetImg)
+                val editor = BCCADEditor(app, this, file, bccad, sheetImg)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
