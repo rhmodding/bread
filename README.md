@@ -4,8 +4,8 @@
 
 An editor for animations in the BRCAD and BCCAD file format.
 
-[![Downloads](https://img.shields.io/github/downloads/rhmodding/bread/total.svg)](https://github.com/rhmodding/bread/releases)
-[![License](https://img.shields.io/github/license/rhmodding/bread.svg)](https://github.com/rhmodding/bread/blob/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/rhmodding/bread/total)](https://github.com/rhmodding/bread/releases)
+[![License](https://img.shields.io/github/license/rhmodding/bread)](https://github.com/rhmodding/bread/blob/master/LICENSE)
 
 Requires Java 8u60 (or newer) to Java 10. Java 11 and newer not supported out of the box.
 
