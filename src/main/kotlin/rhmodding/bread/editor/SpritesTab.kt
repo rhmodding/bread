@@ -1,6 +1,8 @@
 package rhmodding.bread.editor
 
 import javafx.application.Platform
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.HPos
@@ -32,7 +34,10 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
     val body: VBox = VBox().apply {
         isFillWidth = true
     }
-    val partPropertiesVBox: VBox = VBox()
+    val disablePartControls: BooleanProperty = SimpleBooleanProperty(false)
+    val partPropertiesVBox: VBox = VBox().apply {
+        disableProperty().bind(disablePartControls)
+    }
     
     val addNewSpritePartButton: Button
     
@@ -171,6 +176,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                     children += addNewSpritePartButton
                     children += Button("Duplicate").apply {
+                        disableProperty().bind(disablePartControls)
                         setOnAction {
                             if (currentSprite.parts.isNotEmpty()) {
                                 editor.addSpritePart(currentSprite, currentPart.copy())
@@ -179,6 +185,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         }
                     }
                     children += Button("Remove").apply {
+                        disableProperty().bind(disablePartControls)
                         setOnAction {
                             if (currentSprite.parts.isNotEmpty()) {
                                 val alert = Alert(Alert.AlertType.CONFIRMATION)
@@ -199,6 +206,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
                     children += Button("Move Up").apply {
+                        disableProperty().bind(disablePartControls)
                         setOnAction {
                             if (spritePartSpinner.value < currentSprite.parts.size - 1) {
                                 Collections.swap(currentSprite.parts, spritePartSpinner.value, spritePartSpinner.value + 1)
@@ -207,6 +215,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         }
                     }
                     children += Button("Move Down").apply {
+                        disableProperty().bind(disablePartControls)
                         setOnAction {
                             if (spritePartSpinner.value > 0) {
                                 Collections.swap(currentSprite.parts, spritePartSpinner.value, spritePartSpinner.value - 1)
@@ -219,6 +228,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
                     children += Button("Edit Region").apply {
+                        disableProperty().bind(disablePartControls)
                         setOnAction {
                             if (currentSprite.parts.isNotEmpty()) {
                                 openRegionEditor(currentPart)
@@ -476,10 +486,10 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         numSpritesLabel.text = "(${data.sprites.size} total sprite${if (data.sprites.size == 1) "" else "s"})"
         numSpritePartsLabel.text = "(${currentSprite.parts.size} total part${if (currentSprite.parts.size == 1) "" else "s"})"
         if (currentSprite.parts.isEmpty()) {
-            partPropertiesVBox.disableProperty().value = true
+            disablePartControls.value = true
             return
         }
-        partPropertiesVBox.disableProperty().value = false
+        disablePartControls.value = false
         val part = currentPart
         posXSpinner.valueFactoryProperty().get().value = part.posX.toInt()
         posYSpinner.valueFactoryProperty().get().value = part.posY.toInt()

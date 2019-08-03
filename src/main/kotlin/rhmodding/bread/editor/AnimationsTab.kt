@@ -6,9 +6,7 @@ import javafx.animation.KeyFrame
 import javafx.animation.Timeline
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
-import javafx.beans.property.ObjectProperty
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.property.*
 import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.HPos
@@ -36,7 +34,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     val body: VBox = VBox().apply {
         isFillWidth = true
     }
-    val stepPropertiesVBox: VBox = VBox()
+    val disableStepControls: BooleanProperty = SimpleBooleanProperty(false)
+    val stepPropertiesVBox: VBox = VBox().apply {
+        disableProperty().bind(disableStepControls)
+    }
     
     val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
     val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeys()
@@ -140,6 +141,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
                 children += Button("Duplicate").apply {
+                    disableProperty().bind(disableStepControls)
                     setOnAction {
                         if (currentAnimation.steps.isNotEmpty()) {
                             editor.addAnimationStep(currentAnimation, currentAnimationStep.copy())
@@ -148,6 +150,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
                 children += Button("Remove").apply {
+                    disableProperty().bind(disableStepControls)
                     setOnAction {
                         if (currentAnimation.steps.isNotEmpty()) {
                             val alert = Alert(Alert.AlertType.CONFIRMATION)
@@ -235,6 +238,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     children += playbackSlider
                 }
                 children += Button("Export as GIF").apply {
+                    disableProperty().bind(disableStepControls)
                     setOnAction {
                         val fileChooser = FileChooser()
                         fileChooser.title = "Export this animation as an animated GIF"
@@ -315,11 +319,11 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
         numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
         if (currentAnimation.steps.isEmpty()) {
-            stepPropertiesVBox.disableProperty().value = true
+            disableStepControls.value = true
             return
         }
         val step = currentAnimationStep
-        stepPropertiesVBox.disableProperty().value = false
+        disableStepControls.value = false
         
         stepSpriteSpinner.valueFactoryProperty().get().value = step.spriteIndex.toInt()
         stepDelaySpinner.valueFactoryProperty().get().value = step.delay.toInt()
