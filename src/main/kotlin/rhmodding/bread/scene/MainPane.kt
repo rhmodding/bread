@@ -145,6 +145,11 @@ class MainPane(val app: Bread) : BorderPane() {
             }
         }
         toolbar.menus += Menu("About").apply {
+            items += MenuItem("Report a bug/problem").apply {
+                setOnAction {
+                    app.hostServices.showDocument("${Bread.GITHUB}/issues/new")
+                }
+            }
             items += MenuItem("About the program").apply {
                 //                accelerator = KeyCombination.keyCombination("Shortcut+Alt+A")
                 setOnAction {
@@ -152,6 +157,11 @@ class MainPane(val app: Bread) : BorderPane() {
                         tabPane.tabs += it
                     }
                     tabPane.selectionModel.select(aboutTab)
+                }
+            }
+            items += MenuItem("Check for updates").apply {
+                setOnAction {
+                    app.hostServices.showDocument("${Bread.GITHUB}/releases")
                 }
             }
         }
