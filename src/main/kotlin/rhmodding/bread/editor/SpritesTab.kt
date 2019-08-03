@@ -325,8 +325,9 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         regionPicker.apply {
             scene = Scene(Group().apply {
                 title = "Edit Sprite Part Region"
+                isAutoSizeChildren = true
                 
-                val scaleFactor = (640.0 / max(sheet.width, sheet.height)).coerceAtMost(1.0)
+                val scaleFactor = (512.0 / max(sheet.width, sheet.height)).coerceAtMost(1.0)
                 val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
                 val fxSheet = SwingFXUtils.toFXImage(sheet, null)
                 
