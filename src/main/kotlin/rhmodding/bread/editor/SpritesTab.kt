@@ -8,14 +8,10 @@ import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
-import javafx.scene.Group
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.VBox
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -30,7 +26,7 @@ import kotlin.math.max
 
 
 open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(editor, "Sprites") {
-    
+
     val body: VBox = VBox().apply {
         isFillWidth = true
     }
@@ -38,9 +34,9 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
     val partPropertiesVBox: VBox = VBox().apply {
         disableProperty().bind(disablePartControls)
     }
-    
+
     val addNewSpritePartButton: Button
-    
+
     val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0).spinnerArrowKeys()
     val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0).spinnerArrowKeys()
     val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
@@ -51,21 +47,21 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
     val flipXCheckbox: CheckBox = CheckBox()
     val flipYCheckbox: CheckBox = CheckBox()
     val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
-    
+
     val numSpritesLabel: Label = Label("")
     val numSpritePartsLabel: Label = Label("")
-    
+
     val currentSprite: ISprite
         get() = data.sprites[spriteSpinner.value]
     val currentPart: ISpritePart
         get() = currentSprite.parts[spritePartSpinner.value]
-    
+
     init {
         this.content = ScrollPane(body).apply {
             this.hbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
             this.vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
         }
-        
+
         spriteSpinner.valueProperty().addListener { _, _, _ ->
             this@SpritesTab.editor.repaintCanvas()
             (spritePartSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
@@ -80,7 +76,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         }
         body.children += VBox().apply {
             alignment = Pos.CENTER_LEFT
-            
+
             children += TitledPane("Sprite", VBox().apply {
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
@@ -140,7 +136,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
             children += TitledPane("Sprite Part", VBox().apply {
                 styleClass += "vbox"
                 alignment = Pos.CENTER_LEFT
-                
+
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
@@ -201,7 +197,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         }
                     }
                 }
-                
+
                 children += HBox().apply {
                     styleClass += "hbox"
                     alignment = Pos.CENTER_LEFT
@@ -239,7 +235,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
             }).apply {
                 styleClass += "titled-pane"
             }
-            
+
             posXSpinner.valueProperty().addListener { _, _, n ->
                 currentPart.posX = n.toShort()
                 this@SpritesTab.editor.repaintCanvas()
@@ -272,7 +268,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 children += TitledPane("Position and Scaling", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    
+
                     children += GridPane().apply {
                         styleClass += "grid-pane"
                         add(Label("Position X:"), 0, 0)
@@ -281,21 +277,21 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 0)
                         add(posYSpinner, 3, 0)
-                        
+
                         add(Label("Scale X:"), 0, 1)
                         add(scaleXSpinner, 1, 1)
                         add(Label("Y:").apply {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 1)
                         add(scaleYSpinner, 3, 1)
-                        
+
                         add(Label("Flip X:"), 0, 2)
                         add(flipXCheckbox, 1, 2)
                         add(Label("Y:").apply {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 2)
                         add(flipYCheckbox, 3, 2)
-                        
+
                         add(Label("Rotation:"), 0, 3)
                         add(rotationSpinner, 1, 3)
                         add(Label(Typography.degree.toString()), 2, 3)
@@ -310,10 +306,10 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 children += TitledPane("Graphics", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    
+
                     children += GridPane().apply {
                         styleClass += "grid-pane"
-                        
+
                         add(Label("Opacity:"), 0, 0)
                         add(opacitySpinner, 1, 0)
                     }
@@ -322,29 +318,32 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 }
             }
         }
-        
+
         Platform.runLater {
             updateFieldsForPart()
         }
     }
-    
+
     fun openRegionEditor(spritePart: ISpritePart): Boolean {
         val copy: ISpritePart = spritePart.copy()
         val regionPicker = Stage()
         val sheet = editor.texture
         regionPicker.apply {
-            scene = Scene(Group().apply {
-                title = "Edit Sprite Part Region"
-                isAutoSizeChildren = true
-                
+            title = "Edit Sprite Part Region"
+            isResizable = false
+            scene = Scene(BorderPane().apply {
+                styleClass += "border-pane"
+                stylesheets += "style/editor.css"
+                stylesheets += "style/regionPicker.css"
+
                 val scaleFactor = (512.0 / max(sheet.width, sheet.height)).coerceAtMost(1.0)
                 val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
                 val fxSheet = SwingFXUtils.toFXImage(sheet, null)
-                
+
                 val darkGrid = CheckBox("Dark grid").apply {
                     isSelected = editor.darkGridCheckbox.isSelected
                 }
-                
+
                 fun repaintSheetCanvas() {
                     val g = canvas.graphicsContext2D
                     g.clearRect(0.0, 0.0, canvas.width, canvas.height)
@@ -353,108 +352,111 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     g.stroke = Color.RED
                     g.strokeRect(copy.regionX.toDouble() * scaleFactor, copy.regionY.toDouble() * scaleFactor, copy.regionW.toDouble() * scaleFactor, copy.regionH.toDouble() * scaleFactor)
                 }
-                
+
                 repaintSheetCanvas()
-                children += ScrollPane().apply {
-                    content = VBox().apply {
-                        styleClass += "vbox"
-                        alignment = Pos.TOP_CENTER
-                        
-                        children += canvas
-                        children += Separator(Orientation.HORIZONTAL)
-                        children += HBox().apply {
+
+                center = ScrollPane().apply scroll@{
+                    isFitToWidth = true
+                    this.content = StackPane(canvas).apply {
+                        alignment = Pos.CENTER
+                    }
+                }
+                BorderPane.setAlignment(center, Pos.CENTER)
+
+                bottom = VBox().apply {
+                    styleClass += "vbox"
+                    alignment = Pos.TOP_CENTER
+
+                    children += Separator(Orientation.HORIZONTAL)
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Label("Adjust the region using the spinners below. You may want to find the exact region in an image editor first.")
+                    }
+                    children += GridPane().apply {
+                        styleClass += "grid-pane"
+                        add(Label("Region X:"), 0, 0)
+                        add(intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                            spinnerArrowKeys()
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionX = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }, 1, 0)
+                        add(Label("Y:").apply {
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 0)
+                        add(intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                            spinnerArrowKeys()
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionY = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }, 3, 0)
+                        add(Label("Region Width:"), 0, 1)
+                        add(intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                            spinnerArrowKeys()
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionW = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }, 1, 1)
+                        add(Label("Height:").apply {
+                            GridPane.setHalignment(this, HPos.RIGHT)
+                        }, 2, 1)
+                        add(intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                            spinnerArrowKeys()
+                            valueProperty().addListener { _, _, n ->
+                                copy.regionH = n.toUShort()
+                                repaintSheetCanvas()
+                            }
+                        }, 3, 1)
+
+                        add(darkGrid.apply {
+                            selectedProperty().addListener { _, _, _ ->
+                                repaintSheetCanvas()
+                            }
+                        }, 4, 0)
+                    }
+                    children += Separator(Orientation.HORIZONTAL)
+                    children += BorderPane().apply {
+                        styleClass += "border-pane"
+                        alignment = Pos.CENTER
+                        left = HBox().apply {
                             styleClass += "hbox"
                             alignment = Pos.CENTER_LEFT
-                            children += Label("Adjust the region using the spinners below. You may want to find the exact region in an image editor first.")
-                        }
-                        children += GridPane().apply {
-                            styleClass += "grid-pane"
-                            add(Label("Region X:"), 0, 0)
-                            add(intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
-                                spinnerArrowKeys()
-                                valueProperty().addListener { _, _, n ->
-                                    copy.regionX = n.toUShort()
-                                    repaintSheetCanvas()
+                            children += Button("Confirm").apply {
+                                setOnAction {
+                                    regionPicker.close()
                                 }
-                            }, 1, 0)
-                            add(Label("Y:").apply {
-                                GridPane.setHalignment(this, HPos.RIGHT)
-                            }, 2, 0)
-                            add(intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
-                                spinnerArrowKeys()
-                                valueProperty().addListener { _, _, n ->
-                                    copy.regionY = n.toUShort()
-                                    repaintSheetCanvas()
-                                }
-                            }, 3, 0)
-                            add(Label("Region Width:"), 0, 1)
-                            add(intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
-                                spinnerArrowKeys()
-                                valueProperty().addListener { _, _, n ->
-                                    copy.regionW = n.toUShort()
-                                    repaintSheetCanvas()
-                                }
-                            }, 1, 1)
-                            add(Label("Height:").apply {
-                                GridPane.setHalignment(this, HPos.RIGHT)
-                            }, 2, 1)
-                            add(intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
-                                spinnerArrowKeys()
-                                valueProperty().addListener { _, _, n ->
-                                    copy.regionH = n.toUShort()
-                                    repaintSheetCanvas()
-                                }
-                            }, 3, 1)
-                            
-                            add(darkGrid.apply {
-                                selectedProperty().addListener { _, _, _ ->
-                                    repaintSheetCanvas()
-                                }
-                            }, 4, 0)
-                        }
-                        children += Separator(Orientation.HORIZONTAL)
-                        children += BorderPane().apply {
-                            styleClass += "border-pane"
-                            alignment = Pos.CENTER
-                            left = HBox().apply {
-                                styleClass += "hbox"
-                                alignment = Pos.CENTER_LEFT
-                                children += Button("Confirm").apply {
-                                    setOnAction {
-                                        regionPicker.close()
-                                    }
-                                    style = "-fx-base: -fx-default-button"
-                                }
-                                children += Button("Cancel").apply {
-                                    isCancelButton = true
-                                    setOnAction {
-                                        copy.regionW = 0u
-                                        copy.regionH = 0u
-                                        regionPicker.close()
-                                    }
+                                style = "-fx-base: -fx-default-button"
+                            }
+                            children += Button("Cancel").apply {
+                                isCancelButton = true
+                                setOnAction {
+                                    copy.regionW = 0u
+                                    copy.regionH = 0u
+                                    regionPicker.close()
                                 }
                             }
-                            right = HBox().apply {
-                                styleClass += "hbox"
-                                alignment = Pos.CENTER_RIGHT
-                                children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
-                                children += Button("Reset to Original").apply {
-                                    setOnAction {
-                                        copy.regionX = spritePart.regionX
-                                        copy.regionY = spritePart.regionY
-                                        copy.regionW = spritePart.regionW
-                                        copy.regionH = spritePart.regionH
-                                        repaintSheetCanvas()
-                                    }
+                        }
+                        right = HBox().apply {
+                            styleClass += "hbox"
+                            alignment = Pos.CENTER_RIGHT
+                            children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
+                            children += Button("Reset to Original").apply {
+                                setOnAction {
+                                    copy.regionX = spritePart.regionX
+                                    copy.regionY = spritePart.regionY
+                                    copy.regionW = spritePart.regionW
+                                    copy.regionH = spritePart.regionH
+                                    repaintSheetCanvas()
                                 }
                             }
                         }
                     }
                 }
-            }).apply {
-                stylesheets += "style/editor.css"
-                stylesheets += "style/regionPicker.css"
-            }
+            })
         }
         val window = editor.scene.window
         if (window != null)
@@ -466,7 +468,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
             copy.regionH = 0u
         }
         regionPicker.showAndWait()
-        
+
         var success = false
         // Check that the copy area is valid
         if (copy.regionX.toInt() + copy.regionW.toInt() <= sheet.width &&
@@ -481,7 +483,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         editor.repaintCanvas()
         return success
     }
-    
+
     open fun updateFieldsForPart() {
         numSpritesLabel.text = "(${data.sprites.size} total sprite${if (data.sprites.size == 1) "" else "s"})"
         numSpritePartsLabel.text = "(${currentSprite.parts.size} total part${if (currentSprite.parts.size == 1) "" else "s"})"
@@ -500,5 +502,5 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         flipYCheckbox.isSelected = part.flipY
         opacitySpinner.valueFactoryProperty().get().value = part.opacity.toInt()
     }
-    
+
 }
