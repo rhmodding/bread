@@ -27,9 +27,9 @@ import java.io.File
 
 class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, image: BufferedImage)
     : Editor<BCCAD>(app, mainPane, dataFile, data, image) {
-    
+
     class BCCADSpritesTab(editor: BCCADEditor) : SpritesTab<BCCAD>(editor) {
-        
+
         val designationSpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
         val multColorPicker: ColorPicker = ColorPicker(Color.WHITE)
         val screenColorPicker: ColorPicker = ColorPicker(Color.BLACK)
@@ -37,26 +37,26 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
         val blDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val trDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val brDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-        
+
         init {
             partPropertiesVBox.apply {
                 children += TitledPane("BCCAD-specific", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    
+
                     children += GridPane().apply {
                         styleClass += "grid-pane"
                         alignment = Pos.CENTER_LEFT
-                        
+
                         add(Label("Designation:"), 0, 0)
                         add(designationSpinner, 1, 0)
-                        
+
                         add(Label("Multiply Color:"), 0, 1)
                         add(multColorPicker, 1, 1)
-                        
+
                         add(Label("Screen Color:"), 0, 2)
                         add(screenColorPicker, 1, 2)
-                        
+
                         add(Label("Top-left Depth:"), 0, 3)
                         add(tlDepthSpinner, 1, 3)
                         add(Label("Top-right Depth:"), 0, 4)
@@ -70,7 +70,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                     styleClass += "titled-pane"
                 }
             }
-            
+
             designationSpinner.valueProperty().addListener { _, _, n ->
                 (currentPart as SpritePart).designation = n.toUByte()
                 this@BCCADSpritesTab.editor.repaintCanvas()
@@ -99,12 +99,12 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 (currentPart as SpritePart).brDepth = n.toFloat()
                 this@BCCADSpritesTab.editor.repaintCanvas()
             }
-            
+
             Platform.runLater {
                 updateFieldsForPart()
             }
         }
-        
+
         override fun updateFieldsForPart() {
             super.updateFieldsForPart()
             if (currentSprite.parts.isNotEmpty()) {
@@ -119,24 +119,25 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             }
         }
     }
-    
+
     class BCCADAnimationsTab(editor: BCCADEditor) : AnimationsTab<BCCAD>(editor) {
-        
+
         val animationNameLabel: Label = Label((currentAnimation as Animation).name).apply {
             id = "name-label"
         }
-        
+
         val depthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val colorPicker: ColorPicker = ColorPicker(Color.WHITE)
         val translateXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
         val translateYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
-        
+        var interpolationCheckbox: CheckBox = CheckBox()
+
         init {
             animationSpinner.valueProperty().addListener { _, _, _ ->
                 animationNameLabel.text = (currentAnimation as Animation).name
             }
-            
+
             sectionAnimation.children.add(1, HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
@@ -160,25 +161,31 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                     }
                 }
             })
-            
+            sectionAnimation.children.add(2, HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Label("Is interpolated?:")
+                children += interpolationCheckbox
+            })
+
             stepPropertiesVBox.apply {
                 children += TitledPane("BCCAD-specific", VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.CENTER_LEFT
-                    
+
                     children += GridPane().apply {
                         styleClass += "grid-pane"
-                        
+
                         add(Label("Depth:"), 0, 0)
                         add(depthSpinner, 1, 0)
-                        
+
                         add(Label("Rotation:"), 0, 1)
                         add(rotationSpinner, 1, 1)
                         add(Label("${Typography.degree}"), 2, 1)
-                        
+
                         add(Label("Color:"), 0, 2)
                         add(colorPicker, 1, 2)
-                        
+
                         add(Label("Translation X:"), 0, 3)
                         add(translateXSpinner, 1, 3)
                         add(Label("Y:").apply {
@@ -191,7 +198,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                     styleClass += "titled-pane"
                 }
             }
-            
+
             depthSpinner.valueProperty().addListener { _, _, n ->
                 (currentAnimationStep as AnimationStep).depth = n.toFloat()
                 this@BCCADAnimationsTab.editor.repaintCanvas()
@@ -212,6 +219,10 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 (currentAnimationStep as AnimationStep).translateY = n.toShort()
                 this@BCCADAnimationsTab.editor.repaintCanvas()
             }
+            interpolationCheckbox.selectedProperty().addListener { _, _, n ->
+                (currentAnimation as Animation).interpolated = n
+                this@BCCADAnimationsTab.editor.repaintCanvas()
+            }
         }
 
         override fun getAnimationNameForGifExport(): String {
@@ -220,6 +231,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
         override fun updateFieldsForStep() {
             super.updateFieldsForStep()
+            interpolationCheckbox.isSelected = (currentAnimation as Animation).interpolated
             if (currentAnimation.steps.isNotEmpty()) {
                 val step = currentAnimationStep as AnimationStep
                 depthSpinner.valueFactoryProperty().get().value = step.depth.toDouble()
@@ -230,23 +242,23 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             }
         }
     }
-    
+
     class BCCADAdvPropsTab(editor: Editor<BCCAD>) : AdvancedPropertiesTab<BCCAD>(editor)
-    
+
     override val spritesTab: SpritesTab<BCCAD> = BCCADSpritesTab(this)
     override val animationsTab: AnimationsTab<BCCAD> = BCCADAnimationsTab(this)
     override val advPropsTab: AdvancedPropertiesTab<BCCAD> = BCCADAdvPropsTab(this)
-    
+
     private val animationsMenuCM: Menu = Menu("Animations")
-    
+
     init {
         stylesheets += "style/bccadEditor.css"
         this.applyCss()
-        
+
         contextMenu.items += animationsMenuCM
         updateContextMenu()
     }
-    
+
     fun updateContextMenu() {
         animationsMenuCM.items.clear()
         data.animations.forEachIndexed { i, a ->
@@ -259,7 +271,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             }
         }
     }
-    
+
     override fun drawAnimationStep(step: IAnimationStep) {
         val g = canvas.graphicsContext2D
         val img = texture
@@ -269,7 +281,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
-            
+
             // BCCAD animation step stuff
             if (step is AnimationStep) {
                 g.transform(Affine().apply {
@@ -278,80 +290,80 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                     appendRotation(step.rotation * 1.0, canvas.width / 2, canvas.height / 2)
                 })
             }
-            
+
             g.transform(Affine(Scale(step.stretchX.toDouble(), step.stretchY.toDouble(), canvas.width / 2, canvas.height / 2)))
             part.transform(canvas, g)
             g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
             g.restore()
         }
     }
-    
+
     override fun saveData(file: File) {
         file.writeBytes(data.toBytes().array())
     }
-    
+
     override fun addSprite(sprite: ISprite) {
         if (sprite is Sprite) {
             data.sprites += sprite
         }
     }
-    
+
     override fun removeSprite(sprite: ISprite) {
         if (sprite is Sprite) {
             data.sprites -= sprite
         }
     }
-    
+
     override fun addSpritePart(sprite: ISprite, part: ISpritePart) {
         if (sprite is Sprite && part is SpritePart) {
             sprite.parts += part
         }
     }
-    
+
     override fun removeSpritePart(sprite: ISprite, part: ISpritePart) {
         if (sprite is Sprite && part is SpritePart) {
             sprite.parts -= part
         }
     }
-    
+
     override fun addAnimation(animation: IAnimation) {
         if (animation is Animation) {
             data.animations += animation
         }
     }
-    
+
     override fun removeAnimation(animation: IAnimation) {
         if (animation is Animation) {
             data.animations -= animation
         }
     }
-    
+
     override fun addAnimationStep(animation: IAnimation, animationStep: IAnimationStep) {
         if (animation is Animation && animationStep is AnimationStep) {
             animation.steps += animationStep
         }
     }
-    
+
     override fun removeAnimationStep(animation: IAnimation, animationStep: IAnimationStep) {
         if (animation is Animation && animationStep is AnimationStep) {
             animation.steps -= animationStep
         }
     }
-    
+
     override fun createSprite(): ISprite {
         return Sprite()
     }
-    
+
     override fun createSpritePart(): ISpritePart {
         return SpritePart()
     }
-    
+
     override fun createAnimation(): IAnimation {
         return Animation()
     }
-    
+
     override fun createAnimationStep(): IAnimationStep {
         return AnimationStep()
     }
-    
+
 }
