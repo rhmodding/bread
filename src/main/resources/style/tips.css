@@ -1,0 +1,14 @@
+#title {
+    -fx-font-weight: bold;
+    -fx-font-size: 3em;
+    -fx-text-overrun: clip;
+}
+
+.vbox {
+    -fx-spacing: 0.65em;
+    -fx-padding: 0.25em;
+}
+
+.hbox {
+    -fx-spacing: 0.33333em;
+}

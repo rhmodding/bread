@@ -165,6 +165,14 @@ class MainPane(val app: Bread) : BorderPane() {
                     tabPane.selectionModel.select(aboutTab)
                 }
             }
+            items += MenuItem("Tips and Tricks").apply {
+                setOnAction {
+                    val tipsTab = tabPane.tabs.find { it is TipsTab } ?: TipsTab(app).also {
+                        tabPane.tabs += it
+                    }
+                    tabPane.selectionModel.select(tipsTab)
+                }
+            }
         }
         
         tabPane.side = Side.TOP
