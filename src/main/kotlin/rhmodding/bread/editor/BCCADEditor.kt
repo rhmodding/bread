@@ -164,7 +164,9 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             sectionAnimation.children.add(2, HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Label("Is interpolated?:")
+                children += Label("Is interpolated?:").apply {
+                    tooltip = Tooltip("Please note that animation previews and GIF exports don't support rendering with interpolation.")
+                }
                 children += interpolationCheckbox
             })
 
