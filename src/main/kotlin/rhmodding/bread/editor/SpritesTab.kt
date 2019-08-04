@@ -11,6 +11,7 @@ import javafx.geometry.Pos
 import javafx.scene.Scene
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
+import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Modality
@@ -22,6 +23,7 @@ import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
 import java.util.*
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 
@@ -344,13 +346,22 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     isSelected = editor.darkGridCheckbox.isSelected
                 }
 
-                fun repaintSheetCanvas() {
+                fun repaintSheetCanvas(fillRegionRect: Boolean = false,
+                                       regX: Double = copy.regionX.toDouble() * scaleFactor,
+                                       regY: Double = copy.regionY.toDouble() * scaleFactor,
+                                       regW: Double = copy.regionW.toDouble() * scaleFactor,
+                                       regH: Double = copy.regionH.toDouble() * scaleFactor) {
                     val g = canvas.graphicsContext2D
                     g.clearRect(0.0, 0.0, canvas.width, canvas.height)
                     editor.drawCheckerBackground(canvas, showGrid = true, originLines = false, darkGrid = darkGrid.isSelected)
                     g.drawImage(fxSheet, 0.0, 0.0, canvas.width, canvas.height)
+                    if (fillRegionRect) {
+                        g.fill = Color(1.0, 0.0, 0.0, 0.35)
+                        g.fillRect(regX, regY, regW, regH)
+                        g.fill = Color.WHITE
+                    }
                     g.stroke = Color.RED
-                    g.strokeRect(copy.regionX.toDouble() * scaleFactor, copy.regionY.toDouble() * scaleFactor, copy.regionW.toDouble() * scaleFactor, copy.regionH.toDouble() * scaleFactor)
+                    g.strokeRect(regX, regY, regW, regH)
                 }
 
                 repaintSheetCanvas()
@@ -363,6 +374,109 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 }
                 BorderPane.setAlignment(center, Pos.CENTER)
 
+                val draggingProperty: BooleanProperty = SimpleBooleanProperty(false)
+                val originalRegionLabelText = "Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})"
+                val originalRegionLabel: Label = Label(originalRegionLabelText)
+                val regionXSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
+                    spinnerArrowKeys()
+                    disableProperty().bind(draggingProperty)
+                    valueProperty().addListener { _, _, n ->
+                        copy.regionX = n.toUShort()
+                        repaintSheetCanvas()
+                    }
+                }
+                val regionYSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                    spinnerArrowKeys()
+                    disableProperty().bind(draggingProperty)
+                    valueProperty().addListener { _, _, n ->
+                        copy.regionY = n.toUShort()
+                        repaintSheetCanvas()
+                    }
+                }
+                val regionWSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
+                    spinnerArrowKeys()
+                    disableProperty().bind(draggingProperty)
+                    valueProperty().addListener { _, _, n ->
+                        copy.regionW = n.toUShort()
+                        repaintSheetCanvas()
+                    }
+                }
+                val regionHSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                    spinnerArrowKeys()
+                    disableProperty().bind(draggingProperty)
+                    valueProperty().addListener { _, _, n ->
+                        copy.regionH = n.toUShort()
+                        repaintSheetCanvas()
+                    }
+                }
+                
+                // Dragging support
+                with(canvas) {
+                    var x = -1
+                    var y = -1
+                    var w = 0
+                    var h = 0
+
+                    fun reset() {
+                        x = -1
+                        y = -1
+                        w = 0
+                        h = 0
+                        draggingProperty.value = false
+                        originalRegionLabel.text = originalRegionLabelText
+                    }
+
+                    setOnMousePressed { e ->
+                        if (e.button == MouseButton.PRIMARY) {
+                            x = (e.x / scaleFactor).toInt()
+                            y = (e.y / scaleFactor).toInt()
+                            repaintSheetCanvas(true, 0.0, 0.0, 0.0, 0.0)
+                            draggingProperty.value = true
+                            originalRegionLabel.text = "Drag an area, right click to cancel"
+                        } else if (e.button == MouseButton.SECONDARY && x >= 0 && y >= 0) {
+                            reset()
+                            repaintSheetCanvas(false)
+                        }
+                    }
+                    setOnMouseReleased { e ->
+                        if (e.button == MouseButton.PRIMARY && x >= 0 && y >= 0) {
+                            if (x >= 0 && y >= 0) {
+                                // Set the copy values and update the spinners
+                                val regionX = if (w < 0) x + w else x
+                                val regionY = if (h < 0) y + h else y
+                                val regionW = w.absoluteValue
+                                val regionH = h.absoluteValue
+                                
+                                copy.regionX = regionX.toUShort()
+                                copy.regionY = regionY.toUShort()
+                                copy.regionW = regionW.toUShort()
+                                copy.regionH = regionH.toUShort()
+                                regionXSpinner.valueFactory.value = regionX
+                                regionYSpinner.valueFactory.value = regionY
+                                regionWSpinner.valueFactory.value = regionW
+                                regionHSpinner.valueFactory.value = regionH
+                                
+                                repaintSheetCanvas(false)
+                            }
+                            reset()
+                        }
+                    }
+                    setOnMouseDragged { e ->
+                        if (e.button == MouseButton.PRIMARY && x >= 0 && y >= 0) {
+                            w = (e.x / scaleFactor).toInt() - x
+                            h = (e.y / scaleFactor).toInt() - y
+
+                            val regionX = if (w < 0) x + w else x
+                            val regionY = if (h < 0) y + h else y
+                            val regionW = w.absoluteValue
+                            val regionH = h.absoluteValue
+                            // Repaint canvas and update label
+                            originalRegionLabel.text = "New region: ($regionX, $regionY, $regionW, $regionH)"
+                            repaintSheetCanvas(true, regionX.toDouble() * scaleFactor, regionY.toDouble() * scaleFactor, regionW.toDouble() * scaleFactor, regionH.toDouble() * scaleFactor)
+                        }
+                    }
+                }
+                
                 bottom = VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.TOP_CENTER
@@ -371,46 +485,22 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     children += HBox().apply {
                         styleClass += "hbox"
                         alignment = Pos.CENTER_LEFT
-                        children += Label("Adjust the region using the spinners below. You may want to find the exact region in an image editor first.")
+                        children += Label("Adjust the region using the spinners below and/or by left clicking and dragging on the canvas.\nYou may want to find the exact region in an image editor first.")
                     }
                     children += GridPane().apply {
                         styleClass += "grid-pane"
                         add(Label("Region X:"), 0, 0)
-                        add(intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionX = n.toUShort()
-                                repaintSheetCanvas()
-                            }
-                        }, 1, 0)
+                        add(regionXSpinner, 1, 0)
                         add(Label("Y:").apply {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 0)
-                        add(intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionY = n.toUShort()
-                                repaintSheetCanvas()
-                            }
-                        }, 3, 0)
+                        add(regionYSpinner, 3, 0)
                         add(Label("Region Width:"), 0, 1)
-                        add(intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionW = n.toUShort()
-                                repaintSheetCanvas()
-                            }
-                        }, 1, 1)
+                        add(regionWSpinner, 1, 1)
                         add(Label("Height:").apply {
                             GridPane.setHalignment(this, HPos.RIGHT)
                         }, 2, 1)
-                        add(intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
-                            spinnerArrowKeys()
-                            valueProperty().addListener { _, _, n ->
-                                copy.regionH = n.toUShort()
-                                repaintSheetCanvas()
-                            }
-                        }, 3, 1)
+                        add(regionHSpinner, 3, 1)
 
                         add(darkGrid.apply {
                             selectedProperty().addListener { _, _, _ ->
@@ -443,8 +533,9 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         right = HBox().apply {
                             styleClass += "hbox"
                             alignment = Pos.CENTER_RIGHT
-                            children += Label("Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})")
+                            children += originalRegionLabel
                             children += Button("Reset to Original").apply {
+                                disableProperty().bind(draggingProperty)
                                 setOnAction {
                                     copy.regionX = spritePart.regionX
                                     copy.regionY = spritePart.regionY

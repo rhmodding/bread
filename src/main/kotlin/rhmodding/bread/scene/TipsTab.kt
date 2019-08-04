@@ -28,6 +28,7 @@ class TipsTab(val app: Bread) : Tab("Tips & Tricks") {
                     
                     children += Label("Pressing the UP or DOWN arrow keys while editing a spinner to change it quickly.\nHold CTRL while doing so to change it by increments of 10.")
                     children += Label("When using the Region Picker in the Sprites tab, find your region area in an image editor first\nso you can set the X, Y, width, and height values.")
+                    children += Label("When using the Region Picker in the Sprites tab, right clicking when you've started a selection\nwill cancel it.")
                 }
             }
         }
