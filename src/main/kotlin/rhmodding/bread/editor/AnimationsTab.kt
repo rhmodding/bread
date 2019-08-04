@@ -240,10 +240,12 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 children += Button("Export as GIF").apply {
                     disableProperty().bind(disableStepControls)
                     setOnAction {
+                        val ani = currentAnimation
                         val fileChooser = FileChooser()
                         fileChooser.title = "Export this animation as an animated GIF"
                         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
                         fileChooser.initialDirectory = editor.dataFile.parentFile
+                        fileChooser.initialFileName = "${getAnimationNameForGifExport()}.gif"
                         
                         val file = fileChooser.showSaveDialog(null)
                         if (file != null) {
@@ -260,7 +262,6 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 }
                                 e.setRepeat(0)
                                 val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
-                                val ani = currentAnimation
                                 val framerate = framerateSpinner.value
                                 ani.steps.forEach { step ->
                                     e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
@@ -341,6 +342,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             this.isSnapToTicks = true
             this.value = aniStepSpinner.value.toDouble()
         }
+    }
+    
+    protected open fun getAnimationNameForGifExport(): String {
+        return "animation_${animationSpinner.value}"
     }
     
 }

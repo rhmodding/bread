@@ -213,7 +213,11 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 this@BCCADAnimationsTab.editor.repaintCanvas()
             }
         }
-        
+
+        override fun getAnimationNameForGifExport(): String {
+            return (currentAnimation as? Animation)?.name ?: super.getAnimationNameForGifExport()
+        }
+
         override fun updateFieldsForStep() {
             super.updateFieldsForStep()
             if (currentAnimation.steps.isNotEmpty()) {
