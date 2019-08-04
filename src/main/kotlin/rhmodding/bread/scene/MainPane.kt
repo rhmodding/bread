@@ -7,7 +7,6 @@ import javafx.geometry.Pos
 import javafx.geometry.Side
 import javafx.scene.control.*
 import javafx.scene.input.KeyCombination
-import javafx.scene.input.KeyEvent
 import javafx.scene.input.TransferMode
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.StackPane
@@ -56,25 +55,24 @@ class MainPane(val app: Bread) : BorderPane() {
             alignment = Pos.CENTER
         }
         
-        centrePane.children += tabPane.apply {
-            tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
-            val closeCombo = KeyCombination.keyCombination("Shortcut+F4")
-            addEventHandler(KeyEvent.KEY_PRESSED) { evt ->
-                if (closeCombo.match(evt)) {
-                    if (!this.selectionModel.isEmpty) {
-                        this.selectionModel.selectedItem?.takeUnless { it is EditorTab<*> }?.also { tab ->
-                            val reqEvt = Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT)
-                            Event.fireEvent(tab, reqEvt)
-                            if (!reqEvt.isConsumed) {
-                                tabs.remove(tab)
-                                if (tab.onClosed != null) {
-                                    Event.fireEvent(tab, Event(Tab.CLOSED_EVENT))
-                                }
+        fun attemptCloseCurrentTab() {
+            with(tabPane) {
+                if (!this.selectionModel.isEmpty) {
+                    this.selectionModel.selectedItem?.also { tab ->
+                        val reqEvt = Event(tab, tab, Tab.TAB_CLOSE_REQUEST_EVENT)
+                        Event.fireEvent(tab, reqEvt)
+                        if (!reqEvt.isConsumed) {
+                            tabs.remove(tab)
+                            if (tab.onClosed != null) {
+                                Event.fireEvent(tab, Event(Tab.CLOSED_EVENT))
                             }
                         }
                     }
                 }
             }
+        }
+        centrePane.children += tabPane.apply {
+            tabClosingPolicy = TabPane.TabClosingPolicy.ALL_TABS
         }
         centrePane.children += noTabsLabel.apply {
             setOnDragOver { evt ->
@@ -142,6 +140,14 @@ class MainPane(val app: Bread) : BorderPane() {
             items += CheckMenuItem("Dark Mode").apply {
                 //                accelerator = KeyCombination.keyCombination("Shortcut+Alt+D")
                 selectedProperty().bindBidirectional(app.settings.nightModeProperty)
+            }
+            items += SeparatorMenuItem()
+            items += MenuItem("Close Current Tab").apply {
+                accelerator = KeyCombination.keyCombination("Shortcut+F4")
+                disableProperty().bind(Bindings.isEmpty(tabPane.tabs))
+                setOnAction {
+                    attemptCloseCurrentTab()
+                }
             }
         }
         toolbar.menus += Menu("About").apply {
