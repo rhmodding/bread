@@ -52,6 +52,11 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
 
     val numSpritesLabel: Label = Label("")
     val numSpritePartsLabel: Label = Label("")
+    
+    protected var lastEditedRegion: ISpritePart = editor.createSpritePart().apply {
+        regionW = 0u
+        regionH = 0u
+    }
 
     val currentSprite: ISprite
         get() = data.sprites[spriteSpinner.value]
@@ -410,6 +415,13 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                 }
                 
+                fun setSpinnersToCopyRegion() {
+                    regionXSpinner.valueFactory.value = copy.regionX.toInt()
+                    regionYSpinner.valueFactory.value = copy.regionY.toInt()
+                    regionWSpinner.valueFactory.value = copy.regionW.toInt()
+                    regionHSpinner.valueFactory.value = copy.regionH.toInt()
+                }
+                
                 // Dragging support
                 with(canvas) {
                     var x = -1
@@ -451,10 +463,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                 copy.regionY = regionY.toUShort()
                                 copy.regionW = regionW.toUShort()
                                 copy.regionH = regionH.toUShort()
-                                regionXSpinner.valueFactory.value = regionX
-                                regionYSpinner.valueFactory.value = regionY
-                                regionWSpinner.valueFactory.value = regionW
-                                regionHSpinner.valueFactory.value = regionH
+                                setSpinnersToCopyRegion()
                                 
                                 repaintSheetCanvas(false)
                             }
@@ -507,6 +516,22 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                 repaintSheetCanvas()
                             }
                         }, 4, 0)
+                        add(Button("Set to Last Edited Region").apply {
+                            val last = lastEditedRegion
+                            val shouldDisable = last.regionW.toUInt() == 0u || last.regionH.toUInt() == 0u
+                            disableProperty().value = shouldDisable
+                            if (!shouldDisable) {
+                                tooltip = Tooltip("Last edited region: (${last.regionX}, ${last.regionY}, ${last.regionW}, ${last.regionH})")
+                            }
+                            setOnAction {
+                                copy.regionX = last.regionX
+                                copy.regionY = last.regionY
+                                copy.regionW = last.regionW
+                                copy.regionH = last.regionH
+                                setSpinnersToCopyRegion()
+                                repaintSheetCanvas()
+                            }
+                        }, 4, 1)
                     }
                     children += Separator(Orientation.HORIZONTAL)
                     children += BorderPane().apply {
@@ -570,6 +595,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
             spritePart.regionW = copy.regionW
             spritePart.regionH = copy.regionH
             success = true
+            lastEditedRegion = copy.copy()
         }
         editor.repaintCanvas()
         return success
