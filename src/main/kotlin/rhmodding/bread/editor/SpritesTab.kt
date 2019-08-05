@@ -519,9 +519,12 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         add(Button("Set to Last Edited Region").apply {
                             val last = lastEditedRegion
                             val shouldDisable = last.regionW.toUInt() == 0u || last.regionH.toUInt() == 0u
-                            disableProperty().value = shouldDisable
+                            
                             if (!shouldDisable) {
+                                disableProperty().bind(disablePartControls)
                                 tooltip = Tooltip("Last edited region: (${last.regionX}, ${last.regionY}, ${last.regionW}, ${last.regionH})")
+                            } else {
+                                disableProperty().value = shouldDisable
                             }
                             setOnAction {
                                 copy.regionX = last.regionX
