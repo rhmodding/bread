@@ -111,7 +111,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val fc = FileChooser().apply {
                         title = "Choose a data file"
                         extensionFilters.add(FileChooser.ExtensionFilter("BRCAD and BCCAD files", "*.brcad", "*.bccad"))
-                        initialDirectory = File(app.settings.dataFileDirectory.value)
+                        initialDirectory = File(app.settings.dataFileDirectory.value).takeIf { it.exists() && it.isDirectory } ?: File(app.settings.defaultDataFileDirectory)
                     }
                     
                     val file = fc.showOpenDialog(null)
