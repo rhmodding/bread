@@ -28,6 +28,7 @@ import java.nio.ByteOrder
 import java.util.*
 import java.util.concurrent.Callable
 import javax.imageio.ImageIO
+import kotlin.math.min
 
 
 class MainPane(val app: Bread) : BorderPane() {
@@ -379,9 +380,10 @@ class MainPane(val app: Bread) : BorderPane() {
                 val transform = AffineTransform()
                 // Note: width and height intentionally swapped in scale call
                 transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
-                transform.translate(0.5 * sheetImg.height, 0.5 * sheetImg.width)
+                val smallestAxis = min(sheetImg.width, sheetImg.height)
+                transform.translate(0.5 * smallestAxis, 0.5 * smallestAxis)
                 transform.rotate(-Math.PI / 2)
-                transform.translate(-0.5 * sheetImg.width, -0.5 * sheetImg.height)
+                transform.translate(-0.5 * smallestAxis, -0.5 * smallestAxis)
                 val g = sheetImg.createGraphics() as Graphics2D
                 g.drawImage(rawIm, transform, null)
                 g.dispose()
