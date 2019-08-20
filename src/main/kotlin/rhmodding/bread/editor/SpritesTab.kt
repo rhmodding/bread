@@ -40,7 +40,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
     val addNewSpritePartButton: Button
 
     val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0).spinnerArrowKeys()
-    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, currentSprite.parts.size - 1, 0).spinnerArrowKeys()
+    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0).spinnerArrowKeys()
     val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
     val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
     val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
@@ -328,6 +328,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
 
         Platform.runLater {
             updateFieldsForPart()
+            (spritePartSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).max = currentSprite.parts.size - 1
         }
     }
 
