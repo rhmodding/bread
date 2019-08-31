@@ -21,6 +21,7 @@ import rhmodding.bread.model.bccad.BCCAD
 import rhmodding.bread.model.brcad.BRCAD
 import java.awt.Graphics2D
 import java.awt.geom.AffineTransform
+import java.awt.image.AffineTransformOp
 import java.awt.image.BufferedImage
 import java.io.File
 import java.nio.ByteBuffer
@@ -28,7 +29,6 @@ import java.nio.ByteOrder
 import java.util.*
 import java.util.concurrent.Callable
 import javax.imageio.ImageIO
-import kotlin.math.min
 
 
 class MainPane(val app: Bread) : BorderPane() {
@@ -376,17 +376,13 @@ class MainPane(val app: Bread) : BorderPane() {
                 
                 val rawIm = ImageIO.read(textureFile)
                 // Rotate (and resize) the image
-                val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), rawIm.type)
+                val sheetImg = BufferedImage(/*1024, 1024, */bccad.sheetW.toInt(), bccad.sheetH.toInt(), BufferedImage.TYPE_INT_ARGB)
                 val transform = AffineTransform()
                 // Note: width and height intentionally swapped in scale call
-                transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
-                val smallestAxis = min(sheetImg.width, sheetImg.height)
-                transform.translate(0.5 * smallestAxis, 0.5 * smallestAxis)
                 transform.rotate(-Math.PI / 2)
-                transform.translate(-0.5 * smallestAxis, -0.5 * smallestAxis)
-                val g = sheetImg.createGraphics() as Graphics2D
-                g.drawImage(rawIm, transform, null)
-                g.dispose()
+                transform.translate(-1.0 * sheetImg.height, 0.0)
+                transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
+                AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC).filter(rawIm, sheetImg)
                 
                 val editor = BCCADEditor(app, this, file, bccad, sheetImg)
                 val newTab = EditorTab(file.name, editor)
