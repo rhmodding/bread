@@ -7,7 +7,6 @@ import javafx.scene.paint.Color
 import javafx.scene.transform.Affine
 import javafx.scene.transform.Rotate
 import javafx.scene.transform.Scale
-import java.awt.image.BufferedImage
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -58,6 +57,6 @@ interface ISpritePart {
         })
     }
     
-    fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image
+    fun prepareForRendering(subimage: Image, multColor: Color, graphics: GraphicsContext): Image
     
 }

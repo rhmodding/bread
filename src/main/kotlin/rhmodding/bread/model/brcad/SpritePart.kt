@@ -1,13 +1,10 @@
 package rhmodding.bread.model.brcad
 
-import javafx.embed.swing.SwingFXUtils
+import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.Unknown
-import java.awt.RenderingHints
-import java.awt.image.BufferedImage
-import kotlin.math.absoluteValue
 
 
 class SpritePart : ISpritePart {
@@ -49,23 +46,28 @@ class SpritePart : ISpritePart {
             it.stretchY = stretchY
             it.rotation = rotation
             it.flipX = flipX
-            it.flipY= flipY
+            it.flipY = flipY
             it.opacity = opacity
             it.unknownLast = unknownLast
         }
     }
-    
-    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
-        // Note that multColor is ignored
-        val newWidth = (regionW.toInt() * stretchX).absoluteValue.toInt().coerceAtLeast(1)
-        val newHeight = (regionH.toInt() * stretchY).absoluteValue.toInt().coerceAtLeast(1)
-        val resized = BufferedImage(newWidth, newHeight, texture.type)
-        val g = resized.createGraphics()
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-        g.drawImage(regionSubimage, 0, 0, newWidth, newHeight, 0, 0, regionW.toInt(), regionH.toInt(), null)
-        g.dispose()
-        return SwingFXUtils.toFXImage(resized, null)
+
+    override fun prepareForRendering(subimage: Image, multColor: Color, graphics: GraphicsContext): Image {
+        // multColor is ignored for BRCAD
+        return subimage
     }
+
+//    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
+//        // Note that multColor is ignored
+//        val newWidth = (regionW.toInt() * stretchX).absoluteValue.toInt().coerceAtLeast(1)
+//        val newHeight = (regionH.toInt() * stretchY).absoluteValue.toInt().coerceAtLeast(1)
+//        val resized = BufferedImage(newWidth, newHeight, texture.type)
+//        val g = resized.createGraphics()
+//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+//        g.drawImage(regionSubimage, 0, 0, newWidth, newHeight, 0, 0, regionW.toInt(), regionH.toInt(), null)
+//        g.dispose()
+//        return SwingFXUtils.toFXImage(resized, null)
+//    }
     
     override fun toString(): String {
         return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity]"

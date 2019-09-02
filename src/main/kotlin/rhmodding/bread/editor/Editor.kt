@@ -2,10 +2,12 @@ package rhmodding.bread.editor
 
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
+import javafx.embed.swing.SwingFXUtils
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.canvas.Canvas
 import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -61,7 +63,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     abstract val animationsTab: AnimationsTab<F>
     abstract val advPropsTab: AdvancedPropertiesTab<F>
     
-    protected val subimageCache: WeakHashMap<Long, BufferedImage> = WeakHashMap()
+    protected val subimageCache: WeakHashMap<Long, Image> = WeakHashMap()
     
     init {
         stylesheets += "style/editor.css"
@@ -195,13 +197,12 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     
     open fun drawSprite(sprite: ISprite, selectedPart: Int = -1) {
         val g = canvas.graphicsContext2D
-        val img = texture
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img, getCachedSubimage(part), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
+            val subimage: Image = part.prepareForRendering(getCachedSubimage(part), Color.WHITE, g)
             part.transform(canvas, g)
-            g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
+            g.drawImage(subimage, part.posX - canvas.width / 2, part.posY - canvas.height / 2, (part.regionW.toInt() * part.stretchX).absoluteValue * 1.0, (part.regionH.toInt() * part.stretchY).absoluteValue * 1.0)
             g.restore()
         }
         val part = sprite.parts.getOrNull(selectedPart)
@@ -218,27 +219,28 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     
     open fun drawAnimationStep(step: IAnimationStep) {
         val g = canvas.graphicsContext2D
-        val img = texture
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img, getCachedSubimage(part), Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
+            
+            val subimage: Image = part.prepareForRendering(getCachedSubimage(part), Color.WHITE, g)
+            
             g.transform(Affine().apply {
                 appendScale(step.stretchX * 1.0, step.stretchY * 1.0, canvas.width / 2, canvas.height / 2)
                 appendRotation(step.rotation * 1.0, canvas.width / 2, canvas.height / 2)
             })
             part.transform(canvas, g)
-            g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
+            g.drawImage(subimage, part.posX - canvas.width / 2, part.posY - canvas.height / 2, (part.regionW.toInt() * part.stretchX).absoluteValue * 1.0, (part.regionH.toInt() * part.stretchY).absoluteValue * 1.0)
             g.restore()
         }
     }
     
-    protected open fun getCachedSubimage(part: ISpritePart): BufferedImage {
+    protected open fun getCachedSubimage(part: ISpritePart): Image {
         val key: Long = (part.regionX.toLong() shl 48) or (part.regionY.toLong() shl 32) or (part.regionW.toLong() shl 16) or (part.regionH.toLong())
         return subimageCache.getOrPut(key) {
-            texture.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt())
+            SwingFXUtils.toFXImage(texture.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), null)
         }
     }
     

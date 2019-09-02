@@ -4,6 +4,7 @@ import javafx.application.Platform
 import javafx.geometry.HPos
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.image.Image
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
@@ -22,6 +23,7 @@ import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeys
 import java.awt.image.BufferedImage
 import java.io.File
+import kotlin.math.absoluteValue
 
 
 class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, image: BufferedImage)
@@ -265,13 +267,13 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
     override fun drawAnimationStep(step: IAnimationStep) {
         val g = canvas.graphicsContext2D
-        val img = texture
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
-            val subImg = part.createFXSubimage(img, getCachedSubimage(part), (step as? AnimationStep)?.color ?: Color.WHITE)
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
+            
+            val subimage: Image = part.prepareForRendering(getCachedSubimage(part), (step as? AnimationStep)?.color ?: Color.WHITE, g)
 
             // BCCAD animation step stuff
             if (step is AnimationStep) {
@@ -283,7 +285,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             }
 
             part.transform(canvas, g)
-            g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
+            g.drawImage(subimage, part.posX - canvas.width / 2, part.posY - canvas.height / 2, (part.regionW.toInt() * part.stretchX).absoluteValue * 1.0, (part.regionH.toInt() * part.stretchY).absoluteValue * 1.0)
             g.restore()
         }
     }

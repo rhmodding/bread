@@ -1,13 +1,10 @@
 package rhmodding.bread.model.bccad
 
-import javafx.embed.swing.SwingFXUtils
+import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
 import javafx.scene.paint.Color
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.Unknown
-import java.awt.RenderingHints
-import java.awt.image.BufferedImage
-import kotlin.math.abs
 
 
 class SpritePart : ISpritePart {
@@ -68,39 +65,44 @@ class SpritePart : ISpritePart {
             it.unknownData = unknownData.toMutableList()
         }
     }
-    
-    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
-        val newWidth = abs(regionSubimage.width * stretchX).toInt().coerceAtLeast(1)
-        val newHeight = abs(regionSubimage.height * stretchY).toInt().coerceAtLeast(1)
-        val resized = BufferedImage(newWidth, newHeight, texture.type)
-        val g = resized.createGraphics()
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
-        g.drawImage(regionSubimage, 0, 0, newWidth, newHeight, 0, 0, regionSubimage.width,
-                    regionSubimage.height, null)
-        g.dispose()
-        val raster = resized.raster
-        val pixels = raster.getPixels(0, 0, raster.width, raster.height, null as IntArray?)
-        for (i in 0 until raster.width) {
-            for (j in 0 until raster.height) {
-                val n = (i + j * raster.width) * 4
-                val r = pixels[n] / 255.0
-                val g = pixels[n + 1] / 255.0
-                val b = pixels[n + 2] / 255.0
-                val sr = 1 - (1 - screenColor.red) * (1 - r)
-                val sg = 1 - (1 - screenColor.green) * (1 - g)
-                val sb = 1 - (1 - screenColor.blue) * (1 - b)
-                val mr = r * this.multColor.red
-                val mg = g * this.multColor.green
-                val mb = b * this.multColor.blue
-                pixels[n] = ((sr * (1 - r) + r * mr) * multColor.red * 255).toInt()
-                pixels[n + 1] = ((sg * (1 - g) + g * mg) * multColor.green * 255).toInt()
-                pixels[n + 2] = ((sb * (1 - b) + b * mb) * multColor.blue * 255).toInt()
-            }
-        }
-        raster.setPixels(0, 0, raster.width, raster.height, pixels)
-        
-        return SwingFXUtils.toFXImage(resized, null)
+
+    override fun prepareForRendering(subimage: Image, multColor: Color, graphics: GraphicsContext): Image {
+        // TODO figure out how to apply blend modes and write it to an image (and return that)
+        return subimage
     }
+
+//    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
+//        val newWidth = abs(regionSubimage.width * stretchX).toInt().coerceAtLeast(1)
+//        val newHeight = abs(regionSubimage.height * stretchY).toInt().coerceAtLeast(1)
+//        val resized = BufferedImage(newWidth, newHeight, texture.type)
+//        val g = resized.createGraphics()
+//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+//        g.drawImage(regionSubimage, 0, 0, newWidth, newHeight, 0, 0, regionSubimage.width,
+//                    regionSubimage.height, null)
+//        g.dispose()
+//        val raster = resized.raster
+//        val pixels = raster.getPixels(0, 0, raster.width, raster.height, null as IntArray?)
+//        for (i in 0 until raster.width) {
+//            for (j in 0 until raster.height) {
+//                val n = (i + j * raster.width) * 4
+//                val r = pixels[n] / 255.0
+//                val g = pixels[n + 1] / 255.0
+//                val b = pixels[n + 2] / 255.0
+//                val sr = 1 - (1 - screenColor.red) * (1 - r)
+//                val sg = 1 - (1 - screenColor.green) * (1 - g)
+//                val sb = 1 - (1 - screenColor.blue) * (1 - b)
+//                val mr = r * this.multColor.red
+//                val mg = g * this.multColor.green
+//                val mb = b * this.multColor.blue
+//                pixels[n] = ((sr * (1 - r) + r * mr) * multColor.red * 255).toInt()
+//                pixels[n + 1] = ((sg * (1 - g) + g * mg) * multColor.green * 255).toInt()
+//                pixels[n + 2] = ((sb * (1 - b) + b * mb) * multColor.blue * 255).toInt()
+//            }
+//        }
+//        raster.setPixels(0, 0, raster.width, raster.height, pixels)
+//        
+//        return SwingFXUtils.toFXImage(resized, null)
+//    }
     
     override fun toString(): String {
         return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity, multColor=$multColor, screenColor=$screenColor, designation=$designation, tlDepth=$tlDepth, blDepth=$blDepth, trDepth=$trDepth, brDepth=$brDepth]"
