@@ -10,7 +10,6 @@ import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.text.TextAlignment
 import javafx.scene.transform.Affine
-import javafx.scene.transform.Scale
 import rhmodding.bread.Bread
 import rhmodding.bread.model.IAnimation
 import rhmodding.bread.model.IAnimationStep
@@ -283,7 +282,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 })
             }
 
-            g.transform(Affine(Scale(step.stretchX.toDouble(), step.stretchY.toDouble(), canvas.width / 2, canvas.height / 2)))
             part.transform(canvas, g)
             g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)
             g.restore()
