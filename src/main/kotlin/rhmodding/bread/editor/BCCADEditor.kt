@@ -127,7 +127,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
         }
 
         val depthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-        val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
         val colorPicker: ColorPicker = ColorPicker(Color.WHITE)
         val translateXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
         val translateYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
@@ -181,10 +180,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                         add(Label("Depth:"), 0, 0)
                         add(depthSpinner, 1, 0)
 
-                        add(Label("Rotation:"), 0, 1)
-                        add(rotationSpinner, 1, 1)
-                        add(Label("${Typography.degree}"), 2, 1)
-
                         add(Label("Color:"), 0, 2)
                         add(colorPicker, 1, 2)
 
@@ -203,10 +198,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
             depthSpinner.valueProperty().addListener { _, _, n ->
                 (currentAnimationStep as AnimationStep).depth = n.toFloat()
-                this@BCCADAnimationsTab.editor.repaintCanvas()
-            }
-            rotationSpinner.valueProperty().addListener { _, _, n ->
-                (currentAnimationStep as AnimationStep).rotation = n.toFloat()
                 this@BCCADAnimationsTab.editor.repaintCanvas()
             }
             colorPicker.valueProperty().addListener { _, _, n ->
@@ -237,7 +228,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             if (currentAnimation.steps.isNotEmpty()) {
                 val step = currentAnimationStep as AnimationStep
                 depthSpinner.valueFactoryProperty().get().value = step.depth.toDouble()
-                rotationSpinner.valueFactoryProperty().get().value = step.rotation.toDouble()
                 colorPicker.value = step.color
                 translateXSpinner.valueFactoryProperty().get().value = step.translateX.toInt()
                 translateYSpinner.valueFactoryProperty().get().value = step.translateY.toInt()

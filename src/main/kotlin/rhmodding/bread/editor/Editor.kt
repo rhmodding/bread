@@ -225,6 +225,10 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             g.save()
             g.transform(getZoomTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
+            g.transform(Affine().apply {
+                appendScale(step.stretchX * 1.0, step.stretchY * 1.0, canvas.width / 2, canvas.height / 2)
+                appendRotation(step.rotation * 1.0, canvas.width / 2, canvas.height / 2)
+            })
             g.transform(Affine(Scale(step.stretchX.toDouble(), step.stretchY.toDouble(), canvas.width / 2, canvas.height / 2)))
             part.transform(canvas, g)
             g.drawImage(subImg, part.posX - canvas.width / 2, part.posY - canvas.height / 2)

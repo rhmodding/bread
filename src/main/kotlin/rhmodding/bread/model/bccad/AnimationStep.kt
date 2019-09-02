@@ -12,12 +12,12 @@ class AnimationStep : IAnimationStep {
     override var stretchX: Float = 1f
     override var stretchY: Float = 1f
     override var opacity: UByte = 255u
+    override var rotation: Float = 0f
     
     var depth: Float = 0f
     var translateX: Short = 0
     var translateY: Short = 0
     var color: Color = Color.WHITE
-    var rotation: Float = 0f
     @Unknown
     var unknown1: Byte = 0
     @Unknown
@@ -42,7 +42,7 @@ class AnimationStep : IAnimationStep {
     }
     
     override fun toString(): String {
-        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], opacity=$opacity, depth=$depth, translate=[$translateX, $translateY], color=$color]"
+        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], rotation=$rotation, opacity=$opacity, depth=$depth, translate=[$translateX, $translateY], color=$color]"
     }
     
 }

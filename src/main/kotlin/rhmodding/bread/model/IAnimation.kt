@@ -16,7 +16,9 @@ interface IAnimationStep {
 
     var stretchX: Float
     var stretchY: Float
-
+    
+    var rotation: Float
+    
     var opacity: UByte
     
     fun copy(): IAnimationStep

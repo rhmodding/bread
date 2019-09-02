@@ -50,6 +50,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     val stepDelaySpinner: Spinner<Int> = intSpinnerFactory(0, 65535, 0).spinnerArrowKeys()
     val stepStretchXSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeys()
     val stepStretchYSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeys()
+    val stepRotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
     val stepOpacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
     
     val numAnimationsLabel: Label = Label("")
@@ -186,6 +187,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             currentAnimationStep.stretchY = n.toFloat()
             this@AnimationsTab.editor.repaintCanvas()
         }
+        stepRotationSpinner.valueProperty().addListener { _, _, n ->
+            currentAnimationStep.rotation = n.toFloat()
+            this@AnimationsTab.editor.repaintCanvas()
+        }
         stepOpacitySpinner.valueProperty().addListener { _, _, n ->
             currentAnimationStep.opacity = n.toUByte()
             this@AnimationsTab.editor.repaintCanvas()
@@ -303,8 +308,12 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }, 2, 2)
                     add(stepStretchYSpinner, 3, 2)
                     
-                    add(Label("Opacity:"), 0, 3)
-                    add(stepOpacitySpinner, 1, 3)
+                    add(Label("Rotation:"), 0, 3)
+                    add(stepRotationSpinner, 1, 3)
+                    add(Label("${Typography.degree}"), 2, 3)
+                    
+                    add(Label("Opacity:"), 0, 4)
+                    add(stepOpacitySpinner, 1, 4)
                 }
             }).apply {
                 styleClass += "titled-pane"
@@ -330,6 +339,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         stepDelaySpinner.valueFactoryProperty().get().value = step.delay.toInt()
         stepStretchXSpinner.valueFactoryProperty().get().value = step.stretchX.toDouble()
         stepStretchYSpinner.valueFactoryProperty().get().value = step.stretchY.toDouble()
+        stepRotationSpinner.valueFactoryProperty().get().value = step.rotation.toDouble()
         stepOpacitySpinner.valueFactoryProperty().get().value = step.opacity.toInt()
         playbackSlider.apply {
             this.min = 0.0

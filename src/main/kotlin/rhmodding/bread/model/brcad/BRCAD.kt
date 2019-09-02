@@ -78,6 +78,7 @@ class BRCAD : IDataModel {
                 val numAnimations = bytes.short.toUShort().toInt()
                 unknownAfterAnimationCount = bytes.short
                 repeat(numAnimations) {
+//                    println("Animation #$it: byte pos ${bytes.position()}")
                     animations += Animation().apply {
                         val numSteps = bytes.short.toUShort().toInt()
                         unknown = bytes.short
@@ -88,7 +89,7 @@ class BRCAD : IDataModel {
                                 unknown1 = bytes.int
                                 stretchX = bytes.float
                                 stretchY = bytes.float
-                                unknown2 = bytes.int
+                                rotation = bytes.float
                                 opacity = bytes.get().toUByte()
                                 unknown3 = bytes.get()
                                 unknown4 = bytes.get()
@@ -146,7 +147,7 @@ class BRCAD : IDataModel {
                 buffer.putShort(step.delay.toShort())
                 buffer.putInt(step.unknown1)
                 buffer.putFloat(step.stretchX).putFloat(step.stretchY)
-                buffer.putInt(step.unknown2)
+                buffer.putFloat(step.rotation)
                 buffer.put(step.opacity.toByte())
                 buffer.put(step.unknown3).put(step.unknown4).put(step.unknown5)
             }
