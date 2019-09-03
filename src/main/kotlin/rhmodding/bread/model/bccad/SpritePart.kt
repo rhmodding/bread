@@ -2,6 +2,7 @@ package rhmodding.bread.model.bccad
 
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.Image
+import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.Unknown
@@ -65,10 +66,37 @@ class SpritePart : ISpritePart {
             it.unknownData = unknownData.toMutableList()
         }
     }
-
+    
     override fun prepareForRendering(subimage: Image, multColor: Color, graphics: GraphicsContext): Image {
-        // TODO figure out how to apply blend modes and write it to an image (and return that)
-        return subimage
+        val width = subimage.width.toInt()
+        val height = subimage.height.toInt()
+        val pixels: IntArray = IntArray(4)
+        val wrImg = WritableImage(width, height)
+        val pixelReader = subimage.pixelReader
+        val pixelWriter = wrImg.pixelWriter
+        for (i in 0 until width) {
+            for (j in 0 until height) {
+                val argb = pixelReader.getArgb(i, j)
+                pixels[0] = (argb shr 24) and 0xFF
+                pixels[1] = (argb shr 16) and 0xFF
+                pixels[2] = (argb shr 8) and 0xFF
+                pixels[3] = argb and 0xFF
+                val r = pixels[1] / 255.0
+                val g = pixels[2] / 255.0
+                val b = pixels[3] / 255.0
+                val sr = 1 - (1 - screenColor.red) * (1 - r)
+                val sg = 1 - (1 - screenColor.green) * (1 - g)
+                val sb = 1 - (1 - screenColor.blue) * (1 - b)
+                val mr = r * this.multColor.red
+                val mg = g * this.multColor.green
+                val mb = b * this.multColor.blue
+                pixels[1] = ((sr * (1 - r) + r * mr) * multColor.red * 255).toInt()
+                pixels[2] = ((sg * (1 - g) + g * mg) * multColor.green * 255).toInt()
+                pixels[3] = ((sb * (1 - b) + b * mb) * multColor.blue * 255).toInt()
+                pixelWriter.setArgb(i, j, (pixels[0] shl 24) or (pixels[1] shl 16) or (pixels[2] shl 8) or (pixels[3]))
+            }
+        }
+        return wrImg
     }
 
 //    override fun createFXSubimage(texture: BufferedImage, regionSubimage: BufferedImage, multColor: Color): Image {
@@ -100,7 +128,7 @@ class SpritePart : ISpritePart {
 //            }
 //        }
 //        raster.setPixels(0, 0, raster.width, raster.height, pixels)
-//        
+//
 //        return SwingFXUtils.toFXImage(resized, null)
 //    }
     
