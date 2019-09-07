@@ -19,8 +19,9 @@ import java.nio.charset.Charset
 import java.util.logging.Level
 
 
-class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, image: BufferedImage, val headerFile: File)
-    : Editor<BRCAD>(app, mainPane, dataFile, data, image) {
+class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, image: BufferedImage, textureFile: File,
+                  val headerFile: File)
+    : Editor<BRCAD>(app, mainPane, dataFile, data, image, textureFile) {
     
     data class HeaderDefine(val string: String, val number: Int, val comment: String)
     
@@ -137,6 +138,11 @@ class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, i
                 }
             }
         }
+    }
+
+    override fun loadTexture(textureFile: File): Triple<BufferedImage, BufferedImage, Boolean> {
+        val (rawIm, sheetImg) = mainPane.loadBRCADImage(textureFile, data)
+        return Triple(rawIm, sheetImg, rawIm.width != data.sheetW.toInt() || rawIm.height != data.sheetH.toInt())
     }
     
     override fun saveData(file: File) {

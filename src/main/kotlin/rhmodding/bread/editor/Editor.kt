@@ -19,7 +19,9 @@ import rhmodding.bread.Bread
 import rhmodding.bread.model.*
 import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.em
+import java.awt.AlphaComposite
 import java.awt.image.BufferedImage
+import java.awt.image.ImageObserver
 import java.io.File
 import java.util.*
 import kotlin.math.absoluteValue
@@ -27,7 +29,8 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
-abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, val dataFile: File, val data: F, val texture: BufferedImage)
+abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, val dataFile: File, val data: F,
+                                      val texture: BufferedImage, val textureFile: File)
     : BorderPane() {
     
     val canvasPane: VBox = VBox().apply {
@@ -132,10 +135,46 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
         
         splitPane.items.addAll(sidebar, canvasPane)
         
+        contextMenu.items.add(MenuItem("Reload Texture").apply {
+            setOnAction { 
+                if (textureFile.exists()) {
+                    val (_, sheetImg, wrongDimensions) = loadTexture(textureFile)
+                    val g = texture.createGraphics()
+                    g.composite = AlphaComposite.Clear
+                    g.fillRect(0, 0, texture.width, texture.height)
+                    g.composite = AlphaComposite.SrcOver
+                    g.drawImage(sheetImg, 0, 0, texture.width, texture.height, null as ImageObserver?)
+                    g.dispose()
+                    subimageCache.clear()
+                    Platform.runLater {
+                        repaintCanvas()
+                    }
+                    Alert(Alert.AlertType.INFORMATION).apply {
+                        app.addBaseStyleToDialog(dialogPane)
+                        title = "Texture File Loaded"
+                        headerText = null
+                        contentText = "The texture has been reloaded.${if (wrongDimensions) "\nThe reloaded texture file has different dimensions than what is defined in the data file.\nPlease note that in the editor the texture will be visually scaled to fit the data file's dimensions." else ""}"
+                    }.showAndWait()
+                } else {
+                    Alert(Alert.AlertType.ERROR).apply {
+                        app.addBaseStyleToDialog(dialogPane)
+                        title = "Missing Texture File"
+                        headerText = null
+                        contentText = "The texture file that was loaded is not found. Please reload the entire data file."
+                    }.showAndWait()
+                }
+            }
+        })
+        
         Platform.runLater {
             repaintCanvas()
         }
     }
+
+    /**
+     * @return Triple of raw image, scaled image, boolean indicating WRONG dimensions if true
+     */
+    protected abstract fun loadTexture(textureFile: File): Triple<BufferedImage, BufferedImage, Boolean>
     
     abstract fun saveData(file: File)
     

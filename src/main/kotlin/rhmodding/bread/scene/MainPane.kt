@@ -297,16 +297,8 @@ class MainPane(val app: Bread) : BorderPane() {
                 
                 // Open BRCADEditor tab
                 val brcad = BRCAD.read(ByteBuffer.wrap(file.readBytes()).order(ByteOrder.BIG_ENDIAN))
-                val rawIm = ImageIO.read(textureFile)
-                // Resize the image
-                val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rawIm.type)
-                val transform = AffineTransform()
-                transform.scale(1.0 * sheetImg.width / rawIm.width, 1.0 * sheetImg.height / rawIm.height)
-                val g = sheetImg.createGraphics() as Graphics2D
-                g.drawImage(rawIm, transform, null)
-                g.dispose()
-                
-                val editor = BRCADEditor(app, this, file, brcad, sheetImg, headerFile)
+                val (rawIm, sheetImg) = loadBRCADImage(textureFile, brcad)
+                val editor = BRCADEditor(app, this, file, brcad, sheetImg, textureFile, headerFile)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
@@ -370,21 +362,11 @@ class MainPane(val app: Bread) : BorderPane() {
                 }
                 
                 // Open BCCADEditor tab
-                
                 val readBytes = ByteBuffer.wrap(file.readBytes()).order(ByteOrder.LITTLE_ENDIAN)
                 val bccad = BCCAD.read(readBytes)
                 
-                val rawIm = ImageIO.read(textureFile)
-                // Rotate (and resize) the image
-                val sheetImg = BufferedImage(/*1024, 1024, */bccad.sheetW.toInt(), bccad.sheetH.toInt(), BufferedImage.TYPE_INT_ARGB)
-                val transform = AffineTransform()
-                // Note: width and height intentionally swapped in scale call
-                transform.rotate(-Math.PI / 2)
-                transform.translate(-1.0 * sheetImg.height, 0.0)
-                transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
-                AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC).filter(rawIm, sheetImg)
-                
-                val editor = BCCADEditor(app, this, file, bccad, sheetImg)
+                val (rawIm, sheetImg) = loadBCCADImage(textureFile, bccad)
+                val editor = BCCADEditor(app, this, file, bccad, sheetImg, textureFile)
                 val newTab = EditorTab(file.name, editor)
                 tabPane.tabs += newTab
                 tabPane.selectionModel.select(newTab)
@@ -402,6 +384,31 @@ class MainPane(val app: Bread) : BorderPane() {
             }
             else -> return false
         }
+    }
+    
+    fun loadBRCADImage(textureFile: File, brcad: BRCAD): Pair<BufferedImage, BufferedImage> {
+        val rawIm = ImageIO.read(textureFile)
+        // Resize the image
+        val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rawIm.type)
+        val transform = AffineTransform()
+        transform.scale(1.0 * sheetImg.width / rawIm.width, 1.0 * sheetImg.height / rawIm.height)
+        val g = sheetImg.createGraphics() as Graphics2D
+        g.drawImage(rawIm, transform, null)
+        g.dispose()
+        return rawIm to sheetImg
+    }
+    
+    fun loadBCCADImage(textureFile: File, bccad: BCCAD): Pair<BufferedImage, BufferedImage> {
+        val rawIm = ImageIO.read(textureFile)
+        // Rotate (and resize) the image
+        val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), BufferedImage.TYPE_INT_ARGB)
+        val transform = AffineTransform()
+        // Note: width and height intentionally swapped in scale call
+        transform.rotate(-Math.PI / 2)
+        transform.translate(-1.0 * sheetImg.height, 0.0)
+        transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
+        AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC).filter(rawIm, sheetImg)
+        return rawIm to sheetImg
     }
     
     inner class EditorTab<E : Editor<*>>(title: String, val editor: E) : Tab(title, editor) {

@@ -26,8 +26,8 @@ import java.io.File
 import kotlin.math.absoluteValue
 
 
-class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, image: BufferedImage)
-    : Editor<BCCAD>(app, mainPane, dataFile, data, image) {
+class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, image: BufferedImage, textureFile: File)
+    : Editor<BCCAD>(app, mainPane, dataFile, data, image, textureFile) {
 
     class BCCADSpritesTab(editor: BCCADEditor) : SpritesTab<BCCAD>(editor) {
 
@@ -263,6 +263,12 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 }
             }
         }
+    }
+
+    override fun loadTexture(textureFile: File): Triple<BufferedImage, BufferedImage, Boolean> {
+        val (rawIm, sheetImg) = mainPane.loadBCCADImage(textureFile, data)
+        // Width and height are swapped in wrong dimensions call
+        return Triple(rawIm, sheetImg, rawIm.height != data.sheetW.toInt() || rawIm.width != data.sheetH.toInt())
     }
 
     override fun drawAnimationStep(step: IAnimationStep) {
