@@ -39,7 +39,7 @@ class SpritePart : ISpritePart {
     var brDepth: Float = 0f
     
     @Unknown
-    var unknownData: MutableList<Byte> = mutableListOf()
+    var unknownData: ByteArray = ByteArray(12) { 0xFF.toByte() }
     
     override fun copy(): SpritePart {
         return SpritePart().also {
@@ -63,7 +63,7 @@ class SpritePart : ISpritePart {
             it.blDepth = blDepth
             it.trDepth = trDepth
             it.brDepth = brDepth
-            it.unknownData = unknownData.toMutableList()
+            it.unknownData = unknownData.toList().toByteArray()
         }
     }
     
@@ -133,6 +133,6 @@ class SpritePart : ISpritePart {
 //    }
     
     override fun toString(): String {
-        return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity, multColor=$multColor, screenColor=$screenColor, designation=$designation, tlDepth=$tlDepth, blDepth=$blDepth, trDepth=$trDepth, brDepth=$brDepth]"
+        return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity, multColor=$multColor, screenColor=$screenColor, designation=$designation, tlDepth=$tlDepth, blDepth=$blDepth, trDepth=$trDepth, brDepth=$brDepth, unknown=0x${unknown.toUShort().toString(16)}, unknownData=[${unknownData.joinToString(separator = " ") { it.toUByte().toString(16).padStart(2, '0') }}]]"
+        }
     }
-}

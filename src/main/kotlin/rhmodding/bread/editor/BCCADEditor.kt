@@ -241,6 +241,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
     override val spritesTab: SpritesTab<BCCAD> = BCCADSpritesTab(this)
     override val animationsTab: AnimationsTab<BCCAD> = BCCADAnimationsTab(this)
     override val advPropsTab: AdvancedPropertiesTab<BCCAD> = BCCADAdvPropsTab(this)
+    override val debugTab: DebugTab<BCCAD> = DebugTab(this)
 
     private val animationsMenuCM: Menu = Menu("Animations")
 

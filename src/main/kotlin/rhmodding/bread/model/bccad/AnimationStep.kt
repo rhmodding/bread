@@ -42,7 +42,7 @@ class AnimationStep : IAnimationStep {
     }
     
     override fun toString(): String {
-        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], rotation=$rotation, opacity=$opacity, depth=$depth, translate=[$translateX, $translateY], color=$color]"
+        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], rotation=$rotation, opacity=$opacity, depth=$depth, translate=[$translateX, $translateY], color=$color, unknown1=0x${unknown1.toUByte().toString(16)}, unknown2=0x${unknown2.toUByte().toString(16)}]"
     }
     
 }

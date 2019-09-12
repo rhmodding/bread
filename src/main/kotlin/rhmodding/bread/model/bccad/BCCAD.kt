@@ -34,7 +34,7 @@ class BCCAD : IDataModel {
                                 screenColor = Color.rgb(bytes.get().toInt() and 0xFF, bytes.get().toInt() and 0xFF, bytes.get().toInt() and 0xFF)
                                 opacity = bytes.get().toUByte()
                                 repeat(12) {
-                                    unknownData.add(bytes.get())
+                                    unknownData[it] = bytes.get()
                                 }
                                 designation = bytes.get().toUByte()
                                 unknown = bytes.short
@@ -133,7 +133,7 @@ class BCCAD : IDataModel {
                             .put((screenColor.blue * 255).toByte())
                             .put(opacity.toByte())
                     repeat(12) {
-                        bytes.put(unknownData.getOrElse(it) { 0.toByte() })
+                        bytes.put(unknownData[it])
                     }
                     bytes.put(designation.toByte())
                             .putShort(unknown)

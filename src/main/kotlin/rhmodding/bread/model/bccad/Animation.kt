@@ -22,7 +22,7 @@ class Animation : IAnimation {
     }
     
     override fun toString(): String {
-        return "Animation=[interpolation=$interpolationInt, numSteps=${steps.size}, steps=[${steps.joinToString(separator = "\n")}]]"
+        return "Animation=[interpolation=0x${interpolationInt.toUInt().toString(16)}, numSteps=${steps.size}, steps=[${steps.joinToString(separator = "\n")}]]"
     }
     
 }
