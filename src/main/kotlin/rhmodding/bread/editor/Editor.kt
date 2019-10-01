@@ -180,7 +180,6 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     abstract fun saveData(file: File)
     
     fun repaintCanvas() {
-        debugTab.populate()
         drawCheckerBackground()
         when (sidebar.selectionModel.selectedItem) {
             spritesTab -> {

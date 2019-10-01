@@ -1,5 +1,6 @@
 package rhmodding.bread.editor
 
+import javafx.scene.control.Button
 import javafx.scene.control.ScrollPane
 import javafx.scene.control.TextArea
 import javafx.scene.layout.VBox
@@ -25,10 +26,15 @@ open class DebugTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(editor,
             prefHeightProperty().bind(body.prefHeightProperty())
         }
         body.children += infoBox
+        body.children += Button("Refresh Debug").apply {
+            setOnAction {
+                populate()
+            }
+        }
         populate()
     }
     
-    open fun populate() {
+    protected open fun populate() {
         infoBox.text = "$data"
     }
     
