@@ -172,6 +172,8 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                             }
                             val success = openRegionEditor(newPart)
                             if (success) {
+                                newPart.posX = 512
+                                newPart.posY = 512
                                 editor.addSpritePart(currentSprite, newPart)
                                 updateSpritePartSpinners(true)
                             }
