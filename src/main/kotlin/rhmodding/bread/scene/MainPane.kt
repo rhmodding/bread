@@ -218,7 +218,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
-                        title = "Use suggested file?"
+                        title = "Use suggested file for ${file.name}?"
                         headerText = "Use the suggested texture file?"
                         contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
@@ -241,7 +241,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (textureFile == null) {
                     // Ask
                     val fc = FileChooser().apply {
-                        title = "Select the associated texture file"
+                        title = "Select the texture file associated with ${file.name}"
                         extensionFilters.add(FileChooser.ExtensionFilter("PNG", "*.png"))
                         initialDirectory = dir
                     }
@@ -262,7 +262,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
-                        title = "Use suggested file?"
+                        title = "Use suggested file ${file.name}?"
                         headerText = "Use the suggested header file?"
                         contentText = "We found a header file (.h) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
@@ -285,7 +285,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (headerFile == null) {
                     // Ask
                     val fc = FileChooser().apply {
-                        title = "Select the associated header file"
+                        title = "Select the header file associated with ${file.name}"
                         extensionFilters.add(FileChooser.ExtensionFilter("C header file", "*.h"))
                         initialDirectory = dir
                     }
@@ -328,7 +328,7 @@ class MainPane(val app: Bread) : BorderPane() {
                     val buttonTypeCancel = ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE)
                     val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                         app.addBaseStyleToDialog(this.dialogPane)
-                        title = "Use suggested file?"
+                        title = "Use suggested file for ${file.name}?"
                         headerText = "Use the suggested texture file?"
                         contentText = "We found a texture file (.png) in this directory,\n${suggested.name}.\nDo you want to select it?"
                         
@@ -351,7 +351,7 @@ class MainPane(val app: Bread) : BorderPane() {
                 if (textureFile == null) {
                     // Ask
                     val fc = FileChooser().apply {
-                        title = "Select the associated texture file"
+                        title = "Select the texture file associated with ${file.name}"
                         extensionFilters.add(FileChooser.ExtensionFilter("PNG", "*.png"))
                         initialDirectory = dir
                     }
