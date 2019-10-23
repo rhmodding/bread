@@ -37,6 +37,6 @@ class AnimationStep : IAnimationStep {
     }
     
     override fun toString(): String {
-        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], rotation=$rotation, opacity=$opacity]"
+        return "AnimationStep=[spriteIndex=$spriteIndex, delay=$delay, stretch=[$stretchX, $stretchY], rotation=$rotation, opacity=$opacity, unk1=0x${unknown1.toString(16)}, unk3=0x${unknown3.toString(16)}, unk4=0x${unknown4.toString(16)}, unk5=0x${unknown5.toString(16)}]"
     }
 }

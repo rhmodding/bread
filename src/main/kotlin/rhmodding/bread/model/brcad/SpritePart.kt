@@ -70,6 +70,6 @@ class SpritePart : ISpritePart {
 //    }
     
     override fun toString(): String {
-        return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity]"
+        return "SpritePart[region=[$regionX, $regionY, $regionW, $regionH], pos=[$posX, $posY], stretch=[$stretchX, $stretchY], rotation=$rotation, reflect=[x=$flipX, y=$flipY], opacity=$opacity, unknown=0x${unknown.toString(16)}, unknownLast=0x${unknownLast.toString(16)}]"
     }
 }

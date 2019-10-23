@@ -19,7 +19,7 @@ class Sprite : ISprite {
     }
 
     override fun toString(): String {
-        return "Sprite=[numParts=${parts.size}, parts=[${parts.joinToString(separator = "\n")}]]"
+        return "Sprite=[numParts=${parts.size}, unknown=0x${unknown.toString(16)}, parts=[${parts.joinToString(separator = "\n")}]]"
     }
 
 }
