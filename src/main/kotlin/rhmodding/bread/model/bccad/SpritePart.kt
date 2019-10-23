@@ -32,7 +32,7 @@ class SpritePart : ISpritePart {
     var screenColor: Color = Color.BLACK
     var designation: UByte = 0u
     @Unknown
-    var unknown: Short = 0
+    var unknown: Short = 0xFF
     var tlDepth: Float = 0f
     var blDepth: Float = 0f
     var trDepth: Float = 0f
