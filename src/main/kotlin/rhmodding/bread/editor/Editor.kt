@@ -280,7 +280,11 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     protected open fun getCachedSubimage(part: ISpritePart): Image {
         val key: Long = (part.regionX.toLong() shl 48) or (part.regionY.toLong() shl 32) or (part.regionW.toLong() shl 16) or (part.regionH.toLong())
         return subimageCache.getOrPut(key) {
-            SwingFXUtils.toFXImage(texture.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt()), null)
+            val outOfBounds = part.regionX.toInt() !in 0 until texture.width || part.regionY.toInt() !in 0 until texture.height || ((part.regionX + part.regionW).toInt() !in 0 until texture.width) || ((part.regionY + part.regionH).toInt() !in 0 until texture.height)
+            val subimage = if (outOfBounds)
+                BufferedImage(part.regionW.toInt(), part.regionH.toInt(), BufferedImage.TYPE_INT_ARGB)
+            else texture.getSubimage(part.regionX.toInt(), part.regionY.toInt(), part.regionW.toInt(), part.regionH.toInt())
+            SwingFXUtils.toFXImage(subimage, null)
         }
     }
     
