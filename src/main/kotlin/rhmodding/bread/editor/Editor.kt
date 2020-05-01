@@ -89,7 +89,9 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 }
                 children += zoomLabel
             }
-            children += Label("Scroll the mouse wheel on the canvas to zoom in/out")
+            children += Label("Scroll the mouse wheel on the canvas to zoom in/out,\nhold SHIFT for 1% increments").apply {
+                textAlignment = TextAlignment.RIGHT
+            }
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
@@ -112,10 +114,18 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
         }
         
         canvas.onScroll = EventHandler {
-            if (it.deltaX > 0 || it.deltaY > 0) {
-                zoomFactor *= 2.0.pow(1 / 8.0)
+            if (it.isShiftDown) {
+                if (it.deltaX > 0 || it.deltaY > 0) {
+                    zoomFactor += 0.01
+                } else {
+                    zoomFactor -= 0.01
+                }
             } else {
-                zoomFactor /= 2.0.pow(1 / 8.0)
+                if (it.deltaX > 0 || it.deltaY > 0) {
+                    zoomFactor *= 2.0.pow(1 / 8.0)
+                } else {
+                    zoomFactor /= 2.0.pow(1 / 8.0)
+                }
             }
             repaintCanvas()
         }
