@@ -42,7 +42,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     val canvas: Canvas = Canvas(512.0, 512.0)
     var zoomFactor: Double = 1.0
         set(value) {
-            field = value.coerceIn(0.25, 4.0)
+            field = value.coerceIn(0.10, 4.0)
             zoomLabel.text = "Zoom: ${(field * 100).roundToInt()}%"
         }
     val originLinesCheckbox: CheckBox = CheckBox("Show origin lines").apply {
