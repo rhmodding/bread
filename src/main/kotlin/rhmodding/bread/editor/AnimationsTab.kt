@@ -307,11 +307,11 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                     val showGrid = editor.showGridCheckbox.isSelected
                                     val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
                                     ani.steps.forEach { step ->
+                                        editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                                        editor.drawAnimationStep(step)
+                                        canvas.snapshot(SnapshotParameters(), writableImage)
+                                        val buf = SwingFXUtils.fromFXImage(writableImage, null)
                                         repeat(step.delay.toInt()) {
-                                            editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
-                                            editor.drawAnimationStep(step)
-                                            canvas.snapshot(SnapshotParameters(), writableImage)
-                                            val buf = SwingFXUtils.fromFXImage(writableImage, null)
                                             e.encodeImage(buf)
                                         }
                                     }
