@@ -8,6 +8,7 @@ object LibrariesUsed {
         Library("bccad-editor", "https://github.com/rhmodding/bccad-editor"),
         Library("RHRE SFX Database Editor", "https://github.com/chrislo27/RSDE"),
         Library("Jackson", "https://github.com/FasterXML/jackson"),
-        Library("animated-gif-lib", "https://github.com/rtyley/animated-gif-lib-for-java")
+        Library("animated-gif-lib", "https://github.com/rtyley/animated-gif-lib-for-java"),
+        Library("JCodec", "https://github.com/jcodec/jcodec")
     ).sortedBy { it.name }
 }

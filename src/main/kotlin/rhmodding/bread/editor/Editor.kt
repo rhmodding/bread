@@ -100,6 +100,11 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
 //                        repaintCanvas()
 //                    }
 //                }
+                children += showGridCheckbox.apply {
+                    selectedProperty().addListener { _, _, _ ->
+                        repaintCanvas()
+                    }
+                }
                 children += darkGridCheckbox.apply {
                     selectedProperty().addListener { _, _, _ ->
                         repaintCanvas()

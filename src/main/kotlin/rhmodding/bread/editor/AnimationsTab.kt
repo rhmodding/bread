@@ -19,6 +19,9 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import javafx.util.Duration
+import org.jcodec.api.awt.AWTSequenceEncoder
+import org.jcodec.common.io.NIOUtils
+import org.jcodec.common.model.Rational
 import rhmodding.bread.model.IAnimation
 import rhmodding.bread.model.IAnimationStep
 import rhmodding.bread.model.IDataModel
@@ -242,43 +245,80 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     children += Label("Step:")
                     children += playbackSlider
                 }
-                children += Button("Export as GIF").apply {
-                    disableProperty().bind(disableStepControls)
-                    setOnAction {
-                        val ani = currentAnimation
-                        val fileChooser = FileChooser()
-                        fileChooser.title = "Export this animation as an animated GIF"
-                        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
-                        fileChooser.initialDirectory = editor.dataFile.parentFile
-                        fileChooser.initialFileName = "${getAnimationNameForGifExport()}.gif"
-                        
-                        val file = fileChooser.showSaveDialog(null)
-                        if (file != null) {
-                            val encoder = AnimatedGifEncoder()
-                            encoder.also { e ->
-                                val canvas = editor.canvas
-                                e.start(file.absolutePath)
-                                e.setSize(canvas.width.toInt(), canvas.height.toInt())
-                                val showGrid = editor.showGridCheckbox.isSelected
-                                if (showGrid) {
-                                    e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
-                                } else {
-                                    e.setTransparent(java.awt.Color(1f, 1f, 1f, 1f), true)
+                children += HBox().apply {
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Button("Export as GIF").apply {
+                        disableProperty().bind(disableStepControls)
+                        setOnAction {
+                            val ani = currentAnimation
+                            val fileChooser = FileChooser()
+                            fileChooser.title = "Export this animation as an animated GIF"
+                            fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("GIF", "*.gif"))
+                            fileChooser.initialDirectory = editor.dataFile.parentFile
+                            fileChooser.initialFileName = "${getAnimationNameForGifExport()}.gif"
+
+                            val file = fileChooser.showSaveDialog(null)
+                            if (file != null) {
+                                val encoder = AnimatedGifEncoder()
+                                encoder.also { e ->
+                                    val canvas = editor.canvas
+                                    e.start(file.absolutePath)
+                                    e.setSize(canvas.width.toInt(), canvas.height.toInt())
+                                    val showGrid = editor.showGridCheckbox.isSelected
+                                    if (showGrid) {
+                                        e.setBackground(java.awt.Color(1f, 1f, 1f, 0f))
+                                    } else {
+                                        e.setTransparent(java.awt.Color(1f, 1f, 1f, 1f), true)
+                                    }
+                                    e.setRepeat(0)
+                                    val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+                                    val framerate = framerateSpinner.value
+                                    ani.steps.forEach { step ->
+                                        e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
+                                        editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                                        editor.drawAnimationStep(step)
+                                        canvas.snapshot(SnapshotParameters(), writableImage)
+                                        val buf = SwingFXUtils.fromFXImage(writableImage, null)
+                                        e.addFrame(buf)
+                                    }
+                                    e.finish()
                                 }
-                                e.setRepeat(0)
-                                val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
-                                val framerate = framerateSpinner.value
-                                ani.steps.forEach { step ->
-                                    e.setDelay((step.delay.toInt() * (1000.0 / framerate).roundToInt()))
-                                    editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
-                                    editor.drawAnimationStep(step)
-                                    canvas.snapshot(SnapshotParameters(), writableImage)
-                                    val buf = SwingFXUtils.fromFXImage(writableImage, null)
-                                    e.addFrame(buf)
-                                }
-                                e.finish()
+                                editor.repaintCanvas()
                             }
-                            editor.repaintCanvas()
+                        }
+                    }
+                    children += Button("Export as MP4").apply {
+                        disableProperty().bind(disableStepControls)
+                        setOnAction {
+                            val ani = currentAnimation
+                            val fileChooser = FileChooser()
+                            fileChooser.title = "Export this animation as an MP4 video"
+                            fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("MP4", "*.mp4"))
+                            fileChooser.initialDirectory = editor.dataFile.parentFile
+                            fileChooser.initialFileName = "${getAnimationNameForGifExport()}.mp4"
+
+                            val file = fileChooser.showSaveDialog(null)
+                            if (file != null) {
+                                val framerate = framerateSpinner.value
+                                val encoder = AWTSequenceEncoder(NIOUtils.writableChannel(file), Rational(framerate, 1))
+                                encoder.also { e ->
+                                    val canvas = editor.canvas
+                                    val showGrid = editor.showGridCheckbox.isSelected
+                                    val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+                                    ani.steps.forEach { step ->
+                                        repeat(step.delay.toInt()) {
+                                            editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                                            editor.drawAnimationStep(step)
+                                            canvas.snapshot(SnapshotParameters(), writableImage)
+                                            val buf = SwingFXUtils.fromFXImage(writableImage, null)
+                                            e.encodeImage(buf)
+                                        }
+                                    }
+                                    e.finish()
+                                }
+                                editor.repaintCanvas()
+                            }
                         }
                     }
                 }
