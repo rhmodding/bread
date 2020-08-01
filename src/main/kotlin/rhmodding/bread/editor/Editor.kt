@@ -95,11 +95,6 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-//                children += showGridCheckbox.apply {
-//                    selectedProperty().addListener { _, _, _ ->
-//                        repaintCanvas()
-//                    }
-//                }
                 children += showGridCheckbox.apply {
                     selectedProperty().addListener { _, _, _ ->
                         repaintCanvas()
