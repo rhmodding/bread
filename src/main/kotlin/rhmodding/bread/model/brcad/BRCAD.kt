@@ -15,6 +15,8 @@ class BRCAD : IDataModel {
     override var sheetH: UShort = 0u
 
     @Unknown
+    var unknownAfterMagicHeader: Int = 0
+    @Unknown
     var unknownAfterSpriteCount: Short = 0
     @Unknown
     var unknownAfterAnimationCount: Short = 0
@@ -28,13 +30,12 @@ class BRCAD : IDataModel {
         fun read(bytes: ByteBuffer): BRCAD {
             val magic = bytes.int
             if (magic != HEADER_MAGIC) {
-                throw IllegalStateException("BRCAD did not have magic header ${HEADER_MAGIC.toString(16)}, got ${magic.toString(16)}")
+                throw IllegalStateException("BRCAD did not have magic header 0x${HEADER_MAGIC.toString(16)}, got 0x${magic.toString(16)}")
             }
-            if (bytes.int != 0x0) {
-                throw IllegalStateException("Expected next int after magic to be 0")
-            }
+            val intAfterMagic = bytes.int
 
             return BRCAD().apply {
+                unknownAfterMagicHeader = intAfterMagic
                 spritesheetNumber = bytes.short.toUShort()
                 spritesheetControlWord2 = bytes.short.toUShort()
                 sheetW = bytes.short.toUShort()
@@ -118,7 +119,7 @@ class BRCAD : IDataModel {
         val buffer: ByteBuffer = ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN)
 
         // Header
-        buffer.putInt(HEADER_MAGIC).putInt(0x0)
+        buffer.putInt(HEADER_MAGIC).putInt(unknownAfterMagicHeader)
         buffer.putShort(spritesheetNumber.toShort()).putShort(spritesheetControlWord2.toShort())
         buffer.putShort(sheetW.toShort()).putShort(sheetH.toShort())
 
@@ -158,6 +159,7 @@ class BRCAD : IDataModel {
 
     override fun toString(): String {
         return """BRCAD=[
+            |  unknownAfterMagicHeader=0x${unknownAfterMagicHeader.toString(16)}
             |  spritesheetNum=$spritesheetNumber, width=$sheetW, height=$sheetH,
             |  numSprites=${sprites.size},
             |  sprites=[${sprites.joinToString(separator = "\n")}],
