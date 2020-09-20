@@ -32,7 +32,7 @@ dependencies {
     implementation "com.madgag:animated-gif-lib:+"
 //    implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
 //    implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:${jackson_version}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
     implementation "org.jcodec:jcodec:0.2.3"
     implementation "org.jcodec:jcodec-javase:0.2.3"
 }
