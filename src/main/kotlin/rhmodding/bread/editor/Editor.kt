@@ -164,14 +164,14 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                         app.addBaseStyleToDialog(dialogPane)
                         title = "Texture File Loaded"
                         headerText = null
-                        contentText = "The texture has been reloaded.${if (wrongDimensions) "\nThe reloaded texture file has different dimensions than what is defined in the data file.\nPlease note that in the editor the texture will be visually scaled to fit the data file's dimensions." else ""}"
+                        contentText = "The texture has been reloaded. (${textureFile.name})${if (wrongDimensions) "\nThe reloaded texture file has different dimensions than what is defined in the data file.\nPlease note that in the editor the texture will be visually scaled to fit the data file's dimensions." else ""}"
                     }.showAndWait()
                 } else {
                     Alert(Alert.AlertType.ERROR).apply {
                         app.addBaseStyleToDialog(dialogPane)
                         title = "Missing Texture File"
                         headerText = null
-                        contentText = "The texture file that was loaded is not found. Please reload the entire data file."
+                        contentText = "The texture file that was loaded is missing. Please reload the entire data file."
                     }.showAndWait()
                 }
             }
