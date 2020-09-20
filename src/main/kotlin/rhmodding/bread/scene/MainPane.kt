@@ -387,28 +387,38 @@ class MainPane(val app: Bread) : BorderPane() {
     }
     
     fun loadBRCADImage(textureFile: File, brcad: BRCAD): Pair<BufferedImage, BufferedImage> {
-        val rawIm = ImageIO.read(textureFile)
+        val rawImg = ImageIO.read(textureFile)
+        val rerendered = BufferedImage(rawImg.width, rawImg.height, BufferedImage.TYPE_INT_ARGB).apply {
+            val g = createGraphics()
+            g.drawImage(rawImg, 0, 0, null)
+            g.dispose()
+        }
         // Resize the image
-        val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rawIm.type)
+        val sheetImg = BufferedImage(brcad.sheetW.toInt(), brcad.sheetH.toInt(), rerendered.type)
         val transform = AffineTransform()
-        transform.scale(1.0 * sheetImg.width / rawIm.width, 1.0 * sheetImg.height / rawIm.height)
+        transform.scale(1.0 * sheetImg.width / rerendered.width, 1.0 * sheetImg.height / rerendered.height)
         val g = sheetImg.createGraphics() as Graphics2D
-        g.drawImage(rawIm, transform, null)
+        g.drawImage(rerendered, transform, null)
         g.dispose()
-        return rawIm to sheetImg
+        return rerendered to sheetImg
     }
     
     fun loadBCCADImage(textureFile: File, bccad: BCCAD): Pair<BufferedImage, BufferedImage> {
-        val rawIm = ImageIO.read(textureFile)
+        val rawImg = ImageIO.read(textureFile)
+        val rerendered = BufferedImage(rawImg.width, rawImg.height, BufferedImage.TYPE_4BYTE_ABGR).apply {
+            val g = createGraphics()
+            g.drawImage(rawImg, 0, 0, null)
+            g.dispose()
+        }
         // Rotate (and resize) the image
-        val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), BufferedImage.TYPE_INT_ARGB)
+        val sheetImg = BufferedImage(bccad.sheetW.toInt(), bccad.sheetH.toInt(), rerendered.type)
         val transform = AffineTransform()
         // Note: width and height intentionally swapped in scale call
         transform.rotate(-Math.PI / 2)
         transform.translate(-1.0 * sheetImg.height, 0.0)
-        transform.scale(1.0 * sheetImg.width / rawIm.height, 1.0 * sheetImg.height / rawIm.width)
-        AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC).filter(rawIm, sheetImg)
-        return rawIm to sheetImg
+        transform.scale(1.0 * sheetImg.width / rerendered.height, 1.0 * sheetImg.height / rerendered.width)
+        AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC).filter(rerendered, sheetImg)
+        return rerendered to sheetImg
     }
     
     inner class EditorTab<E : Editor<*>>(title: String, val editor: E) : Tab(title, editor) {
