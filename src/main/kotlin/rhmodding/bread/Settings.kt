@@ -26,7 +26,8 @@ class Settings(val app: Bread) {
             if (oldPrefs.exists()) {
                 try {
                     oldPrefs.copyTo(prefsFile, overwrite = true)
-                    oldPrefs.deleteOnExit()
+                    File(System.getProperty("user.home")).resolve(".bread/prefs/").deleteRecursively()
+                    Bread.LOGGER.info("Migrated old prefs file successfully")
                 } catch (e: Exception) {
                     Bread.LOGGER.info("Failed to copy old prefs file!")
                     e.printStackTrace()
