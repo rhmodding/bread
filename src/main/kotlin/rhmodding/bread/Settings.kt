@@ -18,19 +18,24 @@ class Settings(val app: Bread) {
         set(value) = nightModeProperty.set(value)
     val defaultDataFileDirectory: String = File(System.getProperty("user.home")).resolve("Desktop/").absolutePath
     val dataFileDirectory = SimpleStringProperty(defaultDataFileDirectory)
-//    val richPresenceProperty = SimpleBooleanProperty(true)
-//    var richPresence: Boolean
-//        get() = richPresenceProperty.value
-//        set(value) = richPresenceProperty.set(value)
-
-    init {
-//        richPresenceProperty.addListener { _, _, newValue ->
-//            DiscordHelper.enabled = newValue
-//        }
-    }
 
     fun loadFromStorage() {
-        if (!prefsFile.exists()) return
+        if (!prefsFile.exists()) {
+            // Migration from ~/.bread/prefs/prefs.json -> ~/.rhmodding/bread/prefs/prefs.json
+            val oldPrefs = File(System.getProperty("user.home")).resolve(".bread/prefs/prefs.json")
+            if (oldPrefs.exists()) {
+                try {
+                    oldPrefs.copyTo(prefsFile, overwrite = true)
+                    oldPrefs.deleteOnExit()
+                } catch (e: Exception) {
+                    Bread.LOGGER.info("Failed to copy old prefs file!")
+                    e.printStackTrace()
+                    return
+                }
+            } else {
+                return
+            }
+        }
         try {
             val obj = JsonHandler.OBJECT_MAPPER.readTree(prefsFile)
 
