@@ -16,7 +16,7 @@ class Settings(val app: Bread) {
     var nightMode: Boolean
         get() = nightModeProperty.value
         set(value) = nightModeProperty.set(value)
-    val defaultDataFileDirectory: String = File(System.getProperty("user.home")).resolve("Desktop/").absolutePath
+    val defaultDataFileDirectory: String = File(System.getProperty("user.home")).absolutePath
     val dataFileDirectory = SimpleStringProperty(defaultDataFileDirectory)
 
     fun loadFromStorage() {
