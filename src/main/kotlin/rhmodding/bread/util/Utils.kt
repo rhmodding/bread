@@ -75,13 +75,20 @@ fun intSpinnerFactory(min: Int, max: Int, initial: Int, step: Int = 1): Spinner<
         isEditable = true
     }
 
-fun <T> Spinner<T>.spinnerArrowKeys(): Spinner<T> {
+fun <T> Spinner<T>.spinnerArrowKeysAndScroll(): Spinner<T> {
     if (this.isEditable) {
         this.editor?.onKeyPressed = EventHandler { evt ->
             when(evt.code) {
                 KeyCode.UP -> this.increment(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
                 KeyCode.DOWN -> this.decrement(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
                 else -> {}
+            }
+        }
+        this.setOnScroll { evt ->
+            if (evt.deltaY > 0) {
+                this.decrement(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
+            } else if (evt.deltaY < 0) {
+                this.increment(if (evt.isShortcutDown && !evt.isShiftDown && !evt.isAltDown) 10 else 1)
             }
         }
     }

@@ -20,7 +20,7 @@ import rhmodding.bread.model.bccad.*
 import rhmodding.bread.scene.MainPane
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
-import rhmodding.bread.util.spinnerArrowKeys
+import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import java.awt.image.BufferedImage
 import java.io.File
 import kotlin.math.absoluteValue
@@ -31,13 +31,13 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
     class BCCADSpritesTab(editor: BCCADEditor) : SpritesTab<BCCAD>(editor) {
 
-        val designationSpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
+        val designationSpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeysAndScroll()
         val multColorPicker: ColorPicker = ColorPicker(Color.WHITE)
         val screenColorPicker: ColorPicker = ColorPicker(Color.BLACK)
-        val tlDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-        val blDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-        val trDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-        val brDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
+        val tlDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
+        val blDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
+        val trDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
+        val brDepthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
 
         init {
             partPropertiesVBox.apply {
@@ -127,10 +127,10 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             id = "name-label"
         }
 
-        val depthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
+        val depthSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
         val colorPicker: ColorPicker = ColorPicker(Color.WHITE)
-        val translateXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
-        val translateYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
+        val translateXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeysAndScroll()
+        val translateYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeysAndScroll()
         var interpolationCheckbox: CheckBox = CheckBox()
 
         init {

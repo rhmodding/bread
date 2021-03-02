@@ -28,7 +28,7 @@ import rhmodding.bread.model.IDataModel
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.em
 import rhmodding.bread.util.intSpinnerFactory
-import rhmodding.bread.util.spinnerArrowKeys
+import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import kotlin.math.roundToInt
 
 
@@ -42,19 +42,19 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         disableProperty().bind(disableStepControls)
     }
     
-    val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeys()
-    val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeys()
+    val animationSpinner: Spinner<Int> = intSpinnerFactory(0, data.animations.size - 1, 0).spinnerArrowKeysAndScroll()
+    val aniStepSpinner: Spinner<Int> = intSpinnerFactory(0, currentAnimation.steps.size - 1, 0).spinnerArrowKeysAndScroll()
     val playStopButton: Button = Button("Play")
     val playbackSlider: Slider = Slider(0.0, 1.0, 0.1)
-    val framerateSpinner: Spinner<Int> = intSpinnerFactory(1, 60, 30, 5).spinnerArrowKeys().apply {
+    val framerateSpinner: Spinner<Int> = intSpinnerFactory(1, 60, 30, 5).spinnerArrowKeysAndScroll().apply {
         styleClass += "short-spinner"
     }
-    val stepSpriteSpinner: Spinner<Int> = intSpinnerFactory(0, (data.sprites.size - 1).coerceAtLeast(0), 1).spinnerArrowKeys()
-    val stepDelaySpinner: Spinner<Int> = intSpinnerFactory(0, 65535, 0).spinnerArrowKeys()
-    val stepStretchXSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeys()
-    val stepStretchYSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeys()
-    val stepRotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeys()
-    val stepOpacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
+    val stepSpriteSpinner: Spinner<Int> = intSpinnerFactory(0, (data.sprites.size - 1).coerceAtLeast(0), 1).spinnerArrowKeysAndScroll()
+    val stepDelaySpinner: Spinner<Int> = intSpinnerFactory(0, 65535, 0).spinnerArrowKeysAndScroll()
+    val stepStretchXSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeysAndScroll()
+    val stepStretchYSpinner: Spinner<Double> = doubleSpinnerFactory(-Float.MAX_VALUE.toDouble(), Float.MAX_VALUE.toDouble(), 1.0, 0.1).spinnerArrowKeysAndScroll()
+    val stepRotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 0.1).spinnerArrowKeysAndScroll()
+    val stepOpacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeysAndScroll()
     
     val numAnimationsLabel: Label = Label("")
     val numAniStepsLabel: Label = Label("")

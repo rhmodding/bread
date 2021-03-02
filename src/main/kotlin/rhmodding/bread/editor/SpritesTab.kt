@@ -21,7 +21,7 @@ import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
 import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.intSpinnerFactory
-import rhmodding.bread.util.spinnerArrowKeys
+import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -39,16 +39,16 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
 
     val addNewSpritePartButton: Button
 
-    val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0).spinnerArrowKeys()
-    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0).spinnerArrowKeys()
-    val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
-    val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeys()
-    val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
-    val scaleYSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeys()
-    val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 1.0).spinnerArrowKeys()
+    val spriteSpinner: Spinner<Int> = intSpinnerFactory(0, data.sprites.size - 1, 0).spinnerArrowKeysAndScroll()
+    val spritePartSpinner: Spinner<Int> = intSpinnerFactory(0, 0, 0).spinnerArrowKeysAndScroll()
+    val posXSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeysAndScroll()
+    val posYSpinner: Spinner<Int> = intSpinnerFactory(Short.MIN_VALUE.toInt(), Short.MAX_VALUE.toInt(), 0).spinnerArrowKeysAndScroll()
+    val scaleXSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeysAndScroll()
+    val scaleYSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 1.0, 0.1).spinnerArrowKeysAndScroll()
+    val rotationSpinner: Spinner<Double> = doubleSpinnerFactory(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, 1.0).spinnerArrowKeysAndScroll()
     val flipXCheckbox: CheckBox = CheckBox()
     val flipYCheckbox: CheckBox = CheckBox()
-    val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeys()
+    val opacitySpinner: Spinner<Int> = intSpinnerFactory(0, 255, 255).spinnerArrowKeysAndScroll()
 
     val numSpritesLabel: Label = Label("")
     val numSpritePartsLabel: Label = Label("")
@@ -386,7 +386,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 val originalRegionLabelText = "Original region: (${spritePart.regionX}, ${spritePart.regionY}, ${spritePart.regionW}, ${spritePart.regionH})"
                 val originalRegionLabel: Label = Label(originalRegionLabelText)
                 val regionXSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionX.toInt()).apply {
-                    spinnerArrowKeys()
+                    spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
                         copy.regionX = n.toUShort()
@@ -394,7 +394,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                 }
                 val regionYSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
-                    spinnerArrowKeys()
+                    spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
                         copy.regionY = n.toUShort()
@@ -402,7 +402,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                 }
                 val regionWSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionW.toInt()).apply {
-                    spinnerArrowKeys()
+                    spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
                         copy.regionW = n.toUShort()
@@ -410,7 +410,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                 }
                 val regionHSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
-                    spinnerArrowKeys()
+                    spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
                         copy.regionH = n.toUShort()
