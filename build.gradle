@@ -29,12 +29,12 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.madgag:animated-gif-lib:+"
+    implementation "com.madgag:animated-gif-lib:1.4"
 //    implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
 //    implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
     implementation "com.fasterxml.jackson.core:jackson-databind:${jackson_version}"
-    implementation "org.jcodec:jcodec:0.2.3"
-    implementation "org.jcodec:jcodec-javase:0.2.3"
+    implementation "org.jcodec:jcodec:0.2.5"
+    implementation "org.jcodec:jcodec-javase:0.2.5"
 }
 
 compileKotlin {
