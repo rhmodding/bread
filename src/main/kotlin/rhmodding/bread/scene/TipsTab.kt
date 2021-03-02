@@ -31,7 +31,7 @@ class TipsTab(val app: Bread) : Tab("Tips & Tricks") {
                     children += Label("Using the scroll wheel while hovering over a spinner will also change it.\nHold CTRL while scrolling to change it by increments of 10.")
                     children += Label("When using the Region Picker in the Sprites tab, find your region area in an image editor first\nso you can set the X, Y, width, and height values.")
                     children += Label("When using the Region Picker in the Sprites tab, right clicking when you've started a selection\nwill cancel it.")
-                    children += Label("Click and drag the canvas view to pan the camera. Scroll to zoom in and out.")
+                    children += Label("Click and drag the sprite preview to pan the camera. Scroll to zoom in and out.")
                 }
             }
         }

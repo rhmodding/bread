@@ -86,7 +86,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Button("Reset Canvas View").apply {
+                children += Button("Reset Preview").apply {
                     setOnAction {
                         zoomFactor = 1.0
                         panX = 0.0
