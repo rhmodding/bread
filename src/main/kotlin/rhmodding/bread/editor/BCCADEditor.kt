@@ -277,7 +277,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
             g.save()
-            g.transform(getZoomTransformation())
+            g.transform(getCanvasCameraTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
             
             val subimage: Image = part.prepareForRendering(getCachedSubimage(part), (step as? AnimationStep)?.color ?: Color.WHITE, g)

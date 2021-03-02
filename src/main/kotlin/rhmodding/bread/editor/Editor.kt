@@ -15,6 +15,7 @@ import javafx.scene.paint.Color
 import javafx.scene.text.TextAlignment
 import javafx.scene.transform.Affine
 import javafx.scene.transform.Scale
+import javafx.scene.transform.Translate
 import rhmodding.bread.Bread
 import rhmodding.bread.model.*
 import rhmodding.bread.scene.MainPane
@@ -25,6 +26,7 @@ import java.awt.image.ImageObserver
 import java.io.File
 import java.util.*
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -32,7 +34,8 @@ import kotlin.math.roundToInt
 abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, val dataFile: File, val data: F,
                                       val texture: BufferedImage, val textureFile: File)
     : BorderPane() {
-    
+
+    private val canvasColors: Array<Color> = arrayOf(Color.WHITE, Color.LIGHTGREY, Color.BLACK, Color.web("#353535FF"))
     val canvasPane: VBox = VBox().apply {
         styleClass += "vbox"
     }
@@ -45,6 +48,8 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             field = value.coerceIn(0.10, 4.0)
             zoomLabel.text = "Zoom: ${(field * 100).roundToInt()}%"
         }
+    var panX: Double = 0.0
+    var panY: Double = 0.0
     val originLinesCheckbox: CheckBox = CheckBox("Show origin lines").apply {
         isSelected = true
     }
@@ -55,10 +60,10 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
         isSelected = false
         disableProperty().bind(Bindings.not(showGridCheckbox.selectedProperty()))
     }
-    
+
     val splitPane: SplitPane = SplitPane()
     val contextMenu: ContextMenu = ContextMenu()
-    
+
     val sidebar: TabPane = TabPane().apply {
         this.tabClosingPolicy = TabPane.TabClosingPolicy.UNAVAILABLE
     }
@@ -66,22 +71,37 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     abstract val animationsTab: AnimationsTab<F>
     abstract val debugTab: DebugTab<F>
     abstract val advPropsTab: AdvancedPropertiesTab<F>
-    
+
     protected val subimageCache: WeakHashMap<Long, Image> = WeakHashMap()
-    
+
     init {
         stylesheets += "style/editor.css"
         center = splitPane
         minWidth = 15.0.em
-        
+
         canvasPane.children += canvas
         canvasPane.children += VBox().apply {
             styleClass += "vbox"
-            alignment = Pos.CENTER_RIGHT
+            alignment = Pos.CENTER_LEFT
             children += HBox().apply {
                 styleClass += "hbox"
-                alignment = Pos.CENTER_RIGHT
-                children += Button("Reset").apply {
+                alignment = Pos.CENTER_LEFT
+                children += Button("Reset Canvas View").apply {
+                    setOnAction {
+                        zoomFactor = 1.0
+                        panX = 0.0
+                        panY = 0.0
+                        repaintCanvas()
+                    }
+                }
+                children += Button("Reset Panning").apply {
+                    setOnAction {
+                        panX = 0.0
+                        panY = 0.0
+                        repaintCanvas()
+                    }
+                }
+                children += Button("Reset Zoom").apply {
                     setOnAction {
                         zoomFactor = 1.0
                         repaintCanvas()
@@ -89,8 +109,9 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 }
                 children += zoomLabel
             }
-            children += Label("Scroll the mouse wheel on the canvas to zoom in/out,\nhold SHIFT for 1% increments").apply {
-                textAlignment = TextAlignment.RIGHT
+            children += Label("Click and drag to pan. Scroll to zoom in/out (hold SHIFT and scroll for finer control).").apply {
+                textAlignment = TextAlignment.LEFT
+                isWrapText = true
             }
             children += HBox().apply {
                 styleClass += "hbox"
@@ -112,16 +133,16 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 }
             }
         }
-        
-        canvas.onScroll = EventHandler {
-            if (it.isShiftDown) {
-                if (it.deltaX > 0 || it.deltaY > 0) {
+
+        canvas.onScroll = EventHandler { evt ->
+            if (evt.isShiftDown) {
+                if (evt.deltaX > 0 || evt.deltaY > 0) {
                     zoomFactor += 0.01
                 } else {
                     zoomFactor -= 0.01
                 }
             } else {
-                if (it.deltaX > 0 || it.deltaY > 0) {
+                if (evt.deltaX > 0 || evt.deltaY > 0) {
                     zoomFactor *= 2.0.pow(1 / 8.0)
                 } else {
                     zoomFactor /= 2.0.pow(1 / 8.0)
@@ -129,7 +150,30 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             }
             repaintCanvas()
         }
-        
+
+        var isPanningCanvas = false
+        var prevDragX = 0.0
+        var prevDragY = 0.0
+        canvas.onMouseReleased = EventHandler {
+            isPanningCanvas = false
+            prevDragX = 0.0
+            prevDragY = 0.0
+        }
+        canvas.onMouseDragged = EventHandler { evt ->
+            if (!isPanningCanvas) {
+                isPanningCanvas = true
+            } else {
+                val diffX = evt.x - prevDragX
+                val diffY = evt.y - prevDragY
+                
+                panX += diffX
+                panY += diffY
+            }
+            prevDragX = evt.x
+            prevDragY = evt.y
+            repaintCanvas()
+        }
+
         Platform.runLater {
             sidebar.tabs.addAll(spritesTab, animationsTab, debugTab/*, advPropsTab*/)
         }
@@ -143,11 +187,11 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 animationsTab.currentTimeline.value = null
             }
         }
-        
+
         splitPane.items.addAll(sidebar, canvasPane)
-        
+
         contextMenu.items.add(MenuItem("Reload Texture").apply {
-            setOnAction { 
+            setOnAction {
                 if (textureFile.exists()) {
                     val (_, sheetImg, wrongDimensions) = loadTexture(textureFile)
                     val g = texture.createGraphics()
@@ -176,7 +220,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 }
             }
         })
-        
+
         Platform.runLater {
             repaintCanvas()
         }
@@ -186,9 +230,9 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
      * @return Triple of raw image, scaled image, boolean indicating WRONG dimensions if true
      */
     protected abstract fun loadTexture(textureFile: File): Triple<BufferedImage, BufferedImage, Boolean>
-    
+
     abstract fun saveData(file: File)
-    
+
     fun repaintCanvas() {
         drawCheckerBackground()
         when (sidebar.selectionModel.selectedItem) {
@@ -204,52 +248,78 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             }
         }
     }
-    
+
     fun drawCheckerBackground(canvas: Canvas = this.canvas,
                               showGrid: Boolean = showGridCheckbox.isSelected,
                               originLines: Boolean = originLinesCheckbox.isSelected,
                               darkGrid: Boolean = darkGridCheckbox.isSelected) {
         val g = canvas.graphicsContext2D
         g.clearRect(0.0, 0.0, canvas.width, canvas.height)
-        
+
         if (showGrid) {
             g.save()
-            g.transform(getZoomTransformation())
-            val blockSize = 16.0
-            val blockColorEven = if (darkGrid) Color.BLACK else Color.WHITE
-            val blockColorOdd = if (darkGrid) Color.web("#353535FF") else Color.LIGHTGREY
-            for (x in ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.width / 2 + canvas.width / zoomFactor / 2.0) / blockSize + 2).toInt()) {
-                for (y in ((canvas.height / 2 - canvas.height / zoomFactor / 2.0) / blockSize - 2).toInt()..((canvas.height / 2 + canvas.height / zoomFactor / 2.0) / blockSize + 2).toInt()) {
+            g.transform(getCanvasCameraTransformation())
+            val blockSize: Double = if (zoomFactor < 1.0) {
+                when (zoomFactor) {
+                    in 0.50..1.00 -> 16.0
+                    in 0.25..0.50 -> 32.0
+                    in 0.125..0.25 -> 64.0
+                    in 0.0625..0.125 -> 128.0
+                    else -> 128.0
+                }
+            } else (16.0)
+            val blockColorEven = canvasColors[if (!darkGrid) 0 else 2]
+            val blockColorOdd = canvasColors[if (!darkGrid) 1 else 3]
+            
+//            val blockStartX = ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize).toInt() - 2
+            
+            val blocksInViewableAreaX = (canvas.width / blockSize / zoomFactor).toInt()
+            val blocksInViewableAreaY = (canvas.height / blockSize / zoomFactor).toInt()
+            val blockStartX = ((-(blocksInViewableAreaX / 2.0))).toInt() - (panX / zoomFactor / blockSize).toInt() - 2 // ((canvas.width / 2 - panX / zoomFactor - canvas.width / zoomFactor / 2) / blockSize).toInt() / 2 - 2
+            val blockStartY = ((-(blocksInViewableAreaY / 2.0))).toInt() - (panY / zoomFactor / blockSize).toInt() - 2 // ((canvas.height / 2 - panY / zoomFactor - canvas.height / zoomFactor / 2) / blockSize).toInt() / 2 - 2
+            val blockEndX = blockStartX + blocksInViewableAreaX + 4 // ((canvas.width / 2 + canvas.width / zoomFactor / 2.0) / blockSize).toInt() + 2
+            val blockEndY = blockStartY + blocksInViewableAreaY + 4 //(canvas.height / 2 + canvas.height / zoomFactor / 2.0) / blockSize).toInt() + 2
+            for (x in blockStartX..blockEndX) {
+                for (y in blockStartY..blockEndY) {
                     if ((x + y) % 2 != 0) {
                         g.fill = blockColorOdd
                     } else {
                         g.fill = blockColorEven
                     }
-                    g.fillRect(x * blockSize, y * blockSize, blockSize, blockSize)
+                    g.fillRect((canvas.width / 2) + x * blockSize, (canvas.height / 2) + y * blockSize, blockSize, blockSize)
                 }
             }
             g.restore()
         }
-        
+
         // Origin lines
         if (originLines) {
+            g.save()
+//            g.transform(getCanvasCameraTransformation())
+            g.transform(Affine(Translate(panX, panY)))
             val originLineWidth = 1.0
             val xAxis = if (darkGrid && showGrid) Color(0.5, 0.5, 1.0, 0.75) else Color(0.0, 0.0, 1.0, 0.75)
             val yAxis = if (darkGrid && showGrid) Color(1.0, 0.5, 0.5, 0.75) else Color(1.0, 0.0, 0.0, 0.75)
             g.fill = xAxis
-            g.fillRect(0.0, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
+            g.fillRect(0.0 - panX, canvas.height / 2 - originLineWidth / 2, canvas.width, originLineWidth)
             g.fill = yAxis
-            g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0, originLineWidth, canvas.height)
+            g.fillRect(canvas.width / 2 - originLineWidth / 2, 0.0 - panY, originLineWidth, canvas.height)
+            g.restore()
         }
     }
-    
-    fun getZoomTransformation(zoomFactor: Double = this.zoomFactor, canvas: Canvas = this.canvas): Affine = Affine(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
-    
+
+    fun getCanvasCameraTransformation(zoomFactor: Double = this.zoomFactor, canvas: Canvas = this.canvas): Affine {
+        return Affine().apply {
+            this.append(Translate(panX, panY))
+            this.append(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
+        }
+    }
+
     open fun drawSprite(sprite: ISprite, selectedPart: Int = -1) {
         val g = canvas.graphicsContext2D
         for (part in sprite.parts) {
             g.save()
-            g.transform(getZoomTransformation())
+            g.transform(getCanvasCameraTransformation())
             val subimage: Image = part.prepareForRendering(getCachedSubimage(part), Color.WHITE, g)
             part.transform(canvas, g)
             g.drawImage(subimage, part.posX - canvas.width / 2, part.posY - canvas.height / 2, (part.regionW.toInt() * part.stretchX).absoluteValue * 1.0, (part.regionH.toInt() * part.stretchY).absoluteValue * 1.0)
@@ -258,7 +328,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
         val part = sprite.parts.getOrNull(selectedPart)
         if (part != null) {
             g.save()
-            g.transform(getZoomTransformation())
+            g.transform(getCanvasCameraTransformation())
             part.transform(canvas, g)
             g.globalAlpha = 1.0
             g.stroke = Color.RED
@@ -266,17 +336,17 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             g.restore()
         }
     }
-    
+
     open fun drawAnimationStep(step: IAnimationStep) {
         val g = canvas.graphicsContext2D
         val sprite = data.sprites[step.spriteIndex.toInt()]
         for (part in sprite.parts) {
             g.save()
-            g.transform(getZoomTransformation())
+            g.transform(getCanvasCameraTransformation())
             g.globalAlpha = step.opacity.toInt() / 255.0
-            
+
             val subimage: Image = part.prepareForRendering(getCachedSubimage(part), Color.WHITE, g)
-            
+
             g.transform(Affine().apply {
                 appendScale(step.stretchX * 1.0, step.stretchY * 1.0, canvas.width / 2, canvas.height / 2)
                 appendRotation(step.rotation * 1.0, canvas.width / 2, canvas.height / 2)
@@ -286,7 +356,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             g.restore()
         }
     }
-    
+
     protected open fun getCachedSubimage(part: ISpritePart): Image {
         val key: Long = (part.regionX.toLong() shl 48) or (part.regionY.toLong() shl 32) or (part.regionW.toLong() shl 16) or (part.regionH.toLong())
         return subimageCache.getOrPut(key) {
@@ -297,7 +367,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             SwingFXUtils.toFXImage(subimage, null)
         }
     }
-    
+
     abstract fun addSprite(sprite: ISprite)
     abstract fun removeSprite(sprite: ISprite)
     abstract fun addSpritePart(sprite: ISprite, part: ISpritePart)
@@ -310,5 +380,5 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
     abstract fun createSpritePart(): ISpritePart
     abstract fun createAnimation(): IAnimation
     abstract fun createAnimationStep(): IAnimationStep
-    
+
 }
