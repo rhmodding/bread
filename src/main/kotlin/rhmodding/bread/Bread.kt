@@ -1,3 +1,34 @@
+// Copyright 2019-2021 rhmodding project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// '-----------------------------------------------------------------'
+//                              ||
+//                         _____YY_____
+//                       .'@@@@@@@@@@@@'.
+//                      ///     ||     \\\
+//                     ///      ||      \\\
+//                     ||  ___  ||  _O_  ||
+//           .-_-.     || |   | || || ||     .-_-.
+//         .'d(x)b'.   |A'._Y_|_||_|_Y_.'A|   .'d(x)b'.
+//         |(x)O(x)|---|@@@@@@@@@@@@@@@@@@|---|(x)O(x)|
+//         |(x)O(x)|===|@@@@@@@@xxx@@@@@@@|===|(x)O(x)|
+//         '.g(x)P.'   '|g@@@@@xx%xx@@@@p|'   '.g(x)P.'
+//           '---'       '.g@@@@xxx@@@@p'       '---'
+//                      ==='.g@@@@@@@p.'===
+//                     //     \X_o_X/     \\
+//                    (_)                 (_)
+
 package rhmodding.bread
 
 import javafx.application.Application
