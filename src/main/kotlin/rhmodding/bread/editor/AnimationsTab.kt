@@ -335,8 +335,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                             val dir = directoryChooser.showDialog(null)
                             if (dir != null) {
                                 var file: File
+                                val padCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
                                 ani.steps.forEachIndexed { curStep, step ->
-                                    file = dir.resolve("$curStep.png")
+                                    val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
+                                    file = dir.resolve("$stepNum.png")
 
                                     val canvas = editor.canvas
                                     val showGrid = editor.showGridCheckbox.isSelected
