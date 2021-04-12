@@ -17,6 +17,7 @@ import javafx.scene.image.WritableImage
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import javafx.util.Duration
 import org.jcodec.api.awt.AWTSequenceEncoder
@@ -29,6 +30,8 @@ import rhmodding.bread.util.doubleSpinnerFactory
 import rhmodding.bread.util.em
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeysAndScroll
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
 
@@ -316,6 +319,37 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                         }
                                     }
                                     e.finish()
+                                }
+                                editor.repaintCanvas()
+                            }
+                        }
+                    }
+                    children += Button("Export as PNG sequence").apply {
+                        disableProperty().bind(disableStepControls)
+                        setOnAction {
+                            val ani = currentAnimation
+                            val directoryChooser = DirectoryChooser()
+                            directoryChooser.title = "Export this animation a sequence of PNG images"
+                            directoryChooser.initialDirectory = editor.dataFile.parentFile
+
+                            val dir = directoryChooser.showDialog(null)
+                            if (dir != null) {
+                                var curStep = 0
+                                var file: File
+                                ani.steps.forEach { step ->
+                                    curStep++
+                                    file = File("${dir.toString()}${File.separator}$curStep.png")
+
+                                    val canvas = editor.canvas
+                                    val showGrid = editor.showGridCheckbox.isSelected
+
+                                    val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+
+                                    editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                                    editor.drawAnimationStep(step)
+                                    canvas.snapshot(SnapshotParameters(), writableImage)
+
+                                    ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
                                 }
                                 editor.repaintCanvas()
                             }
