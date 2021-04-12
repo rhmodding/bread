@@ -336,7 +336,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                             if (dir != null) {
                                 var file: File
                                 ani.steps.forEachIndexed { curStep, step ->
-                                    file = File("${dir.toString()}${File.separator}$curStep.png")
+                                    file = dir.resolve("$curStep.png")
 
                                     val canvas = editor.canvas
                                     val showGrid = editor.showGridCheckbox.isSelected
