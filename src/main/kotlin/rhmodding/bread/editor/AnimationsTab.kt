@@ -329,7 +329,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         setOnAction {
                             val ani = currentAnimation
                             val directoryChooser = DirectoryChooser()
-                            directoryChooser.title = "Export this animation a sequence of PNG images"
+                            directoryChooser.title = "Export this animation as a sequence of PNG images"
                             directoryChooser.initialDirectory = editor.dataFile.parentFile
 
                             val dir = directoryChooser.showDialog(null)
