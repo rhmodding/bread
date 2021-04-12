@@ -334,10 +334,8 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                             val dir = directoryChooser.showDialog(null)
                             if (dir != null) {
-                                var curStep = 0
                                 var file: File
-                                ani.steps.forEach { step ->
-                                    curStep++
+                                ani.steps.forEachIndexed { curStep, step ->
                                     file = File("${dir.toString()}${File.separator}$curStep.png")
 
                                     val canvas = editor.canvas
