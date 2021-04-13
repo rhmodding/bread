@@ -17,6 +17,7 @@ import javafx.scene.image.WritableImage
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.VBox
+import javafx.scene.paint.Color
 import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import javafx.util.Duration
@@ -347,7 +348,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                                     editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
                                     editor.drawAnimationStep(step)
-                                    canvas.snapshot(SnapshotParameters(), writableImage)
+
+                                    var sp: SnapshotParameters = SnapshotParameters()
+                                    sp.setFill(Color.TRANSPARENT)
+                                    canvas.snapshot(sp, writableImage)
 
                                     ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
                                 }
