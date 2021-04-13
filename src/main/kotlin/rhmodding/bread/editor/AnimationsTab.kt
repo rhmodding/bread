@@ -339,7 +339,6 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 val padCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
                                 ani.steps.forEachIndexed { curStep, step ->
                                     val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
-                                    file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.png")
 
                                     val canvas = editor.canvas
                                     val showGrid = editor.showGridCheckbox.isSelected
@@ -353,7 +352,10 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                     sp.setFill(Color.TRANSPARENT)
                                     canvas.snapshot(sp, writableImage)
 
-                                    ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                                    repeat(step.delay.toInt()) { i ->
+                                        file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.${i}.png")
+                                        ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                                    }
                                 }
                                 editor.repaintCanvas()
                             }
