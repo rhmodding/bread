@@ -177,6 +177,41 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
+                children += Button("Export step").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        val ani = currentAnimation
+                        val curStep = aniStepSpinner.value
+
+                        val padCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
+                        val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
+
+                        val fileChooser = FileChooser()
+                        fileChooser.title = "Export the current step of animation as a PNG image"
+                        fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("PNG", "*.png"))
+                        fileChooser.initialDirectory = editor.dataFile.parentFile
+                        fileChooser.initialFileName = "${getAnimationNameForGifExport()}.$stepNum.png"
+
+                        val file = fileChooser.showSaveDialog(null)
+                        if (file != null) {
+                            val canvas = editor.canvas
+                            val showGrid = editor.showGridCheckbox.isSelected
+
+                            val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+
+                            editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                            editor.drawAnimationStep(ani.steps[curStep])
+
+                            var sp: SnapshotParameters = SnapshotParameters()
+                            sp.setFill(Color.TRANSPARENT)
+                            canvas.snapshot(sp, writableImage)
+
+                            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+
+                            editor.repaintCanvas()
+                        }
+                    }
+                }
                 children += Button("Export all steps").apply {
                     disableProperty().bind(disableStepControls)
                     setOnAction {
