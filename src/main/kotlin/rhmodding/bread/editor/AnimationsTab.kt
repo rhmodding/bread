@@ -174,6 +174,44 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
             }
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Button("Export all steps").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        val ani = currentAnimation
+                        val directoryChooser = DirectoryChooser()
+                        directoryChooser.title = "Export every step of this animation as PNG images"
+                        directoryChooser.initialDirectory = editor.dataFile.parentFile
+
+                        val dir = directoryChooser.showDialog(null)
+                        if (dir != null) {
+                            var file: File
+                            val padCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
+                            ani.steps.forEachIndexed { curStep, step ->
+                                val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
+
+                                val canvas = editor.canvas
+                                val showGrid = editor.showGridCheckbox.isSelected
+
+                                val writableImage = WritableImage(canvas.width.toInt(), canvas.height.toInt())
+
+                                editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
+                                editor.drawAnimationStep(step)
+
+                                var sp: SnapshotParameters = SnapshotParameters()
+                                sp.setFill(Color.TRANSPARENT)
+                                canvas.snapshot(sp, writableImage)
+
+                                file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.png")
+                                ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                            }
+                            editor.repaintCanvas()
+                        }
+                    }
+                }
+            }
         }
         body.children += TitledPane("Animation", sectionAnimation).apply {
             styleClass += "titled-pane"
