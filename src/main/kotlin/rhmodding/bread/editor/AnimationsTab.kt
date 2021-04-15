@@ -177,7 +177,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
             children += HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
-                children += Button("Export step").apply {
+                children += Button("Export Step").apply {
                     disableProperty().bind(disableStepControls)
                     setOnAction {
                         val ani = currentAnimation
@@ -212,7 +212,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         }
                     }
                 }
-                children += Button("Export all steps").apply {
+                children += Button("Export All Steps").apply {
                     disableProperty().bind(disableStepControls)
                     setOnAction {
                         val ani = currentAnimation
