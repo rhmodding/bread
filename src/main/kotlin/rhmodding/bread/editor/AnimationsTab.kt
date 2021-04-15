@@ -196,7 +196,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         if (file != null) {
                             val writableImage = writeTransparentSnapshot(ani.steps[curStep])
 
-                            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                            ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file)
                         }
                         editor.repaintCanvas()
                     }
@@ -219,7 +219,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 val writableImage = writeTransparentSnapshot(step)
 
                                 file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.png")
-                                ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                                ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file)
                             }
                             editor.repaintCanvas()
                         }
@@ -396,7 +396,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                                     repeat(step.delay.toInt()) { i ->
                                         file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.${i}.png")
-                                        ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
+                                        ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file)
                                     }
                                 }
                                 editor.repaintCanvas()
@@ -488,7 +488,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         editor.drawCheckerBackground(canvas, showGrid = showGrid, darkGrid = false)
         editor.drawAnimationStep(step)
 
-        val sp: SnapshotParameters = SnapshotParameters()
+        val sp = SnapshotParameters()
         sp.fill = Color.TRANSPARENT
         canvas.snapshot(sp, writableImage)
 
