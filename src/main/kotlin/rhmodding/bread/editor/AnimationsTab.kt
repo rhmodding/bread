@@ -489,7 +489,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         editor.drawAnimationStep(step)
 
         val sp: SnapshotParameters = SnapshotParameters()
-        sp.setFill(Color.TRANSPARENT)
+        sp.fill = Color.TRANSPARENT
         canvas.snapshot(sp, writableImage)
 
         return writableImage
