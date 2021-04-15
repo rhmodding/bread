@@ -187,7 +187,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
 
                         val fileChooser = FileChooser()
-                        fileChooser.title = "Export the current step of animation as a PNG image"
+                        fileChooser.title = "Export the current step of this animation as a PNG image"
                         fileChooser.extensionFilters.add(FileChooser.ExtensionFilter("PNG", "*.png"))
                         fileChooser.initialDirectory = editor.dataFile.parentFile
                         fileChooser.initialFileName = "${getAnimationNameForGifExport()}.$stepNum.png"
