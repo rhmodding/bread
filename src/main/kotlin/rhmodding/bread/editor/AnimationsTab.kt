@@ -178,7 +178,9 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
                 children += Button("Export Step").apply {
+                    tooltip = Tooltip("Exports current frame of animation to a PNG file.")
                     disableProperty().bind(disableStepControls)
+
                     setOnAction {
                         val ani = currentAnimation
                         val curStep = aniStepSpinner.value
@@ -202,7 +204,9 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
                 children += Button("Export All Steps").apply {
+                    tooltip = Tooltip("Exports each frame of animation to PNG, not including delays.")
                     disableProperty().bind(disableStepControls)
+
                     setOnAction {
                         val ani = currentAnimation
                         val directoryChooser = DirectoryChooser()
@@ -378,7 +382,9 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         }
                     }
                     children += Button("Export as PNG sequence").apply {
+                        tooltip = Tooltip("Exports each frame of animation to PNG, including delays.")
                         disableProperty().bind(disableStepControls)
+
                         setOnAction {
                             val ani = currentAnimation
                             val directoryChooser = DirectoryChooser()
