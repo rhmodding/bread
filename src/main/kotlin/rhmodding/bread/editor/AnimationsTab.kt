@@ -194,7 +194,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                         val file = fileChooser.showSaveDialog(null)
                         if (file != null) {
-                            var writableImage = writeTransparentSnapshot(ani.steps[curStep])
+                            val writableImage = writeTransparentSnapshot(ani.steps[curStep])
 
                             ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
                         }
@@ -216,7 +216,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                             ani.steps.forEachIndexed { curStep, step ->
                                 val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
-                                var writableImage = writeTransparentSnapshot(step)
+                                val writableImage = writeTransparentSnapshot(step)
 
                                 file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.png")
                                 ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file);
@@ -392,7 +392,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
 
                                 ani.steps.forEachIndexed { curStep, step ->
                                     val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
-                                    var writableImage = writeTransparentSnapshot(step)
+                                    val writableImage = writeTransparentSnapshot(step)
 
                                     repeat(step.delay.toInt()) { i ->
                                         file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.${i}.png")
