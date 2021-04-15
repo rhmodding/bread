@@ -178,7 +178,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
                 children += Button("Export Step").apply {
-                    tooltip = Tooltip("Exports current frame of animation to a PNG file.")
+                    tooltip = Tooltip("Exports the current frame of the animation to a PNG file. The current panning and zoom level will be used.")
                     disableProperty().bind(disableStepControls)
 
                     setOnAction {
@@ -204,7 +204,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
                 children += Button("Export All Steps").apply {
-                    tooltip = Tooltip("Exports each frame of animation to PNG, not including delays.")
+                    tooltip = Tooltip("Exports each step of the animation as a PNG file. The current panning and zoom level will be used.")
                     disableProperty().bind(disableStepControls)
 
                     setOnAction {
@@ -382,7 +382,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         }
                     }
                     children += Button("Export as PNG sequence").apply {
-                        tooltip = Tooltip("Exports each frame of animation to PNG, including delays.")
+                        tooltip = Tooltip("Exports each frame of the animation as a PNG file. There will be an image generated for every frame, even if the previous frame uses the same step. The current panning and zoom level will be used.")
                         disableProperty().bind(disableStepControls)
 
                         setOnAction {
