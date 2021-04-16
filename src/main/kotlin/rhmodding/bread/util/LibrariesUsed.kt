@@ -1,5 +1,7 @@
 package rhmodding.bread.util
 
+import java.util.*
+
 object LibrariesUsed {
     data class Library(val name: String, val website: String)
 
@@ -10,5 +12,5 @@ object LibrariesUsed {
         Library("Jackson", "https://github.com/FasterXML/jackson"),
         Library("animated-gif-lib", "https://github.com/rtyley/animated-gif-lib-for-java"),
         Library("JCodec", "https://github.com/jcodec/jcodec")
-    ).sortedBy { it.name }
+    ).sortedBy { it.name.toLowerCase(Locale.ROOT) }
 }
