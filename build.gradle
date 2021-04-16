@@ -1,5 +1,5 @@
 group 'rhmodding'
-version '1.3.0'
+version '1.4.0'
 
 buildscript {
     repositories {
@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.2'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
     }
 }
 
