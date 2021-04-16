@@ -178,7 +178,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
                 children += Button("Export Step").apply {
-                    tooltip = Tooltip("Exports the current frame of the animation to a PNG file. The current panning and zoom level will be used.")
+                    tooltip = Tooltip("Exports the current frame of the animation to a PNG file.\nThe current panning and zoom level will be used.")
                     disableProperty().bind(disableStepControls)
 
                     setOnAction {
@@ -204,7 +204,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     }
                 }
                 children += Button("Export All Steps").apply {
-                    tooltip = Tooltip("Exports each step of the animation as a PNG file. The current panning and zoom level will be used.")
+                    tooltip = Tooltip("Exports each step of the animation as a PNG file.\nThe current panning and zoom level will be used.")
                     disableProperty().bind(disableStepControls)
 
                     setOnAction {
@@ -382,7 +382,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         }
                     }
                     children += Button("Export as PNG sequence").apply {
-                        tooltip = Tooltip("Exports each frame of the animation as a PNG file. There will be an image generated for every frame, even if the previous frame uses the same step. The current panning and zoom level will be used.")
+                        tooltip = Tooltip("Exports each frame of the animation as a PNG file.\nThere will be an image generated for every frame, even if the previous frame uses the same step.\nThe current panning and zoom level will be used.")
                         disableProperty().bind(disableStepControls)
 
                         setOnAction {
@@ -394,15 +394,19 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                             val dir = directoryChooser.showDialog(null)
                             if (dir != null) {
                                 var file: File
-                                val padCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
+                                val stepPadCount: Int = ani.steps.size.toString().length.coerceAtLeast(3)
 
+                                val totalFrames = ani.steps.sumBy { it.delay.toInt() }
+                                val framePadCount: Int = totalFrames.toString().length.coerceAtLeast(1)
+                                var frameNum = 0
                                 ani.steps.forEachIndexed { curStep, step ->
-                                    val stepNum: String = curStep.toString().padStart(padCount, padChar = '0')
+                                    val stepNum: String = curStep.toString().padStart(stepPadCount, padChar = '0')
                                     val writableImage = writeTransparentSnapshot(step)
 
-                                    repeat(step.delay.toInt()) { i ->
-                                        file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.${i}.png")
+                                    repeat(step.delay.toInt()) {
+                                        file = dir.resolve("${getAnimationNameForGifExport()}.$stepNum.${frameNum.toString().padStart(framePadCount, padChar = '0')}.png")
                                         ImageIO.write(SwingFXUtils.fromFXImage(writableImage, null), "png", file)
+                                        frameNum++
                                     }
                                 }
                                 editor.repaintCanvas()
@@ -483,7 +487,8 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     }
 
     protected open fun getAnimationNameForGifExport(): String {
-        return "animation_${animationSpinner.value}"
+        val spinnerValue: Int = animationSpinner.value
+        return "animation_${spinnerValue.toString().padStart(data.animations.size.toString().length, '0')}"
     }
 
     protected open fun writeTransparentSnapshot(step: IAnimationStep): WritableImage {
