@@ -309,6 +309,18 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
     override fun removeSprite(sprite: ISprite) {
         if (sprite is Sprite) {
+            //TODO: check if there's no other steps in the animation, if so it can't delete it or has to delete the anim
+            val index = data.sprites.indexOf(sprite).toUShort()
+            for (anim in data.animations) {
+                for (step in anim.steps) {
+                    if (step.spriteIndex == index) {
+                        //TODO: prompt
+                        step.spriteIndex = 0.toUShort()
+                    } else if (step.spriteIndex > index) {
+                        step.spriteIndex = (step.spriteIndex - 1.toUShort()).toUShort()
+                    }
+                }
+            }
             data.sprites -= sprite
         }
     }
@@ -320,18 +332,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
     }
 
     override fun removeSpritePart(sprite: ISprite, part: ISpritePart) {
-        //TODO: check if there's no other steps in the animation, if so it can't delete it or has to delete the anim
-        val index = data.sprites.indexOf(sprite) as UShort
-        for (anim in data.animations) {
-            for (step in anim.steps) {
-                if (step.spriteIndex == index) {
-                    //TODO: prompt
-                    step.spriteIndex = 0 as UShort
-                } else if (step.spriteIndex > index) {
-                    step.spriteIndex = (step.spriteIndex - 1 as UShort) as UShort
-                }
-            }
-        }
         if (sprite is Sprite && part is SpritePart) {
             sprite.parts -= part
         }

@@ -159,14 +159,14 @@ class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, i
     override fun removeSprite(sprite: ISprite) {
         if (sprite is Sprite) {
             //TODO: check if there's no other steps in the animation, if so it can't delete it or has to delete the anim
-            val index = data.sprites.indexOf(sprite) as UShort
+            val index = data.sprites.indexOf(sprite).toUShort()
             for (anim in data.animations) {
                 for (step in anim.steps) {
                     if (step.spriteIndex == index) {
                         //TODO: prompt
-                        step.spriteIndex = 0 as UShort
+                        step.spriteIndex = 0.toUShort()
                     } else if (step.spriteIndex > index) {
-                        step.spriteIndex = (step.spriteIndex - 1 as UShort) as UShort
+                        step.spriteIndex = (step.spriteIndex - 1.toUShort()).toUShort()
                     }
                 }
             }
