@@ -320,7 +320,7 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
     }
 
     override fun removeSpritePart(sprite: ISprite, part: ISpritePart) {
-        //TODO: check if there's no other steps in the animation, if so it can't delete it
+        //TODO: check if there's no other steps in the animation, if so it can't delete it or has to delete the anim
         val index = data.sprites.indexOf(sprite) as UShort
         for (anim in data.animations) {
             for (step in anim.steps) {
