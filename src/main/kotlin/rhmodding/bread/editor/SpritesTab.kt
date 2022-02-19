@@ -127,9 +127,38 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                 alert.title = "Remove this sprite?"
                                 alert.headerText = "Remove this sprite?"
                                 alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
+
                                 if (alert.showAndWait().get() == ButtonType.OK) {
-                                    editor.removeSprite(currentSprite)
-                                    updateSpriteSpinners(false)
+                                    // Check every step because at this point we don't know if the sprite is used in any anims
+                                    var cancel = false
+                                    val index = data.sprites.indexOf(currentSprite).toUShort()
+                                    for (anim in data.animations) {
+                                        var isbreak = true
+                                        for (step in anim.steps) {
+                                            if (step.spriteIndex == index) {
+                                                val alert2 = Alert(Alert.AlertType.CONFIRMATION).apply {
+                                                    editor.app.addBaseStyleToDialog(dialogPane)
+                                                    title = "Sprite used in animation " + data.animations.indexOf(anim).toString()
+                                                    headerText = "Sprite is currently used in an animation"
+                                                    contentText = "Are you absolutely sure you want to remove this sprite?\nThe animation step(s) will be set to sprite 0 if you do."
+                                                }
+                                                if (alert2.showAndWait().get() == ButtonType.OK) {
+                                                    isbreak = true
+                                                    break
+                                                }
+                                                else {
+                                                    cancel = true
+                                                    break
+                                                }
+                                            }
+                                        }
+                                        if (isbreak || cancel) break
+                                    }
+                                    if (!cancel) {
+                                        editor.removeSprite(currentSprite)
+                                        updateSpriteSpinners(false)
+
+                                    }
                                 }
                             }
                         }
