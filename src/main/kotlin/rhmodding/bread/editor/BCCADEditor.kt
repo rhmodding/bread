@@ -311,7 +311,6 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
         if (sprite is Sprite) {
             val index = data.sprites.indexOf(sprite).toUShort()
 
-            // Now that we've done all the checking, time for the actual replacing
             for (anim in data.animations) {
                 for (step in anim.steps) {
                     if (step.spriteIndex == index) {
