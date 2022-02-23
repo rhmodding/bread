@@ -309,6 +309,17 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
 
     override fun removeSprite(sprite: ISprite) {
         if (sprite is Sprite) {
+            val index = data.sprites.indexOf(sprite).toUShort()
+
+            for (anim in data.animations) {
+                for (step in anim.steps) {
+                    if (step.spriteIndex == index) {
+                        step.spriteIndex = 0.toUShort()
+                    } else if (step.spriteIndex > index) {
+                        step.spriteIndex = (step.spriteIndex - 1.toUShort()).toUShort()
+                    }
+                }
+            }
             data.sprites -= sprite
         }
     }
