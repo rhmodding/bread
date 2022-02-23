@@ -78,7 +78,7 @@ class BRCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BRCAD, i
                 names.forEach { name ->
                     animationNameLabels.children += Label(name.string).apply {
                         id = "name-label"
-                        tooltip = Tooltip(if (name.comment.isBlank()) "(no commment was found for this name)" else name.comment)
+                        tooltip = Tooltip(if (name.comment.isBlank()) "(no comment was found for this name)" else name.comment)
                     }
                 }
             }
