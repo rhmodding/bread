@@ -16,7 +16,7 @@ import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
-//import rhmodding.bread.model.bccad.Animation as BCCADAnimation
+import rhmodding.bread.model.bccad.Animation as BCCADAnimation
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
@@ -132,8 +132,10 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                         if (step.spriteIndex == index) {
                                             val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
                                                 editor.app.addBaseStyleToDialog(dialogPane)
-                                                //if (anim is BCCADAnimation)
-                                                title = "Sprite used in animation " + data.animations.indexOf(anim).toString()
+                                                if (anim is BCCADAnimation)
+                                                    title = "Sprite used in animation " + anim.name
+                                                else
+                                                    title = "Sprite used in animation " + data.animations.indexOf(anim).toString()
                                                 headerText = "Sprite is currently used in an animation"
                                                 contentText = "Are you absolutely sure you want to remove this sprite?\nThe animation step(s) will be set to sprite 0 if you do."
                                             }
