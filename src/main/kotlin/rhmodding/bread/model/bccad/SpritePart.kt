@@ -87,12 +87,12 @@ class SpritePart : ISpritePart {
                 val sr = 1 - (1 - screenColor.red) * (1 - r)
                 val sg = 1 - (1 - screenColor.green) * (1 - g)
                 val sb = 1 - (1 - screenColor.blue) * (1 - b)
-                val mr = r * this.multColor.red
-                val mg = g * this.multColor.green
-                val mb = b * this.multColor.blue
-                pixels[1] = ((sr * (1 - r) + r * mr) * multColor.red * 255).toInt()
-                pixels[2] = ((sg * (1 - g) + g * mg) * multColor.green * 255).toInt()
-                pixels[3] = ((sb * (1 - b) + b * mb) * multColor.blue * 255).toInt()
+                val mr = sr * this.multColor.red
+                val mg = sg * this.multColor.green
+                val mb = sb * this.multColor.blue
+                pixels[1] = (mr * multColor.red * 255).toInt()
+                pixels[2] = (mg * multColor.green * 255).toInt()
+                pixels[3] = (mb * multColor.blue * 255).toInt()
                 pixelWriter.setArgb(i, j, (pixels[0] shl 24) or (pixels[1] shl 16) or (pixels[2] shl 8) or (pixels[3]))
             }
         }
