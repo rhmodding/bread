@@ -16,6 +16,7 @@ import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.stage.Modality
 import javafx.stage.Stage
+//import rhmodding.bread.model.bccad.Animation as BCCADAnimation
 import rhmodding.bread.model.IDataModel
 import rhmodding.bread.model.ISprite
 import rhmodding.bread.model.ISpritePart
@@ -122,44 +123,53 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     children += Button("Remove").apply {
                         setOnAction {
                             if (data.sprites.size > 1) {
-                                val alert = Alert(Alert.AlertType.CONFIRMATION)
-                                editor.app.addBaseStyleToDialog(alert.dialogPane)
-                                alert.title = "Remove this sprite?"
-                                alert.headerText = "Remove this sprite?"
-                                alert.contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
-
-                                if (alert.showAndWait().get() == ButtonType.OK) {
-                                    // Check every step because at this point we don't know if the sprite is used in any anims
-                                    var cancel = false
-                                    val index = data.sprites.indexOf(currentSprite).toUShort()
-                                    for (anim in data.animations) {
-                                        var isbreak = true
-                                        for (step in anim.steps) {
-                                            if (step.spriteIndex == index) {
-                                                val alert2 = Alert(Alert.AlertType.CONFIRMATION).apply {
-                                                    editor.app.addBaseStyleToDialog(dialogPane)
-                                                    title = "Sprite used in animation " + data.animations.indexOf(anim).toString()
-                                                    headerText = "Sprite is currently used in an animation"
-                                                    contentText = "Are you absolutely sure you want to remove this sprite?\nThe animation step(s) will be set to sprite 0 if you do."
-                                                }
-                                                if (alert2.showAndWait().get() == ButtonType.OK) {
-                                                    isbreak = true
-                                                    break
-                                                }
-                                                else {
-                                                    cancel = true
-                                                    break
-                                                }
+                                // Check every step because at this point we don't know if the sprite is used in any anims
+                                var cancel = false
+                                var isbreak = false
+                                val index = data.sprites.indexOf(currentSprite).toUShort()
+                                for (anim in data.animations) {
+                                    for (step in anim.steps) {
+                                        if (step.spriteIndex == index) {
+                                            val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
+                                                editor.app.addBaseStyleToDialog(dialogPane)
+                                                //if (anim is BCCADAnimation)
+                                                title = "Sprite used in animation " + data.animations.indexOf(anim).toString()
+                                                headerText = "Sprite is currently used in an animation"
+                                                contentText = "Are you absolutely sure you want to remove this sprite?\nThe animation step(s) will be set to sprite 0 if you do."
+                                            }
+                                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                                isbreak = true
+                                                break
+                                            }
+                                            else {
+                                                cancel = true
+                                                break
                                             }
                                         }
-                                        if (isbreak || cancel) break
                                     }
-                                    if (!cancel) {
+                                    if (isbreak || cancel) break
+                                }
+
+                                if (!cancel) {
+                                    if (!isbreak) {
+                                        // This way, the number of alert boxes is reduced to 1 always
+                                        val alert = Alert(Alert.AlertType.CONFIRMATION).apply {
+                                            editor.app.addBaseStyleToDialog(dialogPane)
+                                            title = "Remove this sprite?"
+                                            headerText = "Remove this sprite?"
+                                            contentText = "Are you sure you want to remove this sprite?\nYou won't be able to undo this action."
+                                        }      
+                                        if (alert.showAndWait().get() == ButtonType.OK) {
+                                            editor.removeSprite(currentSprite)
+                                            updateSpriteSpinners(false)
+                                        }                   
+                                    } else {
                                         editor.removeSprite(currentSprite)
                                         updateSpriteSpinners(false)
-
                                     }
+
                                 }
+
                             }
                         }
                     }

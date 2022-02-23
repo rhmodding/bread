@@ -11,7 +11,8 @@ object Credits {
                 Credit("meuol", "https://www.youtube.com/channel/UCNAUWWq3RKyGDHzBuKgEcPg"),
                 Credit("MF5K", "https://www.youtube.com/user/MrMariofan2020"),
                 Credit("kimbjo", "https://github.com/oddMLan"),
-                Credit("CebolaBros64", "https://github.com/CebolaBros64")
+                Credit("CebolaBros64", "https://github.com/CebolaBros64"),
+                Credit("patataofcourse", "https://github.com/patataofcourse")
                      )
     }
     
