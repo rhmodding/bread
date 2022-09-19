@@ -434,7 +434,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         repaintSheetCanvas()
                     }
                 }
-                val regionYSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionY.toInt()).apply {
+                val regionYSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.height, copy.regionY.toInt()).apply {
                     spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
@@ -450,7 +450,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         repaintSheetCanvas()
                     }
                 }
-                val regionHSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.width, copy.regionH.toInt()).apply {
+                val regionHSpinner: Spinner<Int> = intSpinnerFactory(0, sheet.height, copy.regionH.toInt()).apply {
                     spinnerArrowKeysAndScroll()
                     disableProperty().bind(draggingProperty)
                     valueProperty().addListener { _, _, n ->
