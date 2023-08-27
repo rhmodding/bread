@@ -142,6 +142,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     editor.repaintCanvas()
                 }
 
+
                 children += Button("Add New Step").apply {
                     setOnAction {
                         editor.addAnimationStep(currentAnimation, editor.createAnimationStep())
@@ -458,6 +459,35 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     }
 
     open fun updateFieldsForStep() {
+        numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
+        numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
+        if (currentAnimation.steps.isEmpty()) {
+            disableStepControls.value = true
+            return
+        }
+        val step = currentAnimationStep
+        disableStepControls.value = false
+
+        stepSpriteSpinner.valueFactoryProperty().get().value = step.spriteIndex.toInt()
+        stepDelaySpinner.valueFactoryProperty().get().value = step.delay.toInt()
+        stepStretchXSpinner.valueFactoryProperty().get().value = step.stretchX.toDouble()
+        stepStretchYSpinner.valueFactoryProperty().get().value = step.stretchY.toDouble()
+        stepRotationSpinner.valueFactoryProperty().get().value = step.rotation.toDouble()
+        stepOpacitySpinner.valueFactoryProperty().get().value = step.opacity.toInt()
+        playbackSlider.apply {
+            this.min = 0.0
+            this.max = (currentAnimation.steps.size - 1).toDouble()
+            this.blockIncrement = 1.0
+            this.majorTickUnit = if (max <= 5.0) 1.0 else if (max < 8.0) 2.0 else 4.0
+            this.minorTickCount = (majorTickUnit.toInt() - 1).coerceAtMost(max.toInt() - 1)
+            this.isShowTickMarks = true
+            this.isShowTickLabels = true
+            this.isSnapToTicks = true
+            this.value = aniStepSpinner.value.toDouble()
+        }
+    }
+
+    open fun updateFieldsForAnim() {
         numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
         numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
         if (currentAnimation.steps.isEmpty()) {

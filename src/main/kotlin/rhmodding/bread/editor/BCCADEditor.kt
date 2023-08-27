@@ -164,6 +164,56 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
             sectionAnimation.children.add(2, HBox().apply {
                 styleClass += "hbox"
                 alignment = Pos.CENTER_LEFT
+                fun updateAnimSpinners(goToMax: Boolean) {
+                    (animationSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                        it.max = (data.animations.size - 1).coerceAtLeast(0)
+                        it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                    }
+                    // updateFieldsForAnim()
+                    editor.repaintCanvas()
+                }
+
+
+                children += Button("Add animation").apply {
+                    setOnAction {
+                        TextInputDialog().apply {
+                            this.title = "Adding animation"
+                            this.headerText = "Add animation named:\n"
+                            editor.app.addBaseStyleToDialog(this.dialogPane)
+                        }.showAndWait().ifPresent { newName ->
+                            if (newName.isNotBlank()) {
+                                val n = newName.take(127)
+                                val newAnimation: Animation = Animation()
+                                newAnimation.name = n
+                                animationNameLabel.text = n
+                                data.animations.add(newAnimation)
+                                updateAnimSpinners(true)
+                                editor.updateContextMenu()
+                            }
+                        }
+                    }
+                }
+                children += Button("Duplicate").apply {
+                    setOnAction {
+                        val animation = currentAnimation as Animation
+                        animation.name += "_dup"
+                        data.animations.add(animation)
+                        updateAnimSpinners(true)
+                        editor.updateContextMenu()
+                    }
+                }
+                children += Button("Remove").apply {
+                    setOnAction {
+                        val animation = currentAnimation as Animation
+                        data.animations.remove(animation)
+                        updateAnimSpinners(true)
+                        editor.updateContextMenu()
+                    }
+                }
+            })
+            sectionAnimation.children.add(3, HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
                 children += Label("Is interpolated?:").apply {
                     tooltip = Tooltip("Please note that animation previews and GIF exports don't support rendering with interpolation.")
                 }
