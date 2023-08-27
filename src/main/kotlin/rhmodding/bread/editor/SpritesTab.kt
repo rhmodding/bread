@@ -34,6 +34,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         isFillWidth = true
     }
     val disablePartControls: BooleanProperty = SimpleBooleanProperty(false)
+    val disablePasteControls: BooleanProperty = SimpleBooleanProperty(true)
     val partPropertiesVBox: VBox = VBox().apply {
         disableProperty().bind(disablePartControls)
     }
@@ -53,6 +54,11 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
 
     val numSpritesLabel: Label = Label("")
     val numSpritePartsLabel: Label = Label("")
+
+    var copyPart: ISpritePart = editor.createSpritePart().apply {
+        regionW = 0u
+        regionH = 0u
+    }
     
     protected var lastEditedRegion: ISpritePart = editor.createSpritePart().apply {
         regionW = 0u
@@ -266,6 +272,53 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                             if (spritePartSpinner.value > 0) {
                                 Collections.swap(currentSprite.parts, spritePartSpinner.value, spritePartSpinner.value - 1)
                                 spritePartSpinner.decrement(1)
+                            }
+                        }
+                    }
+                }
+                children += HBox().apply {
+                    fun updateSpritePartSpinners(goToMax: Boolean) {
+                        (spritePartSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                            it.max = (currentSprite.parts.size - 1).coerceAtLeast(0)
+                            it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                        }
+                        updateFieldsForPart()
+                        editor.repaintCanvas()
+                    }
+
+                    styleClass += "hbox"
+                    alignment = Pos.CENTER_LEFT
+                    children += Button("Copy").apply {
+                        disableProperty().bind(disablePartControls)
+                        setOnAction {
+                            disablePasteControls.value = false
+                            copyPart = currentPart
+                        }
+                    }
+                    children += Button("Cut").apply {
+                        disableProperty().bind(disablePartControls)
+                        setOnAction {
+                            disablePasteControls.value = false
+                            copyPart = currentPart
+                            if (currentSprite.parts.isNotEmpty()) {
+                                val alert = Alert(Alert.AlertType.CONFIRMATION)
+                                editor.app.addBaseStyleToDialog(alert.dialogPane)
+                                alert.title = "Cut this sprite part?"
+                                alert.headerText = "Cut this sprite part?"
+                                alert.contentText = "Are you sure you want to cut this sprite part?\nYou won't be able to undo this action."
+                                if (alert.showAndWait().get() == ButtonType.OK) {
+                                    editor.removeSpritePart(currentSprite, currentPart)
+                                    updateSpritePartSpinners(false)
+                                }
+                            }
+                        }
+                    }
+                    children += Button("Paste").apply {
+                        disableProperty().bind(disablePasteControls)
+                        setOnAction {
+                            if (currentSprite.parts.isNotEmpty()) {
+                                editor.addSpritePart(currentSprite, copyPart)
+                                updateSpritePartSpinners(true)
                             }
                         }
                     }
