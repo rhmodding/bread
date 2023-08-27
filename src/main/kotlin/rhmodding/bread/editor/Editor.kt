@@ -143,7 +143,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
                 }
             } else {
                 if (evt.deltaX > 0 || evt.deltaY > 0) {
-                    zoomFactor *= 2.0.pow(1 / 8.0)
+                    zoomFactor *= 1.190507733
                 } else {
                     zoomFactor /= 2.0.pow(1 / 8.0)
                 }
