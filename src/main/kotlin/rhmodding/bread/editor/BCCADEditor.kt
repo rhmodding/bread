@@ -204,10 +204,16 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 }
                 children += Button("Remove").apply {
                     setOnAction {
-                        val animation = currentAnimation as Animation
-                        data.animations.remove(animation)
-                        updateAnimSpinners(true)
-                        editor.updateContextMenu()
+                            val alert = Alert(Alert.AlertType.CONFIRMATION)
+                            editor.app.addBaseStyleToDialog(alert.dialogPane)
+                            alert.title = "Remove this animation?"
+                            alert.headerText = "Remove this animation?"
+                            alert.contentText = "Are you sure you want to remove this animation?\nYou won't be able to undo this action."
+                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                editor.removeAnimation(currentAnimation)
+                                updateAnimSpinners(true)
+                                editor.updateContextMenu()
+                            }
                     }
                 }
             })
