@@ -32,6 +32,7 @@ import rhmodding.bread.util.em
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import java.io.File
+import java.util.Collections
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
@@ -171,6 +172,28 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 editor.removeAnimationStep(currentAnimation, currentAnimationStep)
                                 updateStepSpinners(false)
                             }
+                        }
+                    }
+                }
+            }
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Button("Move Up").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        if (aniStepSpinner.value < currentAnimation.steps.size - 1) {
+                            Collections.swap(currentAnimation.steps, aniStepSpinner.value, aniStepSpinner.value + 1)
+                            aniStepSpinner.increment(1)
+                        }
+                    }
+                }
+                children += Button("Move Down").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        if (aniStepSpinner.value > 0) {
+                            Collections.swap(currentAnimation.steps, aniStepSpinner.value, aniStepSpinner.value - 1)
+                            aniStepSpinner.decrement(1)
                         }
                     }
                 }
