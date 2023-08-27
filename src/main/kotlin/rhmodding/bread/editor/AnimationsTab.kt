@@ -43,6 +43,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         isFillWidth = true
     }
     val disableStepControls: BooleanProperty = SimpleBooleanProperty(false)
+    val disablePasteControls: BooleanProperty = SimpleBooleanProperty(true)
     val stepPropertiesVBox: VBox = VBox().apply {
         disableProperty().bind(disableStepControls)
     }
@@ -68,6 +69,8 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         get() = data.animations[animationSpinner.value]
     val currentAnimationStep: IAnimationStep
         get() = currentAnimation.steps[aniStepSpinner.value]
+
+    var copyStep: IAnimationStep = editor.createAnimationStep()
 
     var currentTimeline: ObjectProperty<Timeline?> = SimpleObjectProperty(null as Timeline?).apply {
         addListener { _, old, new ->
@@ -194,6 +197,53 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                         if (aniStepSpinner.value > 0) {
                             Collections.swap(currentAnimation.steps, aniStepSpinner.value, aniStepSpinner.value - 1)
                             aniStepSpinner.decrement(1)
+                        }
+                    }
+                }
+            }
+            children += HBox().apply {
+                fun updateStepSpinners(goToMax: Boolean) {
+                    (aniStepSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                        it.max = (currentAnimation.steps.size - 1).coerceAtLeast(0)
+                        it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                    }
+                    updateFieldsForStep()
+                    editor.repaintCanvas()
+                }
+
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Button("Copy").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        disablePasteControls.value = false
+                        copyStep = currentAnimationStep
+                    }
+                }
+                children += Button("Cut").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        disablePasteControls.value = false
+                        copyStep = currentAnimationStep
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            val alert = Alert(Alert.AlertType.CONFIRMATION)
+                            editor.app.addBaseStyleToDialog(alert.dialogPane)
+                            alert.title = "Cut this animation step?"
+                            alert.headerText = "Cut this animation step?"
+                            alert.contentText = "Are you sure you want to cut this animation step?\nYou won't be able to undo this action."
+                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                editor.removeAnimationStep(currentAnimation, currentAnimationStep)
+                                updateStepSpinners(false)
+                            }
+                        }
+                    }
+                }
+                children += Button("Paste").apply {
+                    disableProperty().bind(disablePasteControls)
+                    setOnAction {
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            editor.addAnimationStep(currentAnimation, copyStep)
+                            updateStepSpinners(true)
                         }
                     }
                 }
