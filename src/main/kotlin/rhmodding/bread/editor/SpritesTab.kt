@@ -14,6 +14,10 @@ import javafx.scene.control.*
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.*
 import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
+import javafx.scene.transform.Affine
+import javafx.scene.transform.Scale
+import javafx.scene.transform.Translate
 import javafx.stage.Modality
 import javafx.stage.Stage
 import rhmodding.bread.model.bccad.Animation as BCCADAnimation
@@ -26,6 +30,8 @@ import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import java.util.*
 import kotlin.math.absoluteValue
 import kotlin.math.max
+import kotlin.math.roundToInt
+import kotlin.math.pow
 
 
 open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(editor, "Sprites") {
@@ -69,6 +75,17 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         get() = data.sprites[spriteSpinner.value]
     val currentPart: ISpritePart
         get() = currentSprite.parts[spritePartSpinner.value]
+
+    val zoomLabel: Label = Label("Zoom: 100%").apply {
+        textAlignment = TextAlignment.RIGHT
+    }
+    var zoomFactor: Double = 1.0
+        set(value) {
+            field = value.coerceIn(0.10, 4.0)
+            zoomLabel.text = "Zoom: ${(field * 100).roundToInt()}%"
+        }
+    var panX: Double = 0.0
+    var panY: Double = 0.0
 
     init {
         this.content = ScrollPane(body).apply {
@@ -432,6 +449,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
         val copy: ISpritePart = spritePart.copy()
         val regionPicker = Stage()
         val sheet = editor.texture
+
         regionPicker.apply {
             title = "Edit Sprite Part Region"
             isResizable = false
@@ -443,9 +461,17 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                 val scaleFactor = (512.0 / max(sheet.width, sheet.height)).coerceAtMost(1.0)
                 val canvas = Canvas(sheet.width * scaleFactor, sheet.height * scaleFactor)
                 val fxSheet = SwingFXUtils.toFXImage(sheet, null)
+        
 
                 val darkGrid = CheckBox("Dark grid").apply {
                     isSelected = editor.darkGridCheckbox.isSelected
+                }
+
+                fun getCanvasSheetCameraTransformation(zoomFactor: Double, canvas: Canvas): Affine {
+                    return Affine().apply {
+                        this.append(Translate(panX, panY))
+                        this.append(Scale(zoomFactor, zoomFactor, canvas.width / 2, canvas.height / 2))
+                    }
                 }
 
                 fun repaintSheetCanvas(fillRegionRect: Boolean = false,
@@ -456,6 +482,8 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     val g = canvas.graphicsContext2D
                     g.clearRect(0.0, 0.0, canvas.width, canvas.height)
                     editor.drawCheckerBackground(canvas, showGrid = true, originLines = false, darkGrid = darkGrid.isSelected)
+                    g.save()
+                    g.transform(getCanvasSheetCameraTransformation(zoomFactor, canvas))
                     g.drawImage(fxSheet, 0.0, 0.0, canvas.width, canvas.height)
                     if (fillRegionRect) {
                         g.fill = Color(1.0, 0.0, 0.0, 0.35)
@@ -464,6 +492,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     }
                     g.stroke = Color.RED
                     g.strokeRect(regX, regY, regW, regH)
+                    g.restore()
                 }
 
                 repaintSheetCanvas()
@@ -518,6 +547,23 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     regionWSpinner.valueFactory.value = copy.regionW.toInt()
                     regionHSpinner.valueFactory.value = copy.regionH.toInt()
                 }
+
+                //Used to move the pans while zooming out
+                fun verifyPan(){
+                    val maxPanX = fxSheet.getWidth()*(zoomFactor-1)/2
+                    if(panX > maxPanX){
+                        panX = maxPanX
+                    } else if(panX < maxPanX*-1){
+                        panX = maxPanX*-1
+                    }
+
+                    val maxPanY = fxSheet.getHeight()*(zoomFactor-1)/2
+                    if(panY > maxPanY){
+                        panY = maxPanY
+                    } else if(panY < maxPanY*-1){
+                        panY = maxPanY*-1
+                    }
+                }
                 
                 // Dragging support
                 with(canvas) {
@@ -525,6 +571,10 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     var y = -1
                     var w = 0
                     var h = 0
+
+                    var isPanningCanvas = false
+                    var prevDragX = 0.0
+                    var prevDragY = 0.0
 
                     fun reset() {
                         x = -1
@@ -535,16 +585,17 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         originalRegionLabel.text = originalRegionLabelText
                     }
 
+
                     setOnMousePressed { e ->
                         if (e.button == MouseButton.PRIMARY) {
-                            x = (e.x / scaleFactor).toInt()
-                            y = (e.y / scaleFactor).toInt()
+                            // CALC
+                            val centerImgX = fxSheet.getWidth()/2
+                            val centerImgY = fxSheet.getHeight()/2
+                            x = ((((e.x - centerImgX - panX) / zoomFactor) + centerImgX) / scaleFactor).toInt()
+                            y = ((((e.y - centerImgY - panY) / zoomFactor) + centerImgX) / scaleFactor).toInt()
                             repaintSheetCanvas(true, 0.0, 0.0, 0.0, 0.0)
                             draggingProperty.value = true
-                            originalRegionLabel.text = "Drag an area, right click to cancel"
-                        } else if (e.button == MouseButton.SECONDARY && x >= 0 && y >= 0) {
-                            reset()
-                            repaintSheetCanvas(false)
+                            originalRegionLabel.text = "Drag an area"
                         }
                     }
                     setOnMouseReleased { e ->
@@ -565,12 +616,20 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                                 repaintSheetCanvas(false)
                             }
                             reset()
+                        } else if (e.button == MouseButton.SECONDARY) {
+                            isPanningCanvas = false
+                            prevDragX = 0.0
+                            prevDragY = 0.0
                         }
                     }
                     setOnMouseDragged { e ->
                         if (e.button == MouseButton.PRIMARY && x >= 0 && y >= 0) {
+                            val centerImgX = fxSheet.getWidth() / 2
+                            val centerImgY = fxSheet.getHeight() / 2
                             w = (e.x / scaleFactor).toInt() - x
                             h = (e.y / scaleFactor).toInt() - y
+                            w = ((((e.x - centerImgX - panX) / zoomFactor) + centerImgX) / scaleFactor).toInt() - x
+                            h = ((((e.y - centerImgY - panY) / zoomFactor) + centerImgX) / scaleFactor).toInt() - y
 
                             val regionX = if (w < 0) x + w else x
                             val regionY = if (h < 0) y + h else y
@@ -579,10 +638,50 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                             // Repaint canvas and update label
                             originalRegionLabel.text = "New region: ($regionX, $regionY, $regionW, $regionH)"
                             repaintSheetCanvas(true, regionX.toDouble() * scaleFactor, regionY.toDouble() * scaleFactor, regionW.toDouble() * scaleFactor, regionH.toDouble() * scaleFactor)
+                        } else if (e.button == MouseButton.SECONDARY){
+                            if (!isPanningCanvas) {
+                                isPanningCanvas = true
+                            } else {
+                                val diffX = e.x - prevDragX
+                                val diffY = e.y - prevDragY
+                                
+                                panX += diffX
+                                panY += diffY
+
+                                verifyPan()
+                            }
+                            prevDragX = e.x
+                            prevDragY = e.y
+                            repaintSheetCanvas()
                         }
                     }
                 }
                 
+                //Zoom support?
+                canvas.onScroll = EventHandler { evt ->
+                    if (evt.isShiftDown) {
+                        if (evt.deltaX > 0 || evt.deltaY > 0) {
+                            zoomFactor += 0.01
+                        } else {
+                            if (zoomFactor > 1.0){
+                                zoomFactor -= 0.01
+                            }
+                        }
+                    } else {
+                        if (evt.deltaX > 0 || evt.deltaY > 0) {
+                            zoomFactor *= 1.190507733
+                        } else {
+                            if (zoomFactor > 1.0){
+                                zoomFactor /= 2.0.pow(1 / 8.0)
+                                if(zoomFactor < 1.0) {
+                                    zoomFactor = 1.0
+                                }
+                            }
+                        }
+                    }
+                    verifyPan()
+                    repaintSheetCanvas()
+                }
                 bottom = VBox().apply {
                     styleClass += "vbox"
                     alignment = Pos.TOP_CENTER
@@ -591,7 +690,33 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                     children += HBox().apply {
                         styleClass += "hbox"
                         alignment = Pos.CENTER_LEFT
-                        children += Label("Adjust the region using the spinners below and/or by left clicking and dragging on the canvas.\nYou may want to find the exact region in an image editor first.")
+                        children += Label("Adjust the region using the spinners below and/or by left clicking and dragging on the canvas.")  
+                    }
+                    children += HBox().apply {
+                        styleClass += "hbox"
+                        alignment = Pos.CENTER_LEFT
+                        children += Button("Reset Preview").apply {
+                            setOnAction {
+                                zoomFactor = 1.0
+                                panX = 0.0
+                                panY = 0.0
+                                repaintSheetCanvas()
+                            }
+                        }
+                        children += Button("Reset Panning").apply {
+                            setOnAction {
+                                panX = 0.0
+                                panY = 0.0
+                                repaintSheetCanvas()
+                            }
+                        }
+                        children += Button("Reset Zoom").apply {
+                            setOnAction {
+                                zoomFactor = 1.0
+                                repaintSheetCanvas()
+                            }
+                        }
+                        children += zoomLabel
                     }
                     children += GridPane().apply {
                         styleClass += "grid-pane"
