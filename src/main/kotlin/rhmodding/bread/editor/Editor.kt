@@ -271,7 +271,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
             val blockColorEven = canvasColors[if (!darkGrid) 0 else 2]
             val blockColorOdd = canvasColors[if (!darkGrid) 1 else 3]
             
-//            val blockStartX = ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize).toInt() - 2
+            //            val blockStartX = ((canvas.width / 2 - canvas.width / zoomFactor / 2.0) / blockSize).toInt() - 2
             
             val blocksInViewableAreaX = (canvas.width / blockSize / zoomFactor).toInt()
             val blocksInViewableAreaY = (canvas.height / blockSize / zoomFactor).toInt()
@@ -295,7 +295,7 @@ abstract class Editor<F : IDataModel>(val app: Bread, val mainPane: MainPane, va
         // Origin lines
         if (originLines) {
             g.save()
-//            g.transform(getCanvasCameraTransformation())
+            //            g.transform(getCanvasCameraTransformation())
             g.transform(Affine(Translate(panX, panY)))
             val originLineWidth = 1.0
             val xAxis = if (darkGrid && showGrid) Color(0.5, 0.5, 1.0, 0.75) else Color(0.0, 0.0, 1.0, 0.75)

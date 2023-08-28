@@ -195,9 +195,11 @@ class BCCADEditor(app: Bread, mainPane: MainPane, dataFile: File, data: BCCAD, i
                 }
                 children += Button("Duplicate").apply {
                     setOnAction {
-                        val animation = currentAnimation as Animation
-                        animation.name += "_dup"
-                        data.animations.add(animation)
+                        editor.addAnimation(currentAnimation.copy())
+                        val animation = data.animations.last()
+                        val curAnim = currentAnimation as Animation
+                        animation.name = curAnim.name + "_dup"
+                        animationNameLabel.text = curAnim.name + "_dup"
                         updateAnimSpinners(true)
                         editor.updateContextMenu()
                     }
