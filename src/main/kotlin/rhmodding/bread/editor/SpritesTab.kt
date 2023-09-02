@@ -334,7 +334,7 @@ open class SpritesTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(edito
                         disableProperty().bind(disablePasteControls)
                         setOnAction {
                             if (currentSprite.parts.isNotEmpty()) {
-                                editor.addSpritePart(currentSprite, copyPart)
+                                editor.addSpritePart(currentSprite, copyPart.copy())
                                 updateSpritePartSpinners(true)
                             }
                         }

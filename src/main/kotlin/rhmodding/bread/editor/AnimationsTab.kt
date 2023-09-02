@@ -242,7 +242,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     disableProperty().bind(disablePasteControls)
                     setOnAction {
                         if (currentAnimation.steps.isNotEmpty()) {
-                            editor.addAnimationStep(currentAnimation, copyStep)
+                            editor.addAnimationStep(currentAnimation, copyStep.copy())
                             updateStepSpinners(true)
                         }
                     }
