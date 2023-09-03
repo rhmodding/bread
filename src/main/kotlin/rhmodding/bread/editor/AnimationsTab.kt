@@ -32,6 +32,7 @@ import rhmodding.bread.util.em
 import rhmodding.bread.util.intSpinnerFactory
 import rhmodding.bread.util.spinnerArrowKeysAndScroll
 import java.io.File
+import java.util.Collections
 import javax.imageio.ImageIO
 import kotlin.math.roundToInt
 
@@ -42,6 +43,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         isFillWidth = true
     }
     val disableStepControls: BooleanProperty = SimpleBooleanProperty(false)
+    val disablePasteControls: BooleanProperty = SimpleBooleanProperty(true)
     val stepPropertiesVBox: VBox = VBox().apply {
         disableProperty().bind(disableStepControls)
     }
@@ -67,6 +69,8 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
         get() = data.animations[animationSpinner.value]
     val currentAnimationStep: IAnimationStep
         get() = currentAnimation.steps[aniStepSpinner.value]
+
+    var copyStep: IAnimationStep = editor.createAnimationStep()
 
     var currentTimeline: ObjectProperty<Timeline?> = SimpleObjectProperty(null as Timeline?).apply {
         addListener { _, old, new ->
@@ -142,6 +146,7 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                     editor.repaintCanvas()
                 }
 
+
                 children += Button("Add New Step").apply {
                     setOnAction {
                         editor.addAnimationStep(currentAnimation, editor.createAnimationStep())
@@ -170,6 +175,75 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
                                 editor.removeAnimationStep(currentAnimation, currentAnimationStep)
                                 updateStepSpinners(false)
                             }
+                        }
+                    }
+                }
+            }
+            children += HBox().apply {
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Button("Move Up").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        if (aniStepSpinner.value < currentAnimation.steps.size - 1) {
+                            Collections.swap(currentAnimation.steps, aniStepSpinner.value, aniStepSpinner.value + 1)
+                            aniStepSpinner.increment(1)
+                        }
+                    }
+                }
+                children += Button("Move Down").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        if (aniStepSpinner.value > 0) {
+                            Collections.swap(currentAnimation.steps, aniStepSpinner.value, aniStepSpinner.value - 1)
+                            aniStepSpinner.decrement(1)
+                        }
+                    }
+                }
+            }
+            children += HBox().apply {
+                fun updateStepSpinners(goToMax: Boolean) {
+                    (aniStepSpinner.valueFactory as SpinnerValueFactory.IntegerSpinnerValueFactory).also {
+                        it.max = (currentAnimation.steps.size - 1).coerceAtLeast(0)
+                        it.value = if (goToMax) it.max else it.value.coerceAtMost(it.max)
+                    }
+                    updateFieldsForStep()
+                    editor.repaintCanvas()
+                }
+
+                styleClass += "hbox"
+                alignment = Pos.CENTER_LEFT
+                children += Button("Copy").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        disablePasteControls.value = false
+                        copyStep = currentAnimationStep
+                    }
+                }
+                children += Button("Cut").apply {
+                    disableProperty().bind(disableStepControls)
+                    setOnAction {
+                        disablePasteControls.value = false
+                        copyStep = currentAnimationStep
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            val alert = Alert(Alert.AlertType.CONFIRMATION)
+                            editor.app.addBaseStyleToDialog(alert.dialogPane)
+                            alert.title = "Cut this animation step?"
+                            alert.headerText = "Cut this animation step?"
+                            alert.contentText = "Are you sure you want to cut this animation step?\nYou won't be able to undo this action."
+                            if (alert.showAndWait().get() == ButtonType.OK) {
+                                editor.removeAnimationStep(currentAnimation, currentAnimationStep)
+                                updateStepSpinners(false)
+                            }
+                        }
+                    }
+                }
+                children += Button("Paste").apply {
+                    disableProperty().bind(disablePasteControls)
+                    setOnAction {
+                        if (currentAnimation.steps.isNotEmpty()) {
+                            editor.addAnimationStep(currentAnimation, copyStep.copy())
+                            updateStepSpinners(true)
                         }
                     }
                 }
@@ -458,6 +532,35 @@ open class AnimationsTab<F : IDataModel>(editor: Editor<F>) : EditorSubTab<F>(ed
     }
 
     open fun updateFieldsForStep() {
+        numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
+        numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
+        if (currentAnimation.steps.isEmpty()) {
+            disableStepControls.value = true
+            return
+        }
+        val step = currentAnimationStep
+        disableStepControls.value = false
+
+        stepSpriteSpinner.valueFactoryProperty().get().value = step.spriteIndex.toInt()
+        stepDelaySpinner.valueFactoryProperty().get().value = step.delay.toInt()
+        stepStretchXSpinner.valueFactoryProperty().get().value = step.stretchX.toDouble()
+        stepStretchYSpinner.valueFactoryProperty().get().value = step.stretchY.toDouble()
+        stepRotationSpinner.valueFactoryProperty().get().value = step.rotation.toDouble()
+        stepOpacitySpinner.valueFactoryProperty().get().value = step.opacity.toInt()
+        playbackSlider.apply {
+            this.min = 0.0
+            this.max = (currentAnimation.steps.size - 1).toDouble()
+            this.blockIncrement = 1.0
+            this.majorTickUnit = if (max <= 5.0) 1.0 else if (max < 8.0) 2.0 else 4.0
+            this.minorTickCount = (majorTickUnit.toInt() - 1).coerceAtMost(max.toInt() - 1)
+            this.isShowTickMarks = true
+            this.isShowTickLabels = true
+            this.isSnapToTicks = true
+            this.value = aniStepSpinner.value.toDouble()
+        }
+    }
+
+    open fun updateFieldsForAnim() {
         numAnimationsLabel.text = "(${data.animations.size} total animation${if (data.animations.size == 1) "" else "s"})"
         numAniStepsLabel.text = "(${currentAnimation.steps.size} total step${if (currentAnimation.steps.size == 1) "" else "s"})"
         if (currentAnimation.steps.isEmpty()) {
